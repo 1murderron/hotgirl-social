@@ -615,7 +615,7 @@
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';';
+        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
         let adminToken = localStorage.getItem('adminToken');
 
         // API Helper Functions
@@ -947,7 +947,7 @@
         }
 
         function viewProfile(username) {
-            window.open(`http://localhost:3001/u/${username}`, '_blank');
+            window.open(`https://hotgirl-social-production.up.railway.app/u/${username}`, '_blank');
         }
 
         function suspendProfile(username) {
@@ -1083,9 +1083,5 @@
             `);
         });
     </script>
-    <script>
-// Ensure showPage is globally available
-window.showPage = showPage;
-</script>
-</body>
+    </body>
 </html>
