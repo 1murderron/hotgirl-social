@@ -534,62 +534,60 @@
             productDescription: 'One-time payment for lifetime access to your link-in-bio profile'
         };
 
-        checkoutButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            // Show loading state
-            checkoutButton.classList.add('loading');
-            checkoutButton.disabled = true;
-            hideMessages();
+checkoutButton.addEventListener('click', async (e) => {
+    e.preventDefault();
+    
+    // Collect email and username first
+    const email = prompt("Enter your email address:");
+    if (!email || !email.includes('@')) {
+        alert("Please enter a valid email address");
+        return;
+    }
+    
+    const username = prompt("Choose a username (letters, numbers, underscore only):");
+    if (!username || username.length < 3) {
+        alert("Username must be at least 3 characters");
+        return;
+    }
+    
+    // Show loading state
+    checkoutButton.classList.add('loading');
+    checkoutButton.disabled = true;
+    hideMessages();
 
-            try {
-                // In a real application, this would call your backend
-                // For now, we'll simulate the Stripe checkout process
-                
-                // Replace this with your actual backend endpoint
-                const response = await fetch('/create-checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        price: PRODUCT_CONFIG.price,
-                        currency: PRODUCT_CONFIG.currency,
-                        product_name: PRODUCT_CONFIG.productName,
-                        product_description: PRODUCT_CONFIG.productDescription
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const session = await response.json();
-
-                // Redirect to Stripe Checkout
-                const result = await stripe.redirectToCheckout({
-                    sessionId: session.id
-                });
-
-                if (result.error) {
-                    throw new Error(result.error.message);
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                
-                // For demo purposes, we'll show what would happen
-                if (error.message.includes('fetch')) {
-                    showError(`Demo Mode: This would redirect to Stripe checkout for $${(PRODUCT_CONFIG.price / 100).toFixed(2)}. Backend integration needed.`);
-                } else {
-                    showError('Payment failed: ' + error.message);
-                }
-            } finally {
-                // Reset button state
-                checkoutButton.classList.remove('loading');
-                checkoutButton.disabled = false;
-            }
+    try {
+        const response = await fetch('/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                username: username
+            })
         });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const session = await response.json();
+        const result = await stripe.redirectToCheckout({
+            sessionId: session.id
+        });
+
+        if (result.error) {
+            throw new Error(result.error.message);
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Payment failed: ' + error.message);
+    } finally {
+        checkoutButton.classList.remove('loading');
+        checkoutButton.disabled = false;
+    }
+});
 
         function showError(message) {
             errorMessage.textContent = message;
