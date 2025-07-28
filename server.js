@@ -25,6 +25,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('public'));
+app.use(express.static('.'));
 
 // File upload configuration
 const storage = multer.diskStorage({
