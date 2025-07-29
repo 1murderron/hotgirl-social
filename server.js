@@ -29,6 +29,7 @@ app.use('/webhook', express.raw({ type: 'application/json' }));
 
 
 app.use(express.json({ limit: '10mb' }));
+app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('public'));
 app.use(express.static('.'));
 
