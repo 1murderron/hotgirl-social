@@ -34,13 +34,7 @@ app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('.'));
 
 // File upload configuration
-// Cloudinary configuration
-const cloudinary = require('cloudinary').v2;
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+
 
 // Multer configuration for Cloudinary
 const multer = require('multer');
@@ -402,23 +396,21 @@ app.post('/profile/upload-image', authenticateToken, upload.single('profileImage
       return res.status(400).json({ error: 'No image file provided' });
     }
 
-    // Upload to Cloudinary
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'image',
-          folder: 'profile_images',
-          transformation: [
-            { width: 400, height: 400, crop: 'fill' },
-            { quality: 'auto' }
-          ]
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      ).end(req.file.buffer);
-    });
+    const imageUrl = `/uploads/${req.file.filename}`;
+
+    await pool.query(`
+      UPDATE profiles 
+      SET profile_image_url = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE user_id = $2
+    `, [imageUrl, req.user.id]);
+
+    res.json({ profile_image_url: imageUrl });
+  } catch (error) {
+    console.error('Image upload error:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
 
     const imageUrl = result.secure_url;
 

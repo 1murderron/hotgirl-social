@@ -451,7 +451,9 @@
                 if (response.ok) {
                     const result = await response.json();
                     showMessage('Photo uploaded successfully!', 'success');
-                    loadUserData(); // Reload to show new photo
+                    loadUserData(); 
+                    
+                    // Reload to show new photo
                 } else {
                     throw new Error('Upload failed');
                 }
