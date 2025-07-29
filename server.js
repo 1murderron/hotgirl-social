@@ -23,7 +23,13 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
 }));
+
+// Stripe webhook endpoint (must be before express.json middleware for raw body)
+app.use('/webhook', express.raw({ type: 'application/json' }));
+
+
 app.use(express.json({ limit: '10mb' }));
+app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('public'));
 app.use(express.static('.'));
 
@@ -180,9 +186,6 @@ async function initializeDatabase() {
     console.error('Database initialization error:', error);
   }
 }
-
-// Stripe webhook endpoint (must be before express.json middleware for raw body)
-app.use('/webhook', express.raw({ type: 'application/json' }));
 
 // Routes
 
