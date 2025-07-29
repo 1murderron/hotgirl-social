@@ -411,21 +411,6 @@ app.post('/profile/upload-image', authenticateToken, upload.single('profileImage
 });
 
 
-    const imageUrl = result.secure_url;
-
-    await pool.query(`
-      UPDATE profiles 
-      SET profile_image_url = $1, updated_at = CURRENT_TIMESTAMP 
-      WHERE user_id = $2
-    `, [imageUrl, req.user.id]);
-
-    res.json({ profile_image_url: imageUrl });
-  } catch (error) {
-    console.error('Image upload error:', error);
-    res.status(500).json({ error: 'Failed to upload image' });
-  }
-});
-
 // Links management
 app.post('/links', authenticateToken, async (req, res) => {
   try {
