@@ -5,6 +5,255 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hotgirl.social - Admin Dashboard</title>
     <link rel="stylesheet" href="admin.css">
+    <style>
+        /* User View Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .user-profile-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            border: 3px solid #ddd;
+        }
+
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .link-item-admin {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .link-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .link-icon {
+            font-size: 20px;
+        }
+
+        .link-details h4 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .link-details a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .link-details a:hover {
+            text-decoration: underline;
+        }
+
+        .link-stats {
+            text-align: right;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .moderation-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-moderate {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-suspend {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-suspend:hover {
+            background: #c82333;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-view-public {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-view-public:hover {
+            background: #0056b3;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .moderation-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -286,6 +535,22 @@
         </main>
     </div>
 
+    <!-- User View Modal -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="user-modal">
+            <div class="modal-header">
+                <h2 id="modal-title">User Profile Review</h2>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-content">
+                <div class="loading" style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    Loading user data...
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // API Configuration
         const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
@@ -307,7 +572,6 @@
                 
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
-                        // Token expired or invalid
                         localStorage.removeItem('adminToken');
                         adminToken = null;
                         showLoginForm();
@@ -368,10 +632,7 @@
                         adminToken = data.token;
                         localStorage.setItem('adminToken', adminToken);
                         
-                        // Remove login form
                         document.querySelector('[style*="position: fixed"]').remove();
-                        
-                        // Initialize dashboard
                         initializeDashboard();
                     } else {
                         const error = await response.json();
@@ -385,7 +646,6 @@
             });
         }
 
-        // Check if admin is logged in
         function checkAuthStatus() {
             if (!adminToken) {
                 showLoginForm();
@@ -394,17 +654,13 @@
             return true;
         }
 
-        // Initialize dashboard with real data
         async function initializeDashboard() {
             try {
-                // Update stats
                 const stats = await apiCall('/admin/stats');
                 document.getElementById('total-users').textContent = stats.totalUsers || 0;
                 document.getElementById('active-profiles').textContent = stats.activeProfiles || 0;
-                document.getElementById('total-revenue').textContent = `${(stats.totalRevenue || 0).toLocaleString()}`;
+                document.getElementById('total-revenue').textContent = `$${(stats.totalRevenue || 0).toLocaleString()}`;
                 document.getElementById('monthly-signups').textContent = stats.monthlySignups || 0;
-
-                // Load recent activity
                 loadRecentActivity();
             } catch (error) {
                 console.error('Failed to load dashboard stats:', error);
@@ -412,7 +668,6 @@
             }
         }
 
-        // Load recent activity
         async function loadRecentActivity() {
             try {
                 const activityData = await apiCall('/admin/activity');
@@ -435,7 +690,6 @@
             }
         }
 
-        // Load users table with real data
         async function loadUsers() {
             try {
                 const data = await apiCall('/admin/users');
@@ -462,7 +716,153 @@
             }
         }
 
-        // Load profiles table with real data
+        async function viewUser(userId) {
+            try {
+                const modal = document.getElementById('user-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalContent = document.getElementById('modal-content');
+                
+                modalTitle.textContent = 'User Profile Review';
+                modalContent.innerHTML = `
+                    <div class="loading" style="text-align: center; padding: 40px;">
+                        <div class="spinner"></div>
+                        Loading user data...
+                    </div>
+                `;
+                modal.classList.add('active');
+                
+                const userData = await apiCall(`/admin/users/${userId}`);
+                
+                modalContent.innerHTML = `
+                    <div class="user-profile-section">
+                        <div class="section-title">Account Information</div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Username</div>
+                                <div class="info-value">${userData.username}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">${userData.email}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Member Since</div>
+                                <div class="info-value">${new Date(userData.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">
+                                    <span class="status-indicator status-${userData.profile_active ? 'active' : 'inactive'}">
+                                        ${userData.profile_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="section-title">Profile Information</div>
+                        <div class="profile-photo">
+                            ${userData.profile_image_url ? `<img src="${userData.profile_image_url}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : '👤'}
+                        </div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Display Name</div>
+                                <div class="info-value">${userData.display_name || 'Not set'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Bio</div>
+                                <div class="info-value">${userData.bio || 'No bio provided'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Profile Views</div>
+                                <div class="info-value">${(userData.total_views || 0).toLocaleString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Total Link Clicks</div>
+                                <div class="info-value">${(userData.total_clicks || 0).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="section-title">Links (${userData.links ? userData.links.length : 0})</div>
+                        <div class="links-list">
+                            ${userData.links && userData.links.length > 0 ? userData.links.map(link => `
+                                <div class="link-item-admin">
+                                    <div class="link-info">
+                                        <div class="link-icon">${link.icon || '🔗'}</div>
+                                        <div class="link-details">
+                                            <h4>${link.title}</h4>
+                                            <a href="${link.url}" target="_blank">${link.url}</a>
+                                        </div>
+                                    </div>
+                                    <div class="link-stats">
+                                        <div>${link.clicks || 0} clicks</div>
+                                    </div>
+                                </div>
+                            `).join('') : '<div class="empty-state">No links added yet</div>'}
+                        </div>
+                    </div>
+
+                    <div class="moderation-actions">
+                        <button class="btn-moderate btn-view-public" onclick="viewPublicProfile('${userData.username}')">
+                            View Public Profile
+                        </button>
+                        <button class="btn-moderate ${userData.profile_active ? 'btn-suspend' : 'btn-approve'}" 
+                                onclick="toggleUserStatusFromModal(${userData.id}, ${!userData.profile_active})">
+                            ${userData.profile_active ? 'Suspend User' : 'Activate User'}
+                        </button>
+                        <button class="btn-moderate btn-view-public" onclick="viewUserAnalytics(${userData.id})">
+                            View Analytics
+                        </button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+                modalContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: red;">
+                        <h3>Failed to load user data</h3>
+                        <p>Error: ${error.message}</p>
+                        <button class="btn btn-primary" onclick="closeUserModal()">Close</button>
+                    </div>
+                `;
+            }
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.remove('active');
+        }
+
+        function viewPublicProfile(username) {
+            window.open(`${API_BASE_URL}/u/${username}`, '_blank');
+        }
+
+        async function toggleUserStatusFromModal(userId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus ? 'activate' : 'suspend'} this user?`)) {
+                try {
+                    await apiCall(`/admin/users/${userId}/status`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ is_active: newStatus })
+                    });
+                    
+                    showSuccessMessage(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
+                    viewUser(userId);
+                    
+                    if (document.getElementById('users').classList.contains('active')) {
+                        loadUsers();
+                    }
+                } catch (error) {
+                    showError('Failed to update user status');
+                }
+            }
+        }
+
+        function viewUserAnalytics(userId) {
+            alert(`Analytics for user ${userId} would be displayed here. This could show detailed click data, popular links, etc.`);
+        }
+
         async function loadProfiles() {
             try {
                 const data = await apiCall('/admin/profiles');
@@ -490,7 +890,6 @@
             }
         }
 
-        // Load payments table with real data
         async function loadPayments() {
             try {
                 const data = await apiCall('/admin/payments');
@@ -514,7 +913,6 @@
             }
         }
 
-        // Load messages with real data
         async function loadMessages() {
             try {
                 const data = await apiCall('/admin/messages');
@@ -545,12 +943,10 @@
             }
         }
 
-        // Load analytics data
         async function loadAnalytics() {
             try {
                 const stats = await apiCall('/admin/stats');
                 
-                // Update analytics stats
                 document.getElementById('total-views').textContent = (stats.totalViews || 0).toLocaleString();
                 document.getElementById('total-clicks').textContent = (stats.totalClicks || 0).toLocaleString();
                 document.getElementById('avg-links').textContent = stats.avgLinks || '0';
@@ -560,23 +956,18 @@
             }
         }
 
-        // Navigation functions
         function showPage(pageId) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
 
-            // Remove active class from nav items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
 
-            // Show selected page
             document.getElementById(pageId).classList.add('active');
             event.target.classList.add('active');
 
-            // Load data for specific pages
             switch(pageId) {
                 case 'dashboard':
                     initializeDashboard();
@@ -599,11 +990,6 @@
             }
         }
         
-        // Action functions
-        function viewUser(userId) {
-            alert(`Viewing user details for ID: ${userId}`);
-        }
-
         async function toggleUserStatus(userId, newStatus) {
             if (confirm(`Are you sure you want to ${newStatus ? 'activate' : 'suspend'} this user?`)) {
                 try {
@@ -611,10 +997,10 @@
                         method: 'PUT',
                         body: JSON.stringify({ is_active: newStatus })
                     });
-                    alert(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
-                    loadUsers(); // Reload the users table
+                    showSuccessMessage(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
+                    loadUsers();
                 } catch (error) {
-                    alert('Failed to update user status');
+                    showError('Failed to update user status');
                 }
             }
         }
@@ -634,17 +1020,16 @@
                 await apiCall(`/admin/messages/${messageId}/read`, {
                     method: 'PUT'
                 });
-                alert('Message marked as read');
-                loadMessages(); // Reload messages
+                showSuccessMessage('Message marked as read');
+                loadMessages();
             } catch (error) {
-                alert('Failed to mark message as read');
+                showError('Failed to mark message as read');
             }
         }
 
         function searchUsers() {
             const query = document.getElementById('user-search').value;
             if (query) {
-                // Reload users with search parameter
                 loadUsersWithSearch(query);
             } else {
                 loadUsers();
@@ -713,7 +1098,6 @@
             }
         }
 
-        // Utility functions
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.style.cssText = `
@@ -732,21 +1116,42 @@
             }, 5000);
         }
 
-        // Logout function
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: #28a745; color: white; 
+                padding: 15px 20px; border-radius: 6px; 
+                z-index: 10000; max-width: 300px;
+            `;
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 3000);
+        }
+
         function logout() {
             localStorage.removeItem('adminToken');
             adminToken = null;
             window.location.reload();
         }
 
-        // Initialize dashboard on load
+        document.getElementById('user-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserModal();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             if (checkAuthStatus()) {
                 initializeDashboard();
             }
         });
 
-        // Add logout button to sidebar
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('.sidebar-nav');
             sidebar.insertAdjacentHTML('beforeend', `
