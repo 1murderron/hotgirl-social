@@ -368,7 +368,8 @@
                 
                 // Update account info
                 document.getElementById('account-username').textContent = profile.username;
-                document.getElementById('account-email').textContent = currentUser.email || 'N/A';
+                document.getElementById('account-email').textContent = profile.email || 'N/A';
+                document.getElementById('account-joined').textContent = new Date(profile.created_at).toLocaleDateString();
                 
                 // Set profile link
                 document.getElementById('view-profile').href = `/u/${profile.username}`;
