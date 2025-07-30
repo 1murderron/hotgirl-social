@@ -5,6 +5,270 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hotgirl.social - Admin Dashboard</title>
     <link rel="stylesheet" href="admin.css">
+    <style>
+        /* User View Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .user-profile-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            border: 3px solid #ddd;
+        }
+
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .link-item-admin {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .link-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .link-icon {
+            font-size: 20px;
+        }
+
+        .link-details h4 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .link-details a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .link-details a:hover {
+            text-decoration: underline;
+        }
+
+        .link-stats {
+            text-align: right;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .moderation-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-moderate {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-suspend {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-suspend:hover {
+            background: #c82333;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-view-public {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-view-public:hover {
+            background: #0056b3;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        /* Enhanced table styles for combined view */
+        .data-table th:nth-child(1) { width: 120px; } /* Username */
+        .data-table th:nth-child(2) { width: 140px; } /* Display Name */
+        .data-table th:nth-child(3) { width: 180px; } /* Email */
+        .data-table th:nth-child(4) { width: 100px; } /* Joined */
+        .data-table th:nth-child(5) { width: 60px; }  /* Links */
+        .data-table th:nth-child(6) { width: 80px; }  /* Views */
+        .data-table th:nth-child(7) { width: 80px; }  /* Status */
+        .data-table th:nth-child(8) { width: 160px; } /* Actions */
+
+        .stats-highlight {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .moderation-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -18,10 +282,7 @@
                     📊 Dashboard
                 </button>
                 <button class="nav-item" onclick="showPage('users')">
-                    👥 Users
-                </button>
-                <button class="nav-item" onclick="showPage('profiles')">
-                    🔗 Profiles
+                    👥 Users & Profiles
                 </button>
                 <button class="nav-item" onclick="showPage('payments')">
                     💳 Payments
@@ -51,6 +312,315 @@
                         <div class="stat-number" id="total-users">0</div>
                         <div class="stat-label">Total Users</div>
                     </div>
+                `;
+                
+                modal.classList.add('active');
+                
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+                alert(`Error loading user data: ${error.message}`);
+            }
+        }
+
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.remove('active');
+        }
+
+        function viewPublicProfile(username) {
+            window.open(`${API_BASE_URL}/u/${username}`, '_blank');
+        }
+
+        async function toggleUserStatusFromModal(userId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus ? 'activate' : 'suspend'} this user?`)) {
+                try {
+                    await apiCall(`/admin/users/${userId}/status`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ is_active: newStatus })
+                    });
+                    
+                    showSuccessMessage(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
+                    closeUserModal();
+                    loadUsers(); // Reload the table
+                } catch (error) {
+                    showError('Failed to update user status');
+                }
+            }
+        }
+
+        async function loadPayments() {
+            try {
+                const data = await apiCall('/admin/payments');
+                const tbody = document.getElementById('payments-table');
+                
+                if (data.payments && data.payments.length > 0) {
+                    tbody.innerHTML = data.payments.map(payment => `
+                        <tr>
+                            <td>${new Date(payment.date).toLocaleDateString()}</td>
+                            <td>${payment.username}</td>
+                            <td>${payment.amount.toFixed(2)}</td>
+                            <td>${payment.stripe_payment_intent_id || 'N/A'}</td>
+                            <td><span class="status-badge status-active">${payment.status}</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No payments found</td></tr>';
+                }
+            } catch (error) {
+                document.getElementById('payments-table').innerHTML = '<tr><td colspan="5" style="color: red; text-align: center;">Failed to load payments</td></tr>';
+            }
+        }
+
+        async function loadMessages() {
+            try {
+                const data = await apiCall('/admin/messages');
+                const container = document.getElementById('messages-container');
+                
+                if (data.messages && data.messages.length > 0) {
+                    container.innerHTML = data.messages.map(msg => `
+                        <div class="contact-message" style="margin: 15px 30px; ${!msg.is_read ? 'border-left-color: #dc3545;' : ''}">
+                            <div class="message-header">
+                                <strong>${msg.name} (${msg.email})</strong>
+                                <div class="message-meta">
+                                    ${new Date(msg.created_at).toLocaleDateString()} ${msg.is_read ? '' : '• <strong style="color: #dc3545;">UNREAD</strong>'}
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 10px;"><strong>Subject:</strong> ${msg.subject}</div>
+                            <div class="message-content">${msg.message}</div>
+                            <div style="margin-top: 15px;">
+                                <button class="btn btn-primary">Reply</button>
+                                ${!msg.is_read ? `<button class="btn btn-success" onclick="markAsRead(${msg.id})">Mark as Read</button>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">No messages found</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div style="padding: 40px; color: red; text-align: center;">Failed to load messages</div>';
+            }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const stats = await apiCall('/admin/stats');
+                
+                document.getElementById('total-views').textContent = (stats.totalViews || 0).toLocaleString();
+                document.getElementById('total-clicks').textContent = (stats.totalClicks || 0).toLocaleString();
+                document.getElementById('avg-links').textContent = stats.avgLinks || '0';
+                document.getElementById('conversion-rate').textContent = `${stats.conversionRate || 0}%`;
+            } catch (error) {
+                console.error('Failed to load analytics:', error);
+            }
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+
+            switch(pageId) {
+                case 'dashboard':
+                    initializeDashboard();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'payments':
+                    loadPayments();
+                    break;
+                case 'messages':
+                    loadMessages();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
+            }
+        }
+        
+        async function toggleUserStatus(userId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus ? 'activate' : 'suspend'} this user?`)) {
+                try {
+                    await apiCall(`/admin/users/${userId}/status`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ is_active: newStatus })
+                    });
+                    showSuccessMessage(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
+                    loadUsers();
+                } catch (error) {
+                    showError('Failed to update user status');
+                }
+            }
+        }
+
+        async function markAsRead(messageId) {
+            try {
+                await apiCall(`/admin/messages/${messageId}/read`, {
+                    method: 'PUT'
+                });
+                showSuccessMessage('Message marked as read');
+                loadMessages();
+            } catch (error) {
+                showError('Failed to mark message as read');
+            }
+        }
+
+        function searchUsers() {
+            const query = document.getElementById('user-search').value;
+            if (query) {
+                loadUsersWithSearch(query);
+            } else {
+                loadUsers();
+            }
+        }
+
+        async function loadUsersWithSearch(searchTerm) {
+            try {
+                // Get both data sources
+                const [usersData, profilesData] = await Promise.all([
+                    apiCall(`/admin/users?search=${encodeURIComponent(searchTerm)}`),
+                    apiCall('/admin/profiles')
+                ]);
+
+                const tbody = document.getElementById('users-table');
+                
+                if (usersData.users && usersData.users.length > 0) {
+                    // Filter and combine data
+                    const filteredUsers = usersData.users.filter(user => 
+                        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+
+                    const combinedData = filteredUsers.map(user => {
+                        const profile = profilesData.profiles?.find(p => p.username === user.username) || {};
+                        return {
+                            ...user,
+                            display_name: profile.display_name || '',
+                            link_count: profile.link_count || 0,
+                            total_views: profile.total_views || 0
+                        };
+                    });
+
+                    // Also search by display name
+                    const displayNameMatches = profilesData.profiles?.filter(profile => 
+                        profile.display_name && 
+                        profile.display_name.toLowerCase().includes(searchTerm.toLowerCase())
+                    ) || [];
+
+                    // Add users found by display name
+                    displayNameMatches.forEach(profile => {
+                        const user = usersData.users.find(u => u.username === profile.username);
+                        if (user && !combinedData.find(c => c.id === user.id)) {
+                            combinedData.push({
+                                ...user,
+                                display_name: profile.display_name || '',
+                                link_count: profile.link_count || 0,
+                                total_views: profile.total_views || 0
+                            });
+                        }
+                    });
+
+                    if (combinedData.length > 0) {
+                        tbody.innerHTML = combinedData.map(user => `
+                            <tr>
+                                <td><strong>${user.username}</strong></td>
+                                <td>${user.display_name || '<em>Not set</em>'}</td>
+                                <td>${user.email}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td><span class="stats-highlight">${user.link_count}</span></td>
+                                <td><span class="stats-highlight">${parseInt(user.total_views).toLocaleString()}</span></td>
+                                <td><span class="status-badge status-${user.profile_active ? 'active' : 'inactive'}">${user.profile_active ? 'active' : 'inactive'}</span></td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewUser(${user.id})">View</button>
+                                    <button class="btn btn-warning" onclick="toggleUserStatus(${user.id}, ${!user.profile_active})">${user.profile_active ? 'Suspend' : 'Activate'}</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No users found matching your search</td></tr>';
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No users found matching your search</td></tr>';
+                }
+            } catch (error) {
+                document.getElementById('users-table').innerHTML = '<tr><td colspan="8" style="color: red; text-align: center;">Search failed</td></tr>';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: #dc3545; color: white; 
+                padding: 15px 20px; border-radius: 6px; 
+                z-index: 10000; max-width: 300px;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 5000);
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: #28a745; color: white; 
+                padding: 15px 20px; border-radius: 6px; 
+                z-index: 10000; max-width: 300px;
+            `;
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            adminToken = null;
+            window.location.reload();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('user-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserModal();
+            }
+        });
+
+        // Initialize dashboard on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuthStatus()) {
+                initializeDashboard();
+            }
+        });
+
+        // Add logout button to sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar-nav');
+            sidebar.insertAdjacentHTML('beforeend', `
+                <button class="nav-item" onclick="logout()" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+                    🚪 Logout
+                </button>
+            `);
+        });
+    </script>
+    </body>
+</html>
                     <div class="stat-card">
                         <div class="stat-number" id="active-profiles">0</div>
                         <div class="stat-label">Active Profiles</div>
@@ -78,15 +648,15 @@
                 </div>
             </div>
 
-            <!-- Users Page -->
+            <!-- Combined Users & Profiles Page -->
             <div id="users" class="page">
                 <div class="page-header">
-                    <h1 class="page-title">User Management</h1>
-                    <p class="page-subtitle">Manage all registered users</p>
+                    <h1 class="page-title">Users & Profiles</h1>
+                    <p class="page-subtitle">Manage all registered users and their profiles</p>
                 </div>
 
                 <div class="search-bar">
-                    <input type="text" class="search-input" placeholder="Search users by email or username..." id="user-search">
+                    <input type="text" class="search-input" placeholder="Search users by email, username, or display name..." id="user-search">
                     <button class="btn btn-primary" onclick="searchUsers()">Search</button>
                 </div>
 
@@ -99,58 +669,20 @@
                             <thead>
                                 <tr>
                                     <th>Username</th>
+                                    <th>Display Name</th>
                                     <th>Email</th>
                                     <th>Joined</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table">
-                                <tr>
-                                    <td colspan="5" class="loading">
-                                        <div class="spinner"></div>
-                                        Loading users...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Profiles Page -->
-            <div id="profiles" class="page">
-                <div class="page-header">
-                    <h1 class="page-title">Profile Management</h1>
-                    <p class="page-subtitle">View and moderate user profiles</p>
-                </div>
-
-                <div class="search-bar">
-                    <input type="text" class="search-input" placeholder="Search profiles..." id="profile-search">
-                    <button class="btn btn-primary" onclick="searchProfiles()">Search</button>
-                </div>
-
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3 class="card-title">All Profiles</h3>
-                    </div>
-                    <div class="card-content">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Display Name</th>
                                     <th>Links</th>
                                     <th>Views</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="profiles-table">
+                            <tbody id="users-table">
                                 <tr>
-                                    <td colspan="6" class="loading">
+                                    <td colspan="8" class="loading">
                                         <div class="spinner"></div>
-                                        Loading profiles...
+                                        Loading users...
                                     </td>
                                 </tr>
                             </tbody>
@@ -286,6 +818,22 @@
         </main>
     </div>
 
+    <!-- User View Modal -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="user-modal">
+            <div class="modal-header">
+                <h2 id="modal-title">User Profile Review</h2>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-content">
+                <div class="loading" style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    Loading user data...
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // API Configuration
         const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
@@ -307,7 +855,6 @@
                 
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
-                        // Token expired or invalid
                         localStorage.removeItem('adminToken');
                         adminToken = null;
                         showLoginForm();
@@ -368,10 +915,7 @@
                         adminToken = data.token;
                         localStorage.setItem('adminToken', adminToken);
                         
-                        // Remove login form
                         document.querySelector('[style*="position: fixed"]').remove();
-                        
-                        // Initialize dashboard
                         initializeDashboard();
                     } else {
                         const error = await response.json();
@@ -385,7 +929,6 @@
             });
         }
 
-        // Check if admin is logged in
         function checkAuthStatus() {
             if (!adminToken) {
                 showLoginForm();
@@ -394,17 +937,13 @@
             return true;
         }
 
-        // Initialize dashboard with real data
         async function initializeDashboard() {
             try {
-                // Update stats
                 const stats = await apiCall('/admin/stats');
                 document.getElementById('total-users').textContent = stats.totalUsers || 0;
                 document.getElementById('active-profiles').textContent = stats.activeProfiles || 0;
-                document.getElementById('total-revenue').textContent = `${(stats.totalRevenue || 0).toLocaleString()}`;
+                document.getElementById('total-revenue').textContent = `$${(stats.totalRevenue || 0).toLocaleString()}`;
                 document.getElementById('monthly-signups').textContent = stats.monthlySignups || 0;
-
-                // Load recent activity
                 loadRecentActivity();
             } catch (error) {
                 console.error('Failed to load dashboard stats:', error);
@@ -412,7 +951,6 @@
             }
         }
 
-        // Load recent activity
         async function loadRecentActivity() {
             try {
                 const activityData = await apiCall('/admin/activity');
@@ -435,18 +973,42 @@
             }
         }
 
-        // Load users table with real data
+        // Combined Users & Profiles Loading
         async function loadUsers() {
             try {
-                const data = await apiCall('/admin/users');
+                console.log('Loading combined users and profiles data...');
+                
+                // Get both users and profiles data
+                const [usersData, profilesData] = await Promise.all([
+                    apiCall('/admin/users'),
+                    apiCall('/admin/profiles')
+                ]);
+
+                console.log('Users data:', usersData);
+                console.log('Profiles data:', profilesData);
+
                 const tbody = document.getElementById('users-table');
                 
-                if (data.users && data.users.length > 0) {
-                    tbody.innerHTML = data.users.map(user => `
+                if (usersData.users && usersData.users.length > 0) {
+                    // Combine user and profile data
+                    const combinedData = usersData.users.map(user => {
+                        const profile = profilesData.profiles?.find(p => p.username === user.username) || {};
+                        return {
+                            ...user,
+                            display_name: profile.display_name || '',
+                            link_count: profile.link_count || 0,
+                            total_views: profile.total_views || 0
+                        };
+                    });
+
+                    tbody.innerHTML = combinedData.map(user => `
                         <tr>
-                            <td>${user.username}</td>
+                            <td><strong>${user.username}</strong></td>
+                            <td>${user.display_name || '<em>Not set</em>'}</td>
                             <td>${user.email}</td>
                             <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                            <td><span class="stats-highlight">${user.link_count}</span></td>
+                            <td><span class="stats-highlight">${parseInt(user.total_views).toLocaleString()}</span></td>
                             <td><span class="status-badge status-${user.profile_active ? 'active' : 'inactive'}">${user.profile_active ? 'active' : 'inactive'}</span></td>
                             <td>
                                 <button class="btn btn-primary" onclick="viewUser(${user.id})">View</button>
@@ -455,42 +1017,139 @@
                         </tr>
                     `).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No users found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No users found</td></tr>';
                 }
             } catch (error) {
-                document.getElementById('users-table').innerHTML = '<tr><td colspan="5" style="color: red; text-align: center;">Failed to load users</td></tr>';
+                console.error('Failed to load users:', error);
+                document.getElementById('users-table').innerHTML = '<tr><td colspan="8" style="color: red; text-align: center;">Failed to load users</td></tr>';
             }
         }
 
-        // Load profiles table with real data
-        async function loadProfiles() {
+        // Simple viewUser function that works with your existing API
+        async function viewUser(userId) {
             try {
-                const data = await apiCall('/admin/profiles');
-                const tbody = document.getElementById('profiles-table');
+                console.log('Fetching user data for ID:', userId);
                 
-                if (data.profiles && data.profiles.length > 0) {
-                    tbody.innerHTML = data.profiles.map(profile => `
-                        <tr>
-                            <td>${profile.username}</td>
-                            <td>${profile.display_name || 'Not set'}</td>
-                            <td>${profile.link_count || 0}</td>
-                            <td>${parseInt(profile.total_views || 0).toLocaleString()}</td>
-                            <td><span class="status-badge status-${profile.is_active ? 'active' : 'inactive'}">${profile.is_active ? 'active' : 'inactive'}</span></td>
-                            <td>
-                                <button class="btn btn-primary" onclick="viewProfile('${profile.username}')">View</button>
-                                <button class="btn btn-danger" onclick="suspendProfile('${profile.username}')">Suspend</button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No profiles found</td></tr>';
+                // Get the basic user data first
+                const usersData = await apiCall('/admin/users');
+                const user = usersData.users.find(u => u.id === userId);
+                
+                if (!user) {
+                    alert('User not found');
+                    return;
                 }
+
+                // Try to get profile data
+                let profileData = {};
+                try {
+                    const profilesData = await apiCall('/admin/profiles');
+                    const profile = profilesData.profiles.find(p => p.username === user.username);
+                    if (profile) {
+                        profileData = profile;
+                    }
+                } catch (error) {
+                    console.log('Could not get profile data:', error);
+                }
+
+                // Show user data in modal
+                const modal = document.getElementById('user-modal');
+                const modalContent = document.getElementById('modal-content');
+                
+                modalContent.innerHTML = `
+                    <div class="user-profile-section">
+                        <div class="section-title">Account Information</div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Username</div>
+                                <div class="info-value">${user.username}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">${user.email}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Member Since</div>
+                                <div class="info-value">${new Date(user.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">
+                                    <span class="status-indicator status-${user.profile_active ? 'active' : 'inactive'}">
+                                        ${user.profile_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="section-title">Profile Information</div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Display Name</div>
+                                <div class="info-value">${profileData.display_name || 'Not set'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Bio</div>
+                                <div class="info-value">${profileData.bio || 'No bio provided'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Total Links</div>
+                                <div class="info-value">${profileData.link_count || 0}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Profile Views</div>
+                                <div class="info-value">${(profileData.total_views || 0).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="moderation-actions">
+                        <button class="btn-moderate btn-view-public" onclick="viewPublicProfile('${user.username}')">
+                            View Public Profile
+                        </button>
+                        <button class="btn-moderate ${user.profile_active ? 'btn-suspend' : 'btn-approve'}" 
+                                onclick="toggleUserStatusFromModal(${user.id}, ${!user.profile_active})">
+                            ${user.profile_active ? 'Suspend User' : 'Activate User'}
+                        </button>
+                    </div>
+					
+					
+					`;
+                
+                modal.classList.add('active');
+                
             } catch (error) {
-                document.getElementById('profiles-table').innerHTML = '<tr><td colspan="6" style="color: red; text-align: center;">Failed to load profiles</td></tr>';
+                console.error('Failed to load user data:', error);
+                alert(`Error loading user data: ${error.message}`);
             }
         }
 
-        // Load payments table with real data
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.remove('active');
+        }
+
+        function viewPublicProfile(username) {
+            window.open(`${API_BASE_URL}/u/${username}`, '_blank');
+        }
+
+        async function toggleUserStatusFromModal(userId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus ? 'activate' : 'suspend'} this user?`)) {
+                try {
+                    await apiCall(`/admin/users/${userId}/status`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ is_active: newStatus })
+                    });
+                    
+                    showSuccessMessage(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
+                    closeUserModal();
+                    loadUsers(); // Reload the table
+                } catch (error) {
+                    showError('Failed to update user status');
+                }
+            }
+        }
+
         async function loadPayments() {
             try {
                 const data = await apiCall('/admin/payments');
@@ -501,7 +1160,7 @@
                         <tr>
                             <td>${new Date(payment.date).toLocaleDateString()}</td>
                             <td>${payment.username}</td>
-                            <td>${payment.amount.toFixed(2)}</td>
+                            <td>$${payment.amount.toFixed(2)}</td>
                             <td>${payment.stripe_payment_intent_id || 'N/A'}</td>
                             <td><span class="status-badge status-active">${payment.status}</span></td>
                         </tr>
@@ -514,7 +1173,6 @@
             }
         }
 
-        // Load messages with real data
         async function loadMessages() {
             try {
                 const data = await apiCall('/admin/messages');
@@ -545,12 +1203,10 @@
             }
         }
 
-        // Load analytics data
         async function loadAnalytics() {
             try {
                 const stats = await apiCall('/admin/stats');
                 
-                // Update analytics stats
                 document.getElementById('total-views').textContent = (stats.totalViews || 0).toLocaleString();
                 document.getElementById('total-clicks').textContent = (stats.totalClicks || 0).toLocaleString();
                 document.getElementById('avg-links').textContent = stats.avgLinks || '0';
@@ -560,32 +1216,24 @@
             }
         }
 
-        // Navigation functions
         function showPage(pageId) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
 
-            // Remove active class from nav items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
 
-            // Show selected page
             document.getElementById(pageId).classList.add('active');
             event.target.classList.add('active');
 
-            // Load data for specific pages
             switch(pageId) {
                 case 'dashboard':
                     initializeDashboard();
                     break;
                 case 'users':
                     loadUsers();
-                    break;
-                case 'profiles':
-                    loadProfiles();
                     break;
                 case 'payments':
                     loadPayments();
@@ -599,37 +1247,6 @@
             }
         }
         
-        // Action functions
-       // Replace your viewUser function with this:
-async function viewUser(userId) {
-    try {
-        console.log('Fetching user data for ID:', userId);
-        
-        // Try to get user data from API
-        const userData = await apiCall(`/admin/users/${userId}`);
-        console.log('User data received:', userData);
-        
-        // Show the data in a simple alert for now
-        alert(`User Data:\nUsername: ${userData.username || 'N/A'}\nEmail: ${userData.email || 'N/A'}\nStatus: ${userData.profile_active ? 'Active' : 'Inactive'}`);
-        
-    } catch (error) {
-        console.error('Failed to load user data:', error);
-        
-        // If that doesn't work, try getting from the users list we already have
-        try {
-            const usersData = await apiCall('/admin/users');
-            const user = usersData.users.find(u => u.id === userId);
-            if (user) {
-                alert(`User Data (from list):\nUsername: ${user.username}\nEmail: ${user.email}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\nStatus: ${user.profile_active ? 'Active' : 'Inactive'}`);
-            } else {
-                alert('User not found');
-            }
-        } catch (listError) {
-            alert(`Error loading user data: ${error.message}`);
-        }
-    }
-}
-
         async function toggleUserStatus(userId, newStatus) {
             if (confirm(`Are you sure you want to ${newStatus ? 'activate' : 'suspend'} this user?`)) {
                 try {
@@ -637,21 +1254,11 @@ async function viewUser(userId) {
                         method: 'PUT',
                         body: JSON.stringify({ is_active: newStatus })
                     });
-                    alert(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
-                    loadUsers(); // Reload the users table
+                    showSuccessMessage(`User ${newStatus ? 'activated' : 'suspended'} successfully`);
+                    loadUsers();
                 } catch (error) {
-                    alert('Failed to update user status');
+                    showError('Failed to update user status');
                 }
-            }
-        }
-
-        function viewProfile(username) {
-            window.open(`https://hotgirl-social-production.up.railway.app/u/${username}`, '_blank');
-        }
-
-        function suspendProfile(username) {
-            if (confirm('Are you sure you want to suspend this profile?')) {
-                alert(`Profile ${username} has been suspended`);
             }
         }
 
@@ -660,17 +1267,16 @@ async function viewUser(userId) {
                 await apiCall(`/admin/messages/${messageId}/read`, {
                     method: 'PUT'
                 });
-                alert('Message marked as read');
-                loadMessages(); // Reload messages
+                showSuccessMessage('Message marked as read');
+                loadMessages();
             } catch (error) {
-                alert('Failed to mark message as read');
+                showError('Failed to mark message as read');
             }
         }
 
         function searchUsers() {
             const query = document.getElementById('user-search').value;
             if (query) {
-                // Reload users with search parameter
                 loadUsersWithSearch(query);
             } else {
                 loadUsers();
@@ -679,67 +1285,77 @@ async function viewUser(userId) {
 
         async function loadUsersWithSearch(searchTerm) {
             try {
-                const data = await apiCall(`/admin/users?search=${encodeURIComponent(searchTerm)}`);
+                // Get both data sources
+                const [usersData, profilesData] = await Promise.all([
+                    apiCall(`/admin/users?search=${encodeURIComponent(searchTerm)}`),
+                    apiCall('/admin/profiles')
+                ]);
+
                 const tbody = document.getElementById('users-table');
                 
-                if (data.users && data.users.length > 0) {
-                    tbody.innerHTML = data.users.map(user => `
-                        <tr>
-                            <td>${user.username}</td>
-                            <td>${user.email}</td>
-                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                            <td><span class="status-badge status-${user.profile_active ? 'active' : 'inactive'}">${user.profile_active ? 'active' : 'inactive'}</span></td>
-                            <td>
-                                <button class="btn btn-primary" onclick="viewUser(${user.id})">View</button>
-                                <button class="btn btn-warning" onclick="toggleUserStatus(${user.id}, ${!user.profile_active})">${user.profile_active ? 'Suspend' : 'Activate'}</button>
-                            </td>
-                        </tr>
-                    `).join('');
+                if (usersData.users && usersData.users.length > 0) {
+                    // Filter and combine data
+                    const filteredUsers = usersData.users.filter(user => 
+                        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+
+                    const combinedData = filteredUsers.map(user => {
+                        const profile = profilesData.profiles?.find(p => p.username === user.username) || {};
+                        return {
+                            ...user,
+                            display_name: profile.display_name || '',
+                            link_count: profile.link_count || 0,
+                            total_views: profile.total_views || 0
+                        };
+                    });
+
+                    // Also search by display name
+                    const displayNameMatches = profilesData.profiles?.filter(profile => 
+                        profile.display_name && 
+                        profile.display_name.toLowerCase().includes(searchTerm.toLowerCase())
+                    ) || [];
+
+                    // Add users found by display name
+                    displayNameMatches.forEach(profile => {
+                        const user = usersData.users.find(u => u.username === profile.username);
+                        if (user && !combinedData.find(c => c.id === user.id)) {
+                            combinedData.push({
+                                ...user,
+                                display_name: profile.display_name || '',
+                                link_count: profile.link_count || 0,
+                                total_views: profile.total_views || 0
+                            });
+                        }
+                    });
+
+                    if (combinedData.length > 0) {
+                        tbody.innerHTML = combinedData.map(user => `
+                            <tr>
+                                <td><strong>${user.username}</strong></td>
+                                <td>${user.display_name || '<em>Not set</em>'}</td>
+                                <td>${user.email}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td><span class="stats-highlight">${user.link_count}</span></td>
+                                <td><span class="stats-highlight">${parseInt(user.total_views).toLocaleString()}</span></td>
+                                <td><span class="status-badge status-${user.profile_active ? 'active' : 'inactive'}">${user.profile_active ? 'active' : 'inactive'}</span></td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewUser(${user.id})">View</button>
+                                    <button class="btn btn-warning" onclick="toggleUserStatus(${user.id}, ${!user.profile_active})">${user.profile_active ? 'Suspend' : 'Activate'}</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No users found matching your search</td></tr>';
+                    }
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No users found matching your search</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No users found matching your search</td></tr>';
                 }
             } catch (error) {
-                document.getElementById('users-table').innerHTML = '<tr><td colspan="5" style="color: red; text-align: center;">Search failed</td></tr>';
+                document.getElementById('users-table').innerHTML = '<tr><td colspan="8" style="color: red; text-align: center;">Search failed</td></tr>';
             }
         }
 
-        function searchProfiles() {
-            const query = document.getElementById('profile-search').value;
-            if (query) {
-                loadProfilesWithSearch(query);
-            } else {
-                loadProfiles();
-            }
-        }
-
-        async function loadProfilesWithSearch(searchTerm) {
-            try {
-                const data = await apiCall(`/admin/profiles?search=${encodeURIComponent(searchTerm)}`);
-                const tbody = document.getElementById('profiles-table');
-                
-                if (data.profiles && data.profiles.length > 0) {
-                    tbody.innerHTML = data.profiles.map(profile => `
-                        <tr>
-                            <td>${profile.username}</td>
-                            <td>${profile.display_name || 'Not set'}</td>
-                            <td>${profile.link_count || 0}</td>
-                            <td>${parseInt(profile.total_views || 0).toLocaleString()}</td>
-                            <td><span class="status-badge status-${profile.is_active ? 'active' : 'inactive'}">${profile.is_active ? 'active' : 'inactive'}</span></td>
-                            <td>
-                                <button class="btn btn-primary" onclick="viewProfile('${profile.username}')">View</button>
-                                <button class="btn btn-danger" onclick="suspendProfile('${profile.username}')">Suspend</button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No profiles found matching your search</td></tr>';
-                }
-            } catch (error) {
-                document.getElementById('profiles-table').innerHTML = '<tr><td colspan="6" style="color: red; text-align: center;">Search failed</td></tr>';
-            }
-        }
-
-        // Utility functions
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.style.cssText = `
@@ -758,12 +1374,36 @@ async function viewUser(userId) {
             }, 5000);
         }
 
-        // Logout function
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; 
+                background: #28a745; color: white; 
+                padding: 15px 20px; border-radius: 6px; 
+                z-index: 10000; max-width: 300px;
+            `;
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 3000);
+        }
+
         function logout() {
             localStorage.removeItem('adminToken');
             adminToken = null;
             window.location.reload();
         }
+
+        // Close modal when clicking outside
+        document.getElementById('user-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserModal();
+            }
+        });
 
         // Initialize dashboard on load
         document.addEventListener('DOMContentLoaded', function() {
