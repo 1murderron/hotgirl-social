@@ -731,9 +731,156 @@
                 `;
                 modal.classList.add('active');
                 
-                const userData = await apiCall(`/admin/users/${userId}`);
+                console.log('Fetching user data for ID:', userId);
+                
+                // First, let's try to get the user data from the users list we already have
+                let userData = null;
+                
+                // Try the admin users endpoint first to get basic user info
+                try {
+                    const usersData = await apiCall('/admin/users');
+                    const user = usersData.users.find(u => u.id === userId);
+                    if (user) {
+                        userData = user;
+                        console.log('Found user in users list:', userData);
+                    }
+                } catch (error) {
+                    console.log('Could not get user from users list:', error);
+                }
+                
+                // If we don't have userData yet, try a direct profile call
+                if (!userData) {
+                    try {
+                        userData = await apiCall(`/admin/users/${userId}`);
+                        console.log('Got user from direct API call:', userData);
+                    } catch (error) {
+                        console.log('Direct user API call failed:', error);
+                        throw new Error('Could not fetch user data');
+                    }
+                }
+                
+                // Now try to get their profile data (links, bio, etc.)
+                let profileData = {};
+                try {
+                    const profilesData = await apiCall('/admin/profiles');
+                    const profile = profilesData.profiles.find(p => p.username === userData.username);
+                    if (profile) {
+                        profileData = profile;
+                        console.log('Found profile data:', profileData);
+                    }
+                } catch (error) {
+                    console.log('Could not get profile data:', error);
+                }
+                
+                // Combine the data
+                const combinedData = {
+                    ...userData,
+                    ...profileData,
+                    links: profileData.links || [],
+                    total_views: profileData.total_views || 0,
+                    total_clicks: profileData.total_clicks || 0
+                };
+                
+                console.log('Combined user data:', combinedData);
                 
                 modalContent.innerHTML = `
+                    <div class="user-profile-section">
+                        <div class="section-title">Account Information</div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Username</div>
+                                <div class="info-value">${combinedData.username || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">${combinedData.email || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Member Since</div>
+                                <div class="info-value">${combinedData.created_at ? new Date(combinedData.created_at).toLocaleDateString() : 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">
+                                    <span class="status-indicator status-${(combinedData.profile_active || combinedData.is_active) ? 'active' : 'inactive'}">
+                                        ${(combinedData.profile_active || combinedData.is_active) ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="section-title">Profile Information</div>
+                        <div class="profile-photo">
+                            ${combinedData.profile_image_url ? `<img src="${combinedData.profile_image_url}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerHTML='👤';">` : '👤'}
+                        </div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Display Name</div>
+                                <div class="info-value">${combinedData.display_name || 'Not set'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Bio</div>
+                                <div class="info-value">${combinedData.bio || 'No bio provided'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Profile Views</div>
+                                <div class="info-value">${(combinedData.total_views || 0).toLocaleString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Total Link Clicks</div>
+                                <div class="info-value">${(combinedData.total_clicks || 0).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="section-title">Links (${combinedData.links ? combinedData.links.length : 0})</div>
+                        <div class="links-list">
+                            ${combinedData.links && combinedData.links.length > 0 ? combinedData.links.map(link => `
+                                <div class="link-item-admin">
+                                    <div class="link-info">
+                                        <div class="link-icon">${link.icon || '🔗'}</div>
+                                        <div class="link-details">
+                                            <h4>${link.title || 'Untitled Link'}</h4>
+                                            <a href="${link.url}" target="_blank">${link.url}</a>
+                                        </div>
+                                    </div>
+                                    <div class="link-stats">
+                                        <div>${link.clicks || 0} clicks</div>
+                                    </div>
+                                </div>
+                            `).join('') : '<div class="empty-state">No links added yet</div>'}
+                        </div>
+                    </div>
+
+                    <div class="moderation-actions">
+                        <button class="btn-moderate btn-view-public" onclick="viewPublicProfile('${combinedData.username}')">
+                            View Public Profile
+                        </button>
+                        <button class="btn-moderate ${(combinedData.profile_active || combinedData.is_active) ? 'btn-suspend' : 'btn-approve'}" 
+                                onclick="toggleUserStatusFromModal(${combinedData.id}, ${!(combinedData.profile_active || combinedData.is_active)})">
+                            ${(combinedData.profile_active || combinedData.is_active) ? 'Suspend User' : 'Activate User'}
+                        </button>
+                        <button class="btn-moderate btn-view-public" onclick="viewUserAnalytics(${combinedData.id})">
+                            View Analytics
+                        </button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+                modalContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: red;">
+                        <h3>Failed to load user data</h3>
+                        <p>Error: ${error.message}</p>
+                        <p style="font-size: 14px; color: #666;">Check the browser console for more details</p>
+                        <button class="btn btn-primary" onclick="closeUserModal()">Close</button>
+                    </div>
+                `;
+            }
+        }
                     <div class="user-profile-section">
                         <div class="section-title">Account Information</div>
                         <div class="profile-info">
