@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Profile - hotgirl.social</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <!-- Loading State -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="spinner"></div>
+        <p>Loading profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content">
+            <h1>Profile Not Found</h1>
+            <p>This profile doesn't exist or has been deactivated.</p>
+            <a href="/" class="btn btn-primary">Go to hotgirl.social</a>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div id="profile-content" class="profile-container" style="display: none;">
+        <!-- Header -->
+        <header class="profile-header">
+            <div class="profile-photo" id="profile-photo">
+                <span class="photo-placeholder">👤</span>
+            </div>
+            <h1 class="profile-name" id="profile-name">Loading...</h1>
+            <p class="profile-bio" id="profile-bio"></p>
+        </header>
+
+        <!-- Links Section -->
+        <main class="profile-links" id="profile-links">
+            <!-- Links will be inserted here -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="profile-footer">
+            <div class="powered-by">
+                <span>Powered by</span>
+                <a href="/" class="brand-link">hotgirl.social</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+        
+        // Get username from URL path
+        const pathParts = window.location.pathname.split('/');
+        const username = pathParts[pathParts.length - 1];
+
+        // Theme configurations
+        const themes = {
+            default: {
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                textColor: '#ffffff',
+                linkBackground: 'rgba(255, 255, 255, 0.2)',
+                linkHover: 'rgba(255, 255, 255, 0.3)'
+            },
+            dark: {
+                background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
+                textColor: '#ffffff',
+                linkBackground: 'rgba(255, 255, 255, 0.1)',
+                linkHover: 'rgba(255, 255, 255, 0.2)'
+            },
+            pink: {
+                background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+                textColor: '#ffffff',
+                linkBackground: 'rgba(255, 255, 255, 0.2)',
+                linkHover: 'rgba(255, 255, 255, 0.3)'
+            },
+            purple: {
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                textColor: '#ffffff',
+                linkBackground: 'rgba(255, 255, 255, 0.2)',
+                linkHover: 'rgba(255, 255, 255, 0.3)'
+            }
+        };
+
+        // Load profile data
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/u/${username}`);
+                
+                if (!response.ok) {
+                    throw new Error('Profile not found');
+                }
+                
+                const profile = await response.json();
+                displayProfile(profile);
+                
+                // Track page view
+                trackPageView(profile.id);
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showError();
+            }
+        }
+
+        // Display profile data
+        function displayProfile(profile) {
+            // Hide loading screen
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'block';
+
+            // Set page title
+            document.getElementById('page-title').textContent = `${profile.display_name || profile.username} - hotgirl.social`;
+
+            // Apply theme
+            applyTheme(profile.theme || 'default');
+
+            // Set profile photo
+            const photoElement = document.getElementById('profile-photo');
+            if (profile.profile_image_url && !profile.profile_image_url.includes('/uploads/')) {
+                photoElement.innerHTML = `<img src="${profile.profile_image_url}" alt="Profile photo">`;
+            } else {
+                photoElement.innerHTML = '<span class="photo-placeholder">👤</span>';
+            }
+
+            // Set profile name and bio
+            document.getElementById('profile-name').textContent = profile.display_name || profile.username;
+            
+            const bioElement = document.getElementById('profile-bio');
+            if (profile.bio) {
+                bioElement.textContent = profile.bio;
+                bioElement.style.display = 'block';
+            } else {
+                bioElement.style.display = 'none';
+            }
+
+            // Display links
+            displayLinks(profile.links);
+        }
+
+        // Display links
+        function displayLinks(links) {
+            const linksContainer = document.getElementById('profile-links');
+            
+            if (!links || links.length === 0) {
+                linksContainer.innerHTML = '<div class="no-links">No links added yet</div>';
+                return;
+            }
+
+            linksContainer.innerHTML = links.map(link => `
+                <a href="#" class="profile-link" data-url="${link.url}" data-id="${link.id}" onclick="handleLinkClick(event, '${link.url}', ${link.id})">
+                    <span class="link-icon">${link.icon || '🔗'}</span>
+                    <span class="link-title">${link.title}</span>
+                    <span class="link-arrow">→</span>
+                </a>
+            `).join('');
+        }
+
+        // Apply theme styling
+        function applyTheme(themeName) {
+            const theme = themes[themeName] || themes.default;
+            
+            document.body.style.background = theme.background;
+            document.body.style.color = theme.textColor;
+            
+            // Update CSS custom properties for dynamic styling
+            document.documentElement.style.setProperty('--link-bg', theme.linkBackground);
+            document.documentElement.style.setProperty('--link-hover', theme.linkHover);
+            document.documentElement.style.setProperty('--text-color', theme.textColor);
+        }
+
+        // Handle link clicks
+        async function handleLinkClick(event, url, linkId) {
+            event.preventDefault();
+            
+            // Track the click
+            try {
+                await fetch(`${API_BASE_URL}/links/${linkId}/click`, {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Error tracking click:', error);
+            }
+            
+            // Open link
+            window.open(url, '_blank');
+        }
+
+        // Track page view
+        async function trackPageView(profileId) {
+            try {
+                // This endpoint might not exist yet, but we'll add it later
+                await fetch(`${API_BASE_URL}/analytics/page-view`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ profileId })
+                });
+            } catch (error) {
+                // Silently fail - analytics not critical
+            }
+        }
+
+        // Show error state
+        function showError() {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('error-screen').style.display = 'flex';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!username) {
+                showError();
+                return;
+            }
+            
+            loadProfile();
+        });
+
+        // Add some visual feedback for link interactions
+        document.addEventListener('mousedown', function(e) {
+            if (e.target.closest('.profile-link')) {
+                e.target.closest('.profile-link').style.transform = 'scale(0.98)';
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (e.target.closest('.profile-link')) {
+                e.target.closest('.profile-link').style.transform = 'scale(1)';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -484,6 +484,11 @@ app.delete('/links/:id', authenticateToken, async (req, res) => {
 
 // Public profile view
 app.get('/u/:username', async (req, res) => {
+  res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
+// API endpoint for profile data
+app.get('/api/u/:username', async (req, res) => {
   try {
     const { username } = req.params;
 
