@@ -122,7 +122,7 @@
 
                 <!-- Add New Link -->
                 <div class="card">
-                    <h3>Add New Link</h3>
+                    <h3 id="link-form-title">Add New Link</h3>
                     <form id="add-link-form">
                         <div class="form-row">
                             <div class="form-group">
@@ -147,7 +147,10 @@
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Link</button>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" class="btn btn-primary" id="link-submit-btn">Add Link</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display: none;" onclick="cancelEdit()">Cancel</button>
+                        </div>
                     </form>
                 </div>
 
@@ -306,6 +309,7 @@
         const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
         let userToken = localStorage.getItem('userToken');
         let currentUser = null;
+        let currentLinks = []; // Store current links data
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -467,10 +471,11 @@
         async function loadLinks() {
             try {
                 const profile = await apiCall('/profile');
+                currentLinks = profile.links || []; // Store links data
                 const linksList = document.getElementById('links-list');
                 
-                if (profile.links && profile.links.length > 0) {
-                    linksList.innerHTML = profile.links.map(link => `
+                if (currentLinks.length > 0) {
+                    linksList.innerHTML = currentLinks.map(link => `
                         <div class="link-item" data-id="${link.id}">
                             <div class="link-info">
                                 <span class="link-icon">${link.icon || '🔗'}</span>
@@ -493,33 +498,89 @@
                 }
                 
                 // Update preview
-                updateLinksPreview(profile.links || []);
+                updateLinksPreview(currentLinks);
             } catch (error) {
                 document.getElementById('links-list').innerHTML = '<div class="error">Failed to load links</div>';
             }
         }
 
-        // Add new link
+        // Modified form submission to handle both add and edit
         document.getElementById('add-link-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const title = document.getElementById('link-title').value;
             const url = document.getElementById('link-url').value;
             const icon = document.getElementById('link-icon').value;
+            const editingId = this.dataset.editingId;
             
             try {
-                await apiCall('/links', {
-                    method: 'POST',
-                    body: JSON.stringify({ title, url, icon })
-                });
+                if (editingId) {
+                    // Update existing link
+                    await apiCall(`/links/${editingId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ title, url, icon })
+                    });
+                    showMessage('Link updated successfully!', 'success');
+                } else {
+                    // Add new link
+                    await apiCall('/links', {
+                        method: 'POST',
+                        body: JSON.stringify({ title, url, icon })
+                    });
+                    showMessage('Link added successfully!', 'success');
+                }
                 
-                showMessage('Link added successfully!', 'success');
+                // Reset form
                 this.reset();
+                cancelEdit(); // Reset edit state
                 loadLinks();
             } catch (error) {
-                showMessage('Failed to add link', 'error');
+                showMessage(editingId ? 'Failed to update link' : 'Failed to add link', 'error');
             }
         });
+
+        // Improved edit link function
+        function editLink(linkId) {
+            // Find the link data from currentLinks array
+            const linkData = currentLinks.find(link => link.id === linkId);
+            if (!linkData) return;
+            
+            // Pre-fill the form with current values
+            document.getElementById('link-title').value = linkData.title;
+            document.getElementById('link-url').value = linkData.url;
+            document.getElementById('link-icon').value = linkData.icon || '🔗';
+            
+            // Change the form to edit mode
+            const form = document.getElementById('add-link-form');
+            const button = document.getElementById('link-submit-btn');
+            const formTitle = document.getElementById('link-form-title');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            
+            button.textContent = 'Update Link';
+            formTitle.textContent = 'Edit Link';
+            form.dataset.editingId = linkId;
+            cancelBtn.style.display = 'inline-block';
+            
+            // Scroll to form
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Cancel edit function
+        function cancelEdit() {
+            const form = document.getElementById('add-link-form');
+            const button = document.getElementById('link-submit-btn');
+            const formTitle = document.getElementById('link-form-title');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            
+            // Reset form
+            form.reset();
+            delete form.dataset.editingId;
+            
+            // Reset UI
+            button.textContent = 'Add Link';
+            formTitle.textContent = 'Add New Link';
+            cancelBtn.style.display = 'none';
+        }
 
         // Delete link
         async function deleteLink(linkId) {
@@ -606,37 +667,37 @@
 
         // Theme selection
         document.querySelectorAll('.theme-option').forEach(option => {
-        option.addEventListener('click', function() {
-        // Remove active class from all options
-        document.querySelectorAll('.theme-option').forEach(opt => {
-            opt.classList.remove('active');
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                document.querySelectorAll('.theme-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Get the theme name
+                const theme = this.dataset.theme;
+                
+                // Save theme
+                saveTheme(theme);
+            });
         });
-        
-        // Add active class to clicked option
-        this.classList.add('active');
-        
-        // Get the theme name
-        const theme = this.dataset.theme;
-        
-        // Save theme
-        saveTheme(theme);
-    });
-});
 
         // Save theme function
         async function saveTheme(theme) {
-        try {
-            await apiCall('/profile', {
-            method: 'PUT',
-            body: JSON.stringify({
-                theme: theme
-            })
-        });
-        showMessage('Theme updated!', 'success');
-    } catch (error) {
-        showMessage('Failed to update theme', 'error');
-    }
-}
+            try {
+                await apiCall('/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        theme: theme
+                    })
+                });
+                showMessage('Theme updated!', 'success');
+            } catch (error) {
+                showMessage('Failed to update theme', 'error');
+            }
+        }
     </script>
 </body>
 </html>
