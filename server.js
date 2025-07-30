@@ -337,7 +337,7 @@ app.post('/auth/change-password', authenticateToken, async (req, res) => {
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
     const profileResult = await pool.query(`
-      SELECT p.*, u.username 
+      SELECT p.*, u.username, u.email, u.created_at 
       FROM profiles p 
       JOIN users u ON p.user_id = u.id 
       WHERE p.user_id = $1
