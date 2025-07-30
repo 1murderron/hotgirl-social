@@ -208,7 +208,7 @@ app.post('/create-checkout-session', async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.FRONTEND_URL}/welcome.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/?canceled=true`,
       customer_email: email,
       metadata: {
@@ -991,6 +991,62 @@ app.post('/admin/login', async (req, res) => {
     res.status(500).json({ error: 'Admin login failed' });
   }
 });
+
+// Welcome page password setup
+app.post('/welcome/setup-password', async (req, res) => {
+  try {
+    const { session_id, password } = req.body;
+    
+    if (!session_id || !password) {
+      return res.status(400).json({ error: 'Session ID and password required' });
+    }
+    
+    // Find user by Stripe session (you might need to store session_id during webhook)
+    // For now, we'll find the most recent user without a proper password
+    const userResult = await pool.query(`
+      SELECT * FROM users 
+      WHERE stripe_payment_intent_id IS NOT NULL 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `);
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const user = userResult.rows[0];
+    
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Update user password
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      [hashedPassword, user.id]
+    );
+    
+    // Create login token
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+    
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username
+      }
+    });
+    
+  } catch (error) {
+    console.error('Password setup error:', error);
+    res.status(500).json({ error: 'Failed to set password' });
+  }
+});
+
 
 // Health check
 app.get('/health', (req, res) => {
