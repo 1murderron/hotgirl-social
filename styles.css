@@ -1677,7 +1677,7 @@ body.user-login{
     min-width: 300px;
 }
 
-.user-login-container {
+/* .user-login-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -1696,6 +1696,7 @@ body.user-login{
     max-width: 400px;
     width: 90%;
 }
+*/
 
 .login-form h2 {
     text-align: center;
