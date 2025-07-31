@@ -326,6 +326,8 @@
         }
 
         function showLoginForm() {
+            // Hide dashboard when showing login
+                document.querySelector('.admin-container').classList.remove('authenticated');
             const loginHtml = `
                 <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;">
                     <div style="background: white; padding: 40px; border-radius: 12px; max-width: 400px; width: 90%;">
@@ -392,6 +394,10 @@
         }
 
         async function initializeDashboard() {
+
+            // Show the dashboard after successful login
+            document.querySelector('.admin-container').classList.add('authenticated');
+
             try {
                 const stats = await apiCall('/admin/stats');
                 document.getElementById('total-users').textContent = stats.totalUsers || 0;

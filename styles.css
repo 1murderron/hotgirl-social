@@ -2286,3 +2286,12 @@ select:focus {
         margin: 0 !important;
     }
 }
+
+/* Hide admin content until authenticated */
+.admin-container {
+    display: none;
+}
+
+.admin-container.authenticated {
+    display: flex;
+}
