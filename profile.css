@@ -161,15 +161,18 @@ body.profile .brand-link {
 /* Mobile optimizations */
 @media (max-width: 480px) {
     body.profile .profile-container {
-        padding: 1rem;
+        padding: 0.5rem;
         margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
     .profile-tile {
         padding: 2rem 1.5rem;
-        margin: 0 auto;
+        margin: 0;
         border-radius: 20px;
-        width: calc(100% - 2rem);
+        width: 95%;
         max-width: 350px;
     }
     
