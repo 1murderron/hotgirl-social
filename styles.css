@@ -2277,3 +2277,12 @@ select:focus {
         margin: 0 10px !important;
     }
 }
+
+@media (max-width: 768px) {
+    body.login > div > div {
+        max-width: none !important;
+        width: 95% !important;
+        padding: 20px !important;
+        margin: 0 !important;
+    }
+}
