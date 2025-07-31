@@ -362,10 +362,14 @@ body {
 }
 
 /* ===== 6. ANIMATIONS & TRANSITIONS ===== */
-.loading {
+.loading:not(.btn .loading) {
     text-align: center;
     padding: 40px;
     color: #666;
+}
+
+.btn .loading {
+    display: none;
 }
 
 .spinner {
