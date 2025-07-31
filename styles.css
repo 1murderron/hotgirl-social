@@ -1677,6 +1677,26 @@ body.user-login{
     min-width: 300px;
 }
 
+.user-login-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-login-form {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+}
+
 .login-form h2 {
     text-align: center;
     margin-bottom: 1.5rem;
