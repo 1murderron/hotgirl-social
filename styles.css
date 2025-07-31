@@ -2271,8 +2271,9 @@ select:focus {
 
 @media (max-width: 768px) {
     body.login div[style*="max-width: 400px"] {
-        max-width: 95% !important;
-        width: 95% !important;
+        max-width: 95vw !important;
+        width: 95vw !important;
         padding: 20px !important;
+        margin: 0 10px !important;
     }
 }
