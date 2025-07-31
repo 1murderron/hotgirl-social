@@ -8,6 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 require('dotenv').config();
+const { validateUsername } = require('./username-validation');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -182,13 +183,57 @@ async function initializeDatabase() {
 
 // Routes
 
+// Check if username is available
+app.post('/check-username', async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    // Validate the username format first
+    const validation = validateUsername(username);
+    if (!validation.isValid) {
+      return res.json({ 
+        available: false, 
+        errors: validation.errors 
+      });
+    }
+    
+    // Check if username already exists in database
+    const result = await pool.query(
+      'SELECT id FROM users WHERE LOWER(username) = LOWER($1)', 
+      [username]
+    );
+    
+    res.json({ 
+      available: result.rows.length === 0,
+      username: username.toLowerCase()
+    });
+    
+  } catch (error) {
+    console.error('Username check error:', error);
+    res.status(500).json({ 
+      available: false, 
+      error: 'Error checking username' 
+    });
+  }
+});
+
 // Create Stripe checkout session
 app.post('/create-checkout-session', async (req, res) => {
   try {
     const { email, username } = req.body;
 
     // Check if username is already taken
-    const existingUser = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
+
+    // Validate username format
+    const validation = validateUsername(username);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        error: 'Invalid username: ' + validation.errors.join(', ')
+      });
+    }
+    
+    // Check if username is already taken
+    const existingUser = await pool.query('SELECT id FROM users WHERE LOWER(username) = LOWER($1)', [username]);
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ error: 'Username already taken' });
     }
