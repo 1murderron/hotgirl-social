@@ -205,6 +205,10 @@ body {
     display: inline-block;
 }
 
+.btn .loading {
+    display: none;
+}
+
 /* Form Elements */
 .form-group {
     margin-bottom: var(--spacing-lg);
