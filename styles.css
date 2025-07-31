@@ -1649,7 +1649,8 @@ body.profile:root {
 /* ===== 12. LOGIN & WELCOME STYLES ===== */
 
 /* Login Page Styles */
-body.login {
+body.login ,
+body.user-login{
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
