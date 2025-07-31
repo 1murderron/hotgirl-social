@@ -6,13 +6,24 @@
 
 </head>
 <body class="login">
-    <form class="login-form" id="login-form">
+
+    <div class="login-container">
+    <div class="login-form">
         <h2>Login to Dashboard</h2>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-        <div id="error" style="color: red; margin-top: 1rem;"></div>
-    </form>
+        <form id="login-form">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">Login</button>
+            <div id="error" style="color: red; margin-top: 15px; text-align: center; display: none;"></div>
+        </form>
+    </div>
+    </div>
 
     <script>
         document.getElementById('login-form').addEventListener('submit', async (e) => {
