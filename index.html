@@ -169,56 +169,10 @@
             checkoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
     
-        // Collect email and username first
-        const email = prompt("Enter your email address:");
-        if (!email || !email.includes('@')) {
-        alert("Please enter a valid email address");
-        return;
-    }
+        // Show username collection modal
+        showUsernameModal();
     
-    const username = prompt("Choose a username (letters, numbers, underscore only):");
-    if (!username || username.length < 3) {
-        alert("Username must be at least 3 characters");
-        return;
-    }
-    
-    // Show loading state
-    checkoutButton.classList.add('loading');
-    checkoutButton.disabled = true;
-    hideMessages();
 
-    try {
-        const response = await fetch('/create-checkout-session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                username: username
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const session = await response.json();
-        const result = await stripe.redirectToCheckout({
-            sessionId: session.id
-        });
-
-        if (result.error) {
-            throw new Error(result.error.message);
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        showError('Payment failed: ' + error.message);
-    } finally {
-        checkoutButton.classList.remove('loading');
-        checkoutButton.disabled = false;
-    }
 });
 
         function showError(message) {
@@ -251,6 +205,173 @@
                 }
             });
         });
+
+        function showUsernameModal() {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 40px; border-radius: 12px; max-width: 500px; width: 90%;">
+                        <h2 style="margin-bottom: 20px; color: #333;">Almost there! Choose your username</h2>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Email:</label>
+                            <input type="email" id="modal-email" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Username:</label>
+                            <input type="text" id="modal-username" required style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; box-sizing: border-box;" placeholder="yourname">
+                            <div id="username-status" style="margin-top: 5px; font-size: 14px;"></div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 30px;">
+                            <button id="modal-continue" style="flex: 1; padding: 15px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; opacity: 0.5;" disabled>
+                                Continue to Payment
+                            </button>
+                            <button onclick="this.closest('div').parentElement.remove()" style="padding: 15px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setupUsernameValidation();
+        }
+
+        function setupUsernameValidation() {
+            const usernameInput = document.getElementById('modal-username');
+            const emailInput = document.getElementById('modal-email');
+            const continueBtn = document.getElementById('modal-continue');
+            const statusDiv = document.getElementById('username-status');
+            
+            let checkTimeout;
+            
+            // Check validation whenever user types
+            function checkInputs() {
+                const email = emailInput.value;
+                const username = usernameInput.value;
+                
+                // Basic checks
+                const emailValid = email.includes('@');
+                const usernameValid = username.length >= 3;
+                
+                if (emailValid && usernameValid) {
+                    continueBtn.disabled = false;
+                    continueBtn.style.opacity = '1';
+                } else {
+                    continueBtn.disabled = true;
+                    continueBtn.style.opacity = '0.5';
+                }
+            }
+            
+            // Username validation
+            usernameInput.addEventListener('input', function() {
+                const username = this.value;
+                
+                // Clear previous timeout
+                clearTimeout(checkTimeout);
+                
+                if (username.length < 3) {
+                    statusDiv.innerHTML = '<span style="color: #dc3545;">Username must be at least 3 characters</span>';
+                    checkInputs();
+                    return;
+                }
+                
+                // Check username after user stops typing
+                statusDiv.innerHTML = '<span style="color: #007bff;">Checking availability...</span>';
+                checkTimeout = setTimeout(() => {
+                    checkUsernameAvailability(username);
+                }, 500);
+                
+                checkInputs();
+            });
+            
+            emailInput.addEventListener('input', checkInputs);
+            
+            // Continue button handler
+            continueBtn.addEventListener('click', () => {
+                const email = emailInput.value;
+                const username = usernameInput.value;
+                proceedToCheckout(email, username);
+                document.querySelector('[style*="position: fixed"]').remove();
+            });
+        }
+
+        async function checkUsernameAvailability(username) {
+            const statusDiv = document.getElementById('username-status');
+            
+            try {
+                const response = await fetch('/check-username', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username })
+                });
+                
+                const result = await response.json();
+                
+                if (result.available) {
+                    statusDiv.innerHTML = '<span style="color: #28a745;">✓ Username available!</span>';
+                } else {
+                    if (result.errors && result.errors.length > 0) {
+                        statusDiv.innerHTML = '<span style="color: #dc3545;">✗ ' + result.errors[0] + '</span>';
+                    } else {
+                        statusDiv.innerHTML = '<span style="color: #dc3545;">✗ Username already taken</span>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+                statusDiv.innerHTML = '<span style="color: #ffc107;">⚠ Error checking availability</span>';
+            }
+        }
+
+
+        async function proceedToCheckout(email, username) {
+            const continueBtn = document.getElementById('modal-continue');
+            
+            // Show loading state
+            continueBtn.innerHTML = 'Processing...';
+            continueBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        username: username
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Network response was not ok');
+                }
+
+                const session = await response.json();
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.id
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+                continueBtn.innerHTML = 'Continue to Payment';
+                continueBtn.disabled = false;
+            }
+        }
+
+
+
+
+
 
         // Handle URL parameters for success/cancel pages
         const urlParams = new URLSearchParams(window.location.search);
