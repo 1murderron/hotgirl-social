@@ -46,6 +46,86 @@
             </div>
         </nav>
 
+
+        
+<!-- My HotGirl Link Section -->
+<div class="hotgirl-link-section" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; margin-bottom: 2rem;">
+    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Share Your Profile</h3>
+    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; margin-bottom: 1rem;">
+        <input type="text" id="profile-url" readonly 
+               style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; background: white; font-family: monospace; font-size: 0.9rem;"
+               value="https://hotgirl-social-production.up.railway.app/u/[username]">
+        <button id="copy-link-btn" onclick="copyProfileLink()" 
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: transform 0.2s;">
+            My HotGirl Link
+        </button>
+    </div>
+    <div id="copy-success" style="color: #059669; font-weight: 500; text-align: center; opacity: 0; transition: opacity 0.3s;">
+        ✓ Link copied to clipboard!
+    </div>
+</div>
+
+<script>
+async function copyProfileLink() {
+    const urlInput = document.getElementById('profile-url');
+    const successMsg = document.getElementById('copy-success');
+    const button = document.getElementById('copy-link-btn');
+    
+    try {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(urlInput.value);
+        
+        // Show success message
+        successMsg.style.opacity = '1';
+        button.style.transform = 'scale(0.95)';
+        
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+            successMsg.style.opacity = '0';
+            button.style.transform = 'scale(1)';
+        }, 2000);
+        
+    } catch (err) {
+        // Fallback for older browsers
+        urlInput.select();
+        document.execCommand('copy');
+        successMsg.style.opacity = '1';
+        setTimeout(() => {
+            successMsg.style.opacity = '0';
+        }, 2000);
+    }
+}
+
+// Update the URL with the actual username when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // You'll need to get the username from your existing dashboard data
+    // Replace this with however you get the current user's username
+    const username = getCurrentUsername(); // You'll need to implement this
+    if (username) {
+        document.getElementById('profile-url').value = `https://hotgirl-social-production.up.railway.app/u/${username}`;
+    }
+});
+
+function getCurrentUsername() {
+    // Add your logic here to get the current user's username
+    // This could be from localStorage, an API call, or however you store user data
+    return 'username'; // Replace with actual implementation
+}
+</script>
+
+<!-- END of My HotGirl Link Section -->
+
+
+
+
+
+
+
+
+
+
+
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Profile Section -->
