@@ -2268,3 +2268,11 @@ select:focus {
         border: 1px solid #ccc !important;
     }
 }
+
+@media (max-width: 768px) {
+    body.login div[style*="max-width: 400px"] {
+        max-width: 95% !important;
+        width: 95% !important;
+        padding: 20px !important;
+    }
+}
