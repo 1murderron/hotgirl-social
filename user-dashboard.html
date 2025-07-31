@@ -412,8 +412,9 @@
                 
                 // Set profile link
                 document.getElementById('view-profile').href = `/u/${profile.username}`;
-                // Set profile link for copy feature
-                document.getElementById('profile-url').value = `https://hotgirl-social-production.up.railway.app/u/${profile.username}`;
+                // Set profile link for copy button feature
+                document.getElementById('profile-url').value = `https://hotgirl-social-production.up.railway.app/u/${encodeURIComponent(profile.username)}`;
+                //document.getElementById('profile-url').value = `https://hotgirl-social-production.up.railway.app/u/${profile.username}`;
                 
                 // Load links
                 loadLinks();
