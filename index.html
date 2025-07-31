@@ -37,7 +37,7 @@
                     </div>
                     
                     <ul class="features">
-						<li>$20 One Time Setup Fee</li>
+						<li>$17 One Time Setup Fee</li>
 						<li>No Subscrition - No Monthly Fee</li>
 						<li>No Upselling - Ever</li>
 						<li>No Constant Email Spam - Ever</li>
@@ -160,18 +160,18 @@
 
         // Product configuration
         const PRODUCT_CONFIG = {
-            price: 2900, // $29.00 in cents
+            price: 1700, // $17.00 in cents
             currency: 'usd',
             productName: 'CreatorLinks Profile',
             productDescription: 'One-time payment for lifetime access to your link-in-bio profile'
         };
 
-checkoutButton.addEventListener('click', async (e) => {
-    e.preventDefault();
+            checkoutButton.addEventListener('click', async (e) => {
+            e.preventDefault();
     
-    // Collect email and username first
-    const email = prompt("Enter your email address:");
-    if (!email || !email.includes('@')) {
+        // Collect email and username first
+        const email = prompt("Enter your email address:");
+        if (!email || !email.includes('@')) {
         alert("Please enter a valid email address");
         return;
     }
