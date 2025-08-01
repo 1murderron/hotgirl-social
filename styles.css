@@ -2577,7 +2577,7 @@ body.profile .brand-link {
 /* HotGirl Link Section Responsive */
 @media (max-width: 768px) {
     .hotgirl-link-section {
-        margin: 1rem 0 !important;
+        margin: 1rem 1rem !important;
     }
     
     .hotgirl-link-section div[style*="display: flex"] {
