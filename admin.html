@@ -251,7 +251,7 @@
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">Maximum Links per Profile</label>
                             <input type="number" value="20" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
                         </div>
-                        <button class="btn btn-primary">Save Settings</button>
+                        <button class="btn btn-primary" id="save-settings-btn" onclick="saveSettings()">Save Settings</button>
                     </div>
                 </div>
             </div>
@@ -698,6 +698,9 @@
                 case 'analytics':
                     loadAnalytics();
                     break;
+                case 'settings':
+                    loadSettings();
+                    break;
             }
         }
         
@@ -870,6 +873,45 @@
                 </button>
             `);
         });
+
+
+        // Load current settings when settings page is shown
+        async function loadSettings() {
+            try {
+                const data = await apiCall('/admin/settings');
+                
+                // Fill in the form with current values
+                document.querySelector('input[value="hotgirl.social"]').value = data.settings.platform_name || 'hotgirl.social';
+                document.querySelector('input[value="29"]').value = data.settings.registration_price || '15';
+                document.querySelector('input[value="20"]').value = data.settings.max_links_per_profile || '20';
+                
+            } catch (error) {
+                console.error('Failed to load settings:', error);
+            }
+        }
+
+        // Save settings function
+        async function saveSettings() {
+            try {
+                const platformName = document.querySelector('input[value*="hotgirl"]').value;
+                const registrationPrice = document.querySelector('input[type="number"][value*="29"], input[type="number"][value*="15"]').value;
+                const maxLinks = document.querySelector('input[value="20"]').value;
+                
+                await apiCall('/admin/settings', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        platform_name: platformName,
+                        registration_price: registrationPrice,
+                        max_links_per_profile: maxLinks
+                    })
+                });
+                
+                showSuccessMessage('Settings saved successfully!');
+            } catch (error) {
+                showError('Failed to save settings');
+            }
+        }
+
     </script>
     </body>
 </html>

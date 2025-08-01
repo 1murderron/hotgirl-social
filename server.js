@@ -175,6 +175,36 @@ async function initializeDatabase() {
       )
     `);
 
+      await pool.query(`
+      CREATE TABLE IF NOT EXISTS platform_settings (
+        id SERIAL PRIMARY KEY,
+        setting_key VARCHAR(100) UNIQUE NOT NULL,
+        setting_value TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Insert default settings if they don't exist
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value) 
+      VALUES 
+        ('platform_name', 'hotgirl.social'),
+        ('registration_price', '15'),
+        ('max_links_per_profile', '20')
+      ON CONFLICT (setting_key) DO NOTHING
+    `);
+
+
+
+
+
+
+
+
+
+
+
+
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -716,6 +746,65 @@ app.get('/admin/stats', authenticateAdmin, async (req, res) => {
       ) as link_counts
     `);
     const avgLinks = parseFloat(avgLinksResult.rows[0]?.avg_links || 0).toFixed(1);
+
+
+      // Get platform settings
+app.get('/admin/settings', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
+    
+    const settings = {};
+    result.rows.forEach(row => {
+      settings[row.setting_key] = row.setting_value;
+    });
+    
+    res.json({ settings });
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+
+
+// Save platform settings
+app.post('/admin/settings', authenticateAdmin, async (req, res) => {
+  try {
+    const { platform_name, registration_price, max_links_per_profile } = req.body;
+    
+    // Update each setting
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (setting_key) 
+      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
+    `, ['platform_name', platform_name]);
+    
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (setting_key) 
+      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
+    `, ['registration_price', registration_price]);
+    
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (setting_key) 
+      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
+    `, ['max_links_per_profile', max_links_per_profile]);
+    
+    res.json({ message: 'Settings saved successfully' });
+  } catch (error) {
+    console.error('Save settings error:', error);
+    res.status(500).json({ error: 'Failed to save settings' });
+  }
+});
+
+
+
+
+
 
     res.json({
       totalUsers,
