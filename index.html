@@ -21,7 +21,7 @@
                 <a href="#features">Features</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#contact">Contact</a>
-                <a href="/login.html" class="btn btn-outline" style="margin-left: 1rem;">Login</a>
+                <a href="#" onclick="openLoginModal()" class="btn btn-outline" style="margin-left: 1rem;">Login</a>
             </div>
             
             <!-- Mobile nav overlay -->
@@ -31,7 +31,7 @@
                     <a href="#features" onclick="closeMobileMenu()">Features</a>
                     <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
                     <a href="#contact" onclick="closeMobileMenu()">Contact</a>
-                    <a href="/login.html" class="btn btn-outline">Login</a>
+                    <a href="#" onclick="openLoginModal(); closeMobileMenu();" class="login-btn">Login</a>
                 </div>
             </div>
         </nav>
@@ -161,6 +161,28 @@
             </div>
             
             <button type="submit" class="contact-btn">Send Message</button>
+        </form>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="contact-modal">
+        <form class="contact-form" id="login-form">
+            <button type="button" class="close-btn" onclick="closeLoginModal()">&times;</button>
+            <h2>Login to Dashboard</h2>
+            
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" required>
+            </div>
+            
+            <button type="submit" class="contact-btn" id="login-submit-btn">Login</button>
+            
+            <div id="login-error" style="color: red; margin-top: 15px; text-align: center; display: none;"></div>
         </form>
     </div>
 
@@ -487,6 +509,66 @@
                 closeMobileMenu();
             }
         });
+
+        // Login modal functions
+        function openLoginModal() {
+            document.getElementById('login-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').style.display = 'none';
+        }
+
+        // Handle login form submission
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            const submitBtn = document.getElementById('login-submit-btn');
+            
+            // Show loading state
+            submitBtn.textContent = 'Logging in...';
+            submitBtn.disabled = true;
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('userToken', data.token);
+                    window.location.href = '/user-dashboard.html';
+                } else {
+                    const error = await response.json();
+                    errorDiv.textContent = error.error || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.textContent = 'Login';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Close login modal when clicking outside
+        document.getElementById('login-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+                
     </script>
 </body>
 </html>

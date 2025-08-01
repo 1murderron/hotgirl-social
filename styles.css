@@ -566,6 +566,21 @@ body.main-site .logo {
     }
 }
 
+.login-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-radius: 0.5rem !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    margin-top: 0.5rem !important;
+}
+
+.login-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 
 /* Hero Section */
 .hero {
