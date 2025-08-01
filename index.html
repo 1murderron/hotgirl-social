@@ -12,11 +12,27 @@
     <header>
         <nav class="container">
             <div class="logo" id="site-logo">hotgirl.social</div>
-            <div class="nav-links">
+            
+            <!-- Mobile menu button -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" id="mobile-menu-btn">☰</button>
+            
+            <!-- Desktop nav links -->
+            <div class="nav-links desktop-nav">
                 <a href="#features">Features</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#contact">Contact</a>
-				<a href="/login.html" class="btn btn-outline" style="margin-left: 1rem;">Login</a>
+                <a href="/login.html" class="btn btn-outline" style="margin-left: 1rem;">Login</a>
+            </div>
+            
+            <!-- Mobile nav overlay -->
+            <div class="mobile-nav-overlay" id="mobile-nav-overlay" onclick="closeMobileMenu()">
+                <div class="mobile-nav-menu">
+                    <button class="mobile-nav-close" onclick="closeMobileMenu()">×</button>
+                    <a href="#features" onclick="closeMobileMenu()">Features</a>
+                    <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
+                    <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+                    <a href="/login.html" class="btn btn-outline">Login</a>
+                </div>
             </div>
         </nav>
     </header>
@@ -451,6 +467,24 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeContactForm();
+            }
+        });
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-nav-overlay');
+            overlay.classList.add('active');
+        }
+
+        function closeMobileMenu() {
+            const overlay = document.getElementById('mobile-nav-overlay');
+            overlay.classList.remove('active');
+        }
+
+        // Close mobile menu with escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileMenu();
             }
         });
     </script>
