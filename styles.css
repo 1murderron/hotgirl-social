@@ -946,6 +946,9 @@ body.dashboard .sidebar {
     padding: 2rem 0;
     position: static;
     height: auto;
+    flex-shrink: 0;
+    display: block;
+    overflow-x: visible;
 }
 
 body.dashboard .nav-item {
@@ -961,6 +964,9 @@ body.dashboard .nav-item {
     cursor: pointer;
     font-size: 16px;
     border-left: 3px solid transparent;
+    flex-direction: row;
+    min-width: auto;
+    white-space: normal;
 }
 
 body.dashboard .nav-item:hover,
@@ -981,6 +987,9 @@ body.dashboard .nav-text {
 body.dashboard .main-content {
     flex: 1;
     padding: 2rem;
+    margin-left: 0;
+    width: auto;
+    min-width: 0;
 }
 
 .content-section {
