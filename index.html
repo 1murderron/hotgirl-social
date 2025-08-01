@@ -31,7 +31,7 @@
                     <div class="success-message" id="success-message"></div>
                     
                     <div class="price">
-                        <div class="price-amount">$15</div>
+                        <div class="price-amount" id="price-display">$15</div>
                         <div class="price-period">One-Time Payment</div>
 						<div class="price-period">Own Your Custom Page & Link For Life</div>
                     </div>
@@ -332,6 +332,42 @@
         }
 
 
+        // Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+        // Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+            // Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+
+
+
         async function proceedToCheckout(email, username) {
             const continueBtn = document.getElementById('modal-continue');
             
@@ -375,7 +411,8 @@
 
 
 
-
+        // Load current price when page loads
+        loadPrice();
 
 
         // Handle URL parameters for success/cancel pages

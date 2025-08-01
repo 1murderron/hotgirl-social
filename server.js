@@ -195,16 +195,6 @@ async function initializeDatabase() {
     `);
 
 
-
-
-
-
-
-
-
-
-
-
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -212,6 +202,57 @@ async function initializeDatabase() {
 }
 
 // Routes
+
+// Get current registration price for public display
+app.get('/api/price', async (req, res) => {
+  try {
+    const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
+    const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
+    
+    res.json({ price: price });
+  } catch (error) {
+    console.error('Get price error:', error);
+    res.json({ price: 15 }); // fallback to default
+  }
+});
+
+// Check if username is available
+app.post('/check-username', async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    // Validate the username format first
+    const validation = validateUsername(username);
+    if (!validation.isValid) {
+      return res.json({ 
+        available: false, 
+        errors: validation.errors 
+      });
+    }
+    
+    // Check if username already exists in database
+    const result = await pool.query(
+      'SELECT id FROM users WHERE LOWER(username) = LOWER($1)', 
+      [username]
+    );
+    
+    res.json({ 
+      available: result.rows.length === 0,
+      username: username.toLowerCase()
+    });
+    
+  } catch (error) {
+    console.error('Username check error:', error);
+    res.status(500).json({ 
+      available: false, 
+      error: 'Error checking username' 
+    });
+  }
+});
+
+
+
+
 
 // Check if username is available
 app.post('/check-username', async (req, res) => {
