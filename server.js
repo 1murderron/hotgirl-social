@@ -268,6 +268,11 @@ app.post('/create-checkout-session', async (req, res) => {
       return res.status(400).json({ error: 'Username already taken' });
     }
 
+    // Get current price from settings
+    const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
+    const priceInDollars = parseFloat(priceResult.rows[0]?.setting_value || 15);
+    const priceInCents = Math.round(priceInDollars * 100);
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -278,7 +283,7 @@ app.post('/create-checkout-session', async (req, res) => {
             name: 'hotgirl.social Profile',
             description: 'One-time payment for lifetime access to your link-in-bio profile'
           },
-          unit_amount: 2900, // $29.00
+          unit_amount: priceInCents,
         },
         quantity: 1,
       }],
