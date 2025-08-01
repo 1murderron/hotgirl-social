@@ -21,7 +21,7 @@ const pool = new Pool({
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [process.env.FRONTEND_URL, 'http://localhost:3000'],
   credentials: true
 }));
 
@@ -213,6 +213,22 @@ app.get('/api/price', async (req, res) => {
   } catch (error) {
     console.error('Get price error:', error);
     res.json({ price: 15 }); // fallback to default
+  }
+});
+
+// Get site configuration for frontend
+app.get('/api/config', async (req, res) => {
+  try {
+    res.json({
+      siteName: process.env.SITE_NAME || 'hotgirl.social',
+      apiUrl: process.env.FRONTEND_URL || 'https://hotgirl-social-production.up.railway.app'
+    });
+  } catch (error) {
+    console.error('Get config error:', error);
+    res.json({
+      siteName: 'hotgirl.social',
+      apiUrl: 'https://hotgirl-social-production.up.railway.app'
+    });
   }
 });
 

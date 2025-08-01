@@ -11,11 +11,12 @@
 <body class="main-site">
     <header>
         <nav class="container">
-            <div class="logo">hotgirl.social</div>
+            <div class="logo" id="site-logo">hotgirl.social</div>
             <div class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#contact">Contact</a>
+				<a href="/login.html" class="btn btn-outline" style="margin-left: 1rem;">Login</a>
             </div>
         </nav>
     </header>
@@ -37,7 +38,7 @@
                     </div>
                     
                     <ul class="features">
-						<li>$15 One Time Setup Fee</li>
+						<li id="price-feature">$15 One Time Setup Fee</li>
 						<li>No Subscrition - No Monthly Fee</li>
 						<li>No Upselling - Ever</li>
 						<li>No Constant Email Spam - Ever</li>
@@ -112,7 +113,7 @@
 
     <footer id="contact">
         <div class="container">
-            <p>&copy; 2025 CreatorLinks. Built for creators, by creators.</p>
+            <p>&copy; 2025 <span id="footer-brand">CreatorLinks</span>. Built for creators, by creators.</p>
             <p>Questions? <span class="contact-link" onclick="openContactForm()">Contact us here</span></p>
         </div>
     </footer>
@@ -156,22 +157,18 @@
         const errorMessage = document.getElementById('error-message');
         const successMessage = document.getElementById('success-message');
 
-        // Product configuration
-        const PRODUCT_CONFIG = {
-            price: 1500, // $15.00 in cents
-            currency: 'usd',
-            productName: 'CreatorLinks Profile',
-            productDescription: 'One-time payment for lifetime access to your link-in-bio profile'
+        // Site configuration - will be loaded dynamically
+        let SITE_CONFIG = {
+            siteName: 'hotgirl.social',
+            currentPrice: 15
         };
 
-            checkoutButton.addEventListener('click', async (e) => {
+        checkoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
-    
-        // Show username collection modal
-        showUsernameModal();
-    
-
-});
+            
+            // Show username collection modal
+            showUsernameModal();
+        });
 
         function showError(message) {
             errorMessage.textContent = message;
@@ -331,42 +328,30 @@
             }
         }
 
-
-        // Load current price
-        async function loadPrice() {
+        // Load site configuration (price and branding)
+        async function loadSiteConfig() {
             try {
-                const response = await fetch('/api/price');
-                const data = await response.json();
-                document.getElementById('price-display').textContent = `$${data.price}`;
+                // Load price
+                const priceResponse = await fetch('/api/price');
+                const priceData = await priceResponse.json();
+                SITE_CONFIG.currentPrice = priceData.price;
+                
+                // Load site config
+                const configResponse = await fetch('/api/config');
+                const configData = await configResponse.json();
+                SITE_CONFIG.siteName = configData.siteName;
+                
+                // Update UI elements
+                document.getElementById('price-display').textContent = `$${SITE_CONFIG.currentPrice}`;
+                document.getElementById('price-feature').textContent = `$${SITE_CONFIG.currentPrice} One Time Setup Fee`;
+                document.getElementById('site-logo').textContent = SITE_CONFIG.siteName;
+                document.getElementById('footer-brand').textContent = SITE_CONFIG.siteName;
+                document.title = `${SITE_CONFIG.siteName} - Your Link in Bio Solution`;
+                
             } catch (error) {
-                console.error('Failed to load price:', error);
+                console.error('Failed to load site configuration:', error);
             }
         }
-
-        // Load current price
-        async function loadPrice() {
-            try {
-                const response = await fetch('/api/price');
-                const data = await response.json();
-                document.getElementById('price-display').textContent = `$${data.price}`;
-            } catch (error) {
-                console.error('Failed to load price:', error);
-            }
-        }
-
-            // Load current price
-        async function loadPrice() {
-            try {
-                const response = await fetch('/api/price');
-                const data = await response.json();
-                document.getElementById('price-display').textContent = `$${data.price}`;
-            } catch (error) {
-                console.error('Failed to load price:', error);
-            }
-        }
-
-
-
 
         async function proceedToCheckout(email, username) {
             const continueBtn = document.getElementById('modal-continue');
@@ -409,11 +394,8 @@
             }
         }
 
-
-
-        // Load current price when page loads
-        loadPrice();
-
+        // Load site configuration when page loads
+        loadSiteConfig();
 
         // Handle URL parameters for success/cancel pages
         const urlParams = new URLSearchParams(window.location.search);
