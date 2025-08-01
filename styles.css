@@ -1930,6 +1930,21 @@ body.welcome {
 
 /* Admin Panel Mobile */
 @media (max-width: 768px) {
+    .search-bar {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .search-bar button {
+        width: 100%;
+    }
+
     body.admin .admin-container {
         flex-direction: column;
     }
@@ -1951,6 +1966,7 @@ body.welcome {
 
     body.admin .mobile-menu-toggle {
         display: block;
+        margin: 10px;
     }
 
     body.admin .main-content {
