@@ -810,6 +810,7 @@ body.admin {
     border-radius: 12px;
     box-shadow: var(--shadow-md);
     overflow: hidden;
+    width: 100%;
 }
 
 .card-header {
@@ -827,18 +828,24 @@ body.admin {
 
 .card-content {
     padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: auto;
 }
 
 .data-table th,
 .data-table td {
-    padding: 15px 30px;
+    padding: 10px 15px;
     text-align: left;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .data-table th {
