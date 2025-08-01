@@ -166,7 +166,7 @@
 
     <!-- Login Modal -->
     <div id="login-modal" class="contact-modal">
-        <form class="contact-form" id="login-form">
+        <form class="contact-form" id="login-form" onsubmit="handleLogin(event)"></form>
             <button type="button" class="close-btn" onclick="closeLoginModal()">&times;</button>
             <h2>Login to Dashboard</h2>
             
@@ -523,9 +523,9 @@
             document.getElementById('login-error').style.display = 'none';
         }
 
-        // Handle login form submission
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Handle login form submission - using onclick instead of addEventListener
+        function handleLogin(event) {
+            event.preventDefault();
             
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
@@ -537,30 +537,33 @@
             submitBtn.disabled = true;
             errorDiv.style.display = 'none';
             
-            try {
-                const response = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                
+            fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => {
                 if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('userToken', data.token);
-                    window.location.href = '/user-dashboard.html';
+                    return response.json().then(data => {
+                        localStorage.setItem('userToken', data.token);
+                        window.location.href = '/user-dashboard.html';
+                    });
                 } else {
-                    const error = await response.json();
-                    errorDiv.textContent = error.error || 'Login failed';
-                    errorDiv.style.display = 'block';
+                    return response.json().then(error => {
+                        errorDiv.textContent = error.error || 'Login failed';
+                        errorDiv.style.display = 'block';
+                    });
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 errorDiv.textContent = 'Connection error. Please try again.';
                 errorDiv.style.display = 'block';
-            } finally {
+            })
+            .finally(() => {
                 submitBtn.textContent = 'Login';
                 submitBtn.disabled = false;
-            }
-        });
+            });
+        }
 
         // Close login modal when clicking outside
         document.getElementById('login-modal').addEventListener('click', function(e) {
