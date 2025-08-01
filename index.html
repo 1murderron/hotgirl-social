@@ -11,28 +11,11 @@
 <body class="main-site">
     <header>
         <nav class="container">
-            <div class="logo" id="site-logo">hotgirl.social</div>
-            
-            <!-- Mobile menu button -->
-            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" id="mobile-menu-btn">☰</button>
-            
-            <!-- Desktop nav links -->
-            <div class="nav-links desktop-nav">
+            <div class="logo">hotgirl.social</div>
+            <div class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#contact">Contact</a>
-                <a href="#" onclick="openLoginModal()" class="btn btn-outline" style="margin-left: 1rem;">Login</a>
-            </div>
-            
-            <!-- Mobile nav overlay -->
-            <div class="mobile-nav-overlay" id="mobile-nav-overlay" onclick="closeMobileMenu()">
-                <div class="mobile-nav-menu">
-                    <button class="mobile-nav-close" onclick="closeMobileMenu()">×</button>
-                    <a href="#features" onclick="closeMobileMenu()">Features</a>
-                    <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
-                    <a href="#contact" onclick="closeMobileMenu()">Contact</a>
-                    <a href="#" onclick="openLoginModal(); closeMobileMenu();" class="login-btn">Login</a>
-                </div>
             </div>
         </nav>
     </header>
@@ -54,7 +37,7 @@
                     </div>
                     
                     <ul class="features">
-						<li id="price-feature">$15 One Time Setup Fee</li>
+						<li>$15 One Time Setup Fee</li>
 						<li>No Subscrition - No Monthly Fee</li>
 						<li>No Upselling - Ever</li>
 						<li>No Constant Email Spam - Ever</li>
@@ -129,7 +112,7 @@
 
     <footer id="contact">
         <div class="container">
-            <p>&copy; 2025 <span id="footer-brand">CreatorLinks</span>. Built for creators, by creators.</p>
+            <p>&copy; 2025 CreatorLinks. Built for creators, by creators.</p>
             <p>Questions? <span class="contact-link" onclick="openContactForm()">Contact us here</span></p>
         </div>
     </footer>
@@ -164,28 +147,6 @@
         </form>
     </div>
 
-    <!-- Login Modal -->
-    <div id="login-modal" class="contact-modal">
-        <form class="contact-form" id="login-form" onsubmit="handleLogin(event)"></form>
-            <button type="button" class="close-btn" onclick="closeLoginModal()">&times;</button>
-            <h2>Login to Dashboard</h2>
-            
-            <div class="form-group">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" required>
-            </div>
-            
-            <button type="button" class="contact-btn" id="login-submit-btn">Login</button>
-            
-            <div id="login-error" style="color: red; margin-top: 15px; text-align: center; display: none;"></div>
-        </form>
-    </div>
-
     <script>
         // Initialize Stripe with your publishable key
         // IMPORTANT: Replace 'pk_test_...' with your actual Stripe publishable key
@@ -195,18 +156,22 @@
         const errorMessage = document.getElementById('error-message');
         const successMessage = document.getElementById('success-message');
 
-        // Site configuration - will be loaded dynamically
-        let SITE_CONFIG = {
-            siteName: 'hotgirl.social',
-            currentPrice: 15
+        // Product configuration
+        const PRODUCT_CONFIG = {
+            price: 1500, // $15.00 in cents
+            currency: 'usd',
+            productName: 'CreatorLinks Profile',
+            productDescription: 'One-time payment for lifetime access to your link-in-bio profile'
         };
 
-        checkoutButton.addEventListener('click', async (e) => {
+            checkoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
-            
-            // Show username collection modal
-            showUsernameModal();
-        });
+    
+        // Show username collection modal
+        showUsernameModal();
+    
+
+});
 
         function showError(message) {
             errorMessage.textContent = message;
@@ -366,30 +331,42 @@
             }
         }
 
-        // Load site configuration (price and branding)
-        async function loadSiteConfig() {
+
+        // Load current price
+        async function loadPrice() {
             try {
-                // Load price
-                const priceResponse = await fetch('/api/price');
-                const priceData = await priceResponse.json();
-                SITE_CONFIG.currentPrice = priceData.price;
-                
-                // Load site config
-                const configResponse = await fetch('/api/config');
-                const configData = await configResponse.json();
-                SITE_CONFIG.siteName = configData.siteName;
-                
-                // Update UI elements
-                document.getElementById('price-display').textContent = `$${SITE_CONFIG.currentPrice}`;
-                document.getElementById('price-feature').textContent = `$${SITE_CONFIG.currentPrice} One Time Setup Fee`;
-                document.getElementById('site-logo').textContent = SITE_CONFIG.siteName;
-                document.getElementById('footer-brand').textContent = SITE_CONFIG.siteName;
-                document.title = `${SITE_CONFIG.siteName} - Your Link in Bio Solution`;
-                
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
             } catch (error) {
-                console.error('Failed to load site configuration:', error);
+                console.error('Failed to load price:', error);
             }
         }
+
+        // Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+            // Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+
+
 
         async function proceedToCheckout(email, username) {
             const continueBtn = document.getElementById('modal-continue');
@@ -432,8 +409,11 @@
             }
         }
 
-        // Load site configuration when page loads
-        loadSiteConfig();
+
+
+        // Load current price when page loads
+        loadPrice();
+
 
         // Handle URL parameters for success/cancel pages
         const urlParams = new URLSearchParams(window.location.search);
@@ -491,87 +471,6 @@
                 closeContactForm();
             }
         });
-
-        // Mobile menu functions
-        function toggleMobileMenu() {
-            const overlay = document.getElementById('mobile-nav-overlay');
-            overlay.classList.add('active');
-        }
-
-        function closeMobileMenu() {
-            const overlay = document.getElementById('mobile-nav-overlay');
-            overlay.classList.remove('active');
-        }
-
-        // Close mobile menu with escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeMobileMenu();
-            }
-        });
-
-        // Login modal functions
-        function openLoginModal() {
-            document.getElementById('login-modal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeLoginModal() {
-            document.getElementById('login-modal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            document.getElementById('login-form').reset();
-            document.getElementById('login-error').style.display = 'none';
-        }
-
-        // Handle login form submission - using onclick instead of addEventListener
-        function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('login-error');
-            const submitBtn = document.getElementById('login-submit-btn');
-            
-            // Show loading state
-            submitBtn.textContent = 'Logging in...';
-            submitBtn.disabled = true;
-            errorDiv.style.display = 'none';
-            
-            fetch('/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json().then(data => {
-                        localStorage.setItem('userToken', data.token);
-                        window.location.href = '/user-dashboard.html';
-                    });
-                } else {
-                    return response.json().then(error => {
-                        errorDiv.textContent = error.error || 'Login failed';
-                        errorDiv.style.display = 'block';
-                    });
-                }
-            })
-            .catch(error => {
-                errorDiv.textContent = 'Connection error. Please try again.';
-                errorDiv.style.display = 'block';
-            })
-            .finally(() => {
-                submitBtn.textContent = 'Login';
-                submitBtn.disabled = false;
-            });
-        }
-
-        // Close login modal when clicking outside
-        document.getElementById('login-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeLoginModal();
-            }
-        });
-
     </script>
 </body>
 </html>
