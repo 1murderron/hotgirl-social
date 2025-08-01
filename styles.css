@@ -1979,13 +1979,13 @@ body.welcome {
     }
 
     /* Hide less important columns on mobile */
-    body.admin .data-table th:nth-child(4),
-    body.admin .data-table td:nth-child(4) {
+    body.admin .data-table th:nth-child(3),
+    body.admin .data-table td:nth-child(3) {
         display: none;
     }
 
-    body.admin .data-table th:nth-child(6),
-    body.admin .data-table td:nth-child(6) {
+    body.admin .data-table th:nth-child(4),
+    body.admin .data-table td:nth-child(4) {
         display: none;
     }
 
