@@ -1,0 +1,160 @@
+/* ===== MODAL STYLES ===== */
+
+/* Overlay / Backdrop */
+.modal-overlay,
+.contact-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-modal {
+    display: none;
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+.modal-overlay {
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===== BASE MODAL ===== */
+.modal {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* ===== VARIATIONS ===== */
+.contact-form {
+    padding: 40px;
+    border-radius: 20px; /* Overrides base */
+    max-width: 500px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.user-modal {
+    max-width: 800px;
+}
+
+.modal-header {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+/* ===== CLOSE BUTTON (Shared) ===== */
+.close-btn,
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-btn {
+    color: #666;
+    transition: background-color var(--transition-normal);
+}
+
+.close-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.modal-close {
+    color: white;
+    padding: 0;
+}
+
+/* ===== CONTACT BUTTON & LINK ===== */
+.contact-btn {
+    width: 100%;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: transform var(--transition-normal);
+    position: relative;
+    z-index: 1;
+}
+
+.contact-btn:hover {
+    transform: translateY(-2px);
+}
+
+.contact-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color var(--transition-normal);
+}
+
+.contact-link:hover {
+    color: white;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+    .modal {
+        width: 95%;
+        margin: 10px;
+        max-height: 85vh;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .profile-info {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .moderation-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-moderate {
+        width: 100%;
+        text-align: center;
+    }
+}

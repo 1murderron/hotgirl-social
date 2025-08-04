@@ -480,8 +480,7 @@ em {
 
 
 
-/* CONTACT FORM MODAL */
-
+/* CONTACT FORM MODAL 
 element.style {
     display: flex
 ;
@@ -499,3 +498,5 @@ element.style {
     justify-content: center;
     align-items: center;
 }
+
+*/
