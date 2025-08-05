@@ -623,6 +623,26 @@ async function checkUsernameAvailability(username) {
     statusDiv.innerHTML = '<span style="color:#ffc107;">⚠ Error checking availability</span>';
   }
 }
+
+
+// Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+
+
+
+
+
+
+
 async function proceedToCheckout(email, username) {
   const continueBtn = document.getElementById('modal-continue');
   continueBtn.innerHTML = 'Processing...';
@@ -643,18 +663,6 @@ async function proceedToCheckout(email, username) {
     continueBtn.disabled = false;
   }
 }
-
-
-// Load current price
-        async function loadPrice() {
-            try {
-                const response = await fetch('/api/price');
-                const data = await response.json();
-                document.getElementById('price-display').textContent = `$${data.price}`;
-            } catch (error) {
-                console.error('Failed to load price:', error);
-            }
-        }
 
 
 </script>
