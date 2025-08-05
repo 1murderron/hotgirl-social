@@ -347,6 +347,68 @@ input:focus, textarea:focus {
 }
 
 
+/* ===== Testimonial Carousel ===== */
+.testimonial-carousel {
+  position: relative;
+  overflow: hidden;
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.testimonial-slide {
+  display: none;
+  text-align: center;
+  padding: 20px;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.testimonial-slide.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
+.testimonial-slide img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.testimonial-slide p {
+  font-style: italic;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.testimonial-slide strong {
+  display: block;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.carousel-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.carousel-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.carousel-btn:hover {
+  background: var(--primary-hover);
+}
+
+
 </style>
 </head>
 <body>
@@ -462,12 +524,34 @@ input:focus, textarea:focus {
 
 
 
+<!-- Carousel Section -->
+
+<div class="testimonial-carousel">
+  <div class="testimonial-slide active">
+    <img src="/assets/user1.jpg" alt="User Photo">
+    <p>"I had my profile up in 5 minutes. Already seeing more clicks than Linktree."</p>
+    <strong>@hannahdeluxe</strong>
+  </div>
+  <div class="testimonial-slide">
+    <img src="/assets/user2.jpg" alt="User Photo">
+    <p>"Best $15 I’ve ever spent. No monthly fees and I own it for life."</p>
+    <strong>@cre8tivequeen</strong>
+  </div>
+  <div class="testimonial-slide">
+    <img src="/assets/user3.jpg" alt="User Photo">
+    <p>"My clicks and conversions doubled since switching to HotGirl.social."</p>
+    <strong>@brandboss</strong>
+  </div>
+
+  <div class="carousel-nav">
+    <button class="carousel-btn" id="prev-slide">‹</button>
+    <button class="carousel-btn" id="next-slide">›</button>
+  </div>
+</div>
 
 
 
-
-
-
+<!-- END Carousel Section -->
 
 <script>
 
@@ -857,6 +941,54 @@ async function proceedToCheckout(email, username) {
 
   // Run on page load
   document.addEventListener('DOMContentLoaded', loadPrice);
+
+
+
+  
+
+
+  // ===== Testimonial Carousel Logic =====
+const slides = document.querySelectorAll('.testimonial-slide');
+let currentSlide = 0;
+let autoPlayInterval = null;
+
+function showSlide(index) {
+  slides.forEach(slide => slide.classList.remove('active'));
+  slides[index].classList.add('active');
+}
+
+function nextSlide() {
+  currentSlide = (currentSlide + 1) % slides.length;
+  showSlide(currentSlide);
+}
+
+function prevSlide() {
+  currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+  showSlide(currentSlide);
+}
+
+document.getElementById('next-slide').addEventListener('click', () => {
+  nextSlide();
+  resetAutoPlay();
+});
+document.getElementById('prev-slide').addEventListener('click', () => {
+  prevSlide();
+  resetAutoPlay();
+});
+
+function startAutoPlay() {
+  autoPlayInterval = setInterval(nextSlide, 5000); // 5 seconds
+}
+function resetAutoPlay() {
+  clearInterval(autoPlayInterval);
+  startAutoPlay();
+}
+
+// Start carousel autoplay
+startAutoPlay();
+
+// ===== END Testimonial Carousel Logic =====
+
 
 </script>
 </body>
