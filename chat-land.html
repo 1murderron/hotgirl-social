@@ -118,10 +118,6 @@
       flex-shrink: 0;
     }
 
-    .footer-cta {
-      margin-top: 20px;
-    }
-
     .login-link {
       display: block;
       margin-top: 10px;
@@ -207,12 +203,15 @@
     }
 
     #modal-cancel {
-      background: #6c757d;
+      background: #ff4444;
       color: white;
       border: none;
       border-radius: 6px;
       padding: 15px;
+      font-weight: bold;
       cursor: pointer;
+      flex: 1;
+      text-align: center;
     }
   </style>
 </head>
@@ -261,36 +260,40 @@
     });
 
     function showUsernameModal() {
-      const modal = document.createElement('div');
-      modal.classList.add('username-modal-overlay');
-      modal.innerHTML = `
-        <div class="username-modal-content">
-          <h2>Almost there! Choose your username</h2>
-          <label>Email:</label>
-          <input type="email" id="modal-email" required placeholder="your@email.com">
-          <label>Username:</label>
-          <input type="text" id="modal-username" required placeholder="yourname">
-          <div id="username-status" style="margin-top:5px;font-size:14px;"></div>
-          <div class="modal-actions">
-            <button id="modal-continue" disabled>Continue to Payment</button>
-            <button id="modal-cancel">Cancel</button>
-          </div>
+      // Overlay
+      const overlay = document.createElement('div');
+      overlay.classList.add('username-modal-overlay');
+
+      // Content
+      const content = document.createElement('div');
+      content.classList.add('username-modal-content');
+      content.innerHTML = `
+        <h2>Almost there! Choose your username</h2>
+        <label>Email:</label>
+        <input type="email" id="modal-email" required placeholder="your@email.com">
+        <label>Username:</label>
+        <input type="text" id="modal-username" required placeholder="yourname">
+        <div id="username-status" style="margin-top:5px;font-size:14px;"></div>
+        <div class="modal-actions">
+          <button id="modal-continue" disabled>Continue to Payment</button>
+          <button id="modal-cancel">Cancel</button>
         </div>
       `;
-      document.body.appendChild(modal);
+
+      overlay.appendChild(content);
+      document.body.appendChild(overlay);
+
       setupUsernameValidation();
 
-      // Cancel button closes modal
+      // Cancel button
       document.getElementById('modal-cancel').addEventListener('click', cancelModal);
 
-      // Click outside closes modal
-      modal.addEventListener('click', e => {
-        if (e.target.classList.contains('username-modal-overlay')) {
-          cancelModal();
-        }
+      // Click outside closes
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) cancelModal();
       });
 
-      // Esc key closes modal
+      // Esc key closes
       document.addEventListener('keydown', function escHandler(e) {
         if (e.key === 'Escape') {
           cancelModal();
@@ -349,11 +352,9 @@
           body: JSON.stringify({ username })
         });
         const result = await response.json();
-        if (result.available) {
-          statusDiv.innerHTML = '<span style="color:#28a745;">✓ Username available!</span>';
-        } else {
-          statusDiv.innerHTML = '<span style="color:#dc3545;">✗ Username taken</span>';
-        }
+        statusDiv.innerHTML = result.available
+          ? '<span style="color:#28a745;">✓ Username available!</span>'
+          : '<span style="color:#dc3545;">✗ Username taken</span>';
       } catch {
         statusDiv.innerHTML = '<span style="color:#ffc107;">⚠ Error checking availability</span>';
       }
