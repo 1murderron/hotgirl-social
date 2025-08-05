@@ -378,6 +378,43 @@ function showLoginModal() {
     </div>
   `);
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
+
+
+
+// ChatGPT Fuck Up
+  document.getElementById('login-submit').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+
+  if (!email || !password) {
+    alert('Please enter both email and password.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      // Redirect directly to dashboard without changing token handling
+      window.location.href = '/user-dashboard.html';
+    } else {
+      alert(data.error || 'Invalid login credentials.');
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    alert('Login failed — please try again.');
+  }
+});
+
+// End ChatGPT Fuck Up
+
+
 }
 function showContactModal() {
   openModal(`
