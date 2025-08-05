@@ -435,12 +435,71 @@ function showContactModal() {
 function showPrivacyModal() {
   openModal(`
     <h2>Privacy Policy</h2>
-    <p>Your privacy is important to us. This policy explains how we handle your data...</p>
-    <p>We do not sell or share your personal information with third parties...</p>
-    <p>[Insert full privacy policy text here]</p>
-    <div class="modal-actions">
-      <button id="modal-cancel" class="btn-danger">Close</button>
-    </div>
+<p><strong>Effective Date:</strong> [Month Day, Year]</p>
+
+<p>At <strong>HotGirl.social</strong>, your privacy matters. This Privacy Policy explains what information we collect, how we use it, and your choices. By using our website and services, you agree to this policy.</p>
+
+<h3>1. Information We Collect</h3>
+<ul>
+  <li><strong>Account Information</strong> — such as your email address, username, and password.</li>
+  <li><strong>Profile Content</strong> — such as your bio, profile picture, and links you choose to share.</li>
+  <li><strong>Payment Information</strong> — processed securely through our payment provider (we do not store full credit card details).</li>
+  <li><strong>Usage Data</strong> — including IP address, browser type, device type, pages viewed, and interactions.</li>
+  <li><strong>Messages</strong> — if you contact us, we store the message and your contact details.</li>
+</ul>
+
+<h3>2. How We Use Your Information</h3>
+<ul>
+  <li>Create and manage your account.</li>
+  <li>Process payments for your membership.</li>
+  <li>Display your profile and links as you choose.</li>
+  <li>Provide customer support.</li>
+  <li>Monitor, improve, and secure our services.</li>
+  <li>Comply with legal requirements.</li>
+</ul>
+
+<h3>3. Sharing of Information</h3>
+<p>We <strong>do not sell</strong> your personal information. We may share limited data:</p>
+<ul>
+  <li>With service providers that help us operate (payment processors, hosting providers, analytics tools).</li>
+  <li>For legal reasons if required by law or to protect our rights, safety, or the rights and safety of others.</li>
+  <li>In business transfers if we merge, sell, or transfer our business.</li>
+</ul>
+
+<h3>4. Cookies & Tracking</h3>
+<p>We use cookies and similar technologies to:</p>
+<ul>
+  <li>Keep you logged in.</li>
+  <li>Remember your preferences.</li>
+  <li>Analyze site usage to improve performance.</li>
+</ul>
+<p>You can disable cookies in your browser, but some features may not work properly.</p>
+
+<h3>5. Your Choices</h3>
+<ul>
+  <li>You can edit or delete your profile at any time in your account settings.</li>
+  <li>You can contact us to request a copy of your personal data or to delete your account entirely.</li>
+  <li>You can opt out of marketing emails (we don’t send many).</li>
+</ul>
+
+<h3>6. Security</h3>
+<p>We take reasonable measures to protect your information from loss, misuse, or unauthorized access. However, no online system is 100% secure.</p>
+
+<h3>7. Children's Privacy</h3>
+<p>HotGirl.social is <strong>18+ only</strong>. We do not knowingly collect personal information from anyone under 18. If we learn we have done so, we will delete it.</p>
+
+<h3>8. Changes to This Policy</h3>
+<p>We may update this Privacy Policy from time to time. Changes will be posted on this page with the updated effective date.</p>
+
+<h3>9. Contact Us</h3>
+<p>If you have questions or requests regarding this policy, you can contact us at:<br>
+📧 <strong>[your email address here]</strong><br>
+📍 <strong>[your business address here]</strong></p>
+
+<div class="modal-actions">
+  <button id="modal-cancel" class="btn-danger">Close</button>
+</div>
+
   `, true);
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
 }
