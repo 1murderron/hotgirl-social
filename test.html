@@ -241,10 +241,15 @@ input:focus, textarea:focus {
   border-radius: 50%;
   font-size: 1.2rem;
   cursor: pointer;
-  display: none;
+  opacity: 0;
+  visibility: hidden;
   z-index: 1000;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
+}
+.scroll-top-btn.show {
+  opacity: 1;
+  visibility: visible;
 }
 .scroll-top-btn:hover {
   opacity: 0.9;
@@ -307,10 +312,14 @@ document.getElementById('open-contact').addEventListener('click', e => { e.preve
 document.getElementById('open-privacy').addEventListener('click', e => { e.preventDefault(); showPrivacyModal(); });
 document.getElementById('open-terms').addEventListener('click', e => { e.preventDefault(); showTermsModal(); });
 
-// === Scroll to Top Button Logic ===
+// === Scroll to Top Button Logic with Fade ===
 const scrollTopBtn = document.getElementById('scrollTopBtn');
 window.addEventListener('scroll', () => {
-  scrollTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+  if (window.scrollY > 300) {
+    scrollTopBtn.classList.add('show');
+  } else {
+    scrollTopBtn.classList.remove('show');
+  }
 });
 scrollTopBtn.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
