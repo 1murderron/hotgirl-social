@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HotGirl.social</title>
-  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://js.stripe.com/v3/"></script>
-
   <style>
     :root {
       --primary: #f43f5e;
@@ -146,16 +144,83 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(5px); }
     }
+
+    /* Username Modal Styles */
+    .username-modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .username-modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      box-sizing: border-box;
+    }
+
+    .username-modal-content h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .username-modal-content label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .username-modal-content input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    #modal-continue {
+      flex: 1;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      opacity: 0.5;
+    }
+
+    #modal-cancel {
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 15px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-
     <img src="/public/uploads/logo10.png" alt="HotGirl.social Logo" class="logo" />
-
     <h1>Own Your Link Forever. One Time Payment.</h1>
-
     <p class="subheadline">No subscriptions. No upsells. No distractions.</p>
 
     <!-- Top CTA -->
@@ -182,13 +247,12 @@
     </div>
 
     <a href="/login.html" class="login-link">Already a member? Log in →</a>
-
   </div>
 
   <script>
     const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
 
-    // Attach click event to all CTA buttons
+    // Attach click to all CTAs
     document.querySelectorAll('.checkout-button').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -198,49 +262,46 @@
 
     function showUsernameModal() {
       const modal = document.createElement('div');
+      modal.classList.add('username-modal-overlay');
       modal.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0,0,0,0.8); z-index: 10000;
-                    display: flex; align-items: center; justify-content: center;">
-          <div style="background: white; padding: 40px; border-radius: 12px;
-                      max-width: 500px; width: 90%;">
-            <h2 style="margin-bottom: 20px; color: #333;">Almost there! Choose your username</h2>
-            <div style="margin-bottom: 20px;">
-              <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Email:</label>
-              <input type="email" id="modal-email" required placeholder="your@email.com"
-                     style="width: 100%; padding: 12px; border: 2px solid #ddd;
-                            border-radius: 6px; box-sizing: border-box; font-size: 16px;">
-            </div>
-            <div style="margin-bottom: 20px;">
-              <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Username:</label>
-              <input type="text" id="modal-username" required placeholder="yourname"
-                     style="width: 100%; padding: 12px; border: 2px solid #ddd;
-                            border-radius: 6px; box-sizing: border-box; font-size: 16px;">
-              <div id="username-status" style="margin-top: 5px; font-size: 14px;"></div>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 30px;">
-              <button id="modal-continue"
-                      style="flex: 1; padding: 15px; background: linear-gradient(45deg, #667eea, #764ba2);
-                             color: white; border: none; border-radius: 6px; font-weight: 600;
-                             cursor: pointer; opacity: 0.5;" disabled>
-                Continue to Payment
-              </button>
-              <button onclick="cancelModal()"
-                      style="padding: 15px 20px; background: #6c757d; color: white;
-                             border: none; border-radius: 6px; cursor: pointer;">
-                Cancel
-              </button>
-            </div>
+        <div class="username-modal-content">
+          <h2>Almost there! Choose your username</h2>
+          <label>Email:</label>
+          <input type="email" id="modal-email" required placeholder="your@email.com">
+          <label>Username:</label>
+          <input type="text" id="modal-username" required placeholder="yourname">
+          <div id="username-status" style="margin-top:5px;font-size:14px;"></div>
+          <div class="modal-actions">
+            <button id="modal-continue" disabled>Continue to Payment</button>
+            <button id="modal-cancel">Cancel</button>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
       setupUsernameValidation();
+
+      // Cancel button closes modal
+      document.getElementById('modal-cancel').addEventListener('click', cancelModal);
+
+      // Click outside closes modal
+      modal.addEventListener('click', e => {
+        if (e.target.classList.contains('username-modal-overlay')) {
+          cancelModal();
+        }
+      });
+
+      // Esc key closes modal
+      document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') {
+          cancelModal();
+          document.removeEventListener('keydown', escHandler);
+        }
+      });
     }
 
     function cancelModal() {
-      const modals = document.querySelectorAll('[style*="position: fixed"]');
-      modals.forEach(modal => modal.remove());
+      const modal = document.querySelector('.username-modal-overlay');
+      if (modal) modal.remove();
     }
 
     function setupUsernameValidation() {
@@ -251,30 +312,22 @@
       let checkTimeout;
 
       function checkInputs() {
-        const email = emailInput.value;
-        const username = usernameInput.value;
-        const emailValid = email.includes('@');
-        const usernameValid = username.length >= 3;
-        if (emailValid && usernameValid) {
-          continueBtn.disabled = false;
-          continueBtn.style.opacity = '1';
-        } else {
-          continueBtn.disabled = true;
-          continueBtn.style.opacity = '0.5';
-        }
+        const emailValid = emailInput.value.includes('@');
+        const usernameValid = usernameInput.value.length >= 3;
+        continueBtn.disabled = !(emailValid && usernameValid);
+        continueBtn.style.opacity = continueBtn.disabled ? '0.5' : '1';
       }
 
-      usernameInput.addEventListener('input', function() {
-        const username = this.value;
+      usernameInput.addEventListener('input', () => {
         clearTimeout(checkTimeout);
-        if (username.length < 3) {
-          statusDiv.innerHTML = '<span style="color: #dc3545;">Username must be at least 3 characters</span>';
+        if (usernameInput.value.length < 3) {
+          statusDiv.innerHTML = '<span style="color:#dc3545;">Username must be at least 3 characters</span>';
           checkInputs();
           return;
         }
-        statusDiv.innerHTML = '<span style="color: #007bff;">Checking availability...</span>';
+        statusDiv.innerHTML = '<span style="color:#007bff;">Checking availability...</span>';
         checkTimeout = setTimeout(() => {
-          checkUsernameAvailability(username);
+          checkUsernameAvailability(usernameInput.value);
         }, 500);
         checkInputs();
       });
@@ -282,10 +335,8 @@
       emailInput.addEventListener('input', checkInputs);
 
       continueBtn.addEventListener('click', () => {
-        const email = emailInput.value;
-        const username = usernameInput.value;
-        proceedToCheckout(email, username);
-        document.querySelector('[style*="position: fixed"]').remove();
+        proceedToCheckout(emailInput.value, usernameInput.value);
+        cancelModal();
       });
     }
 
@@ -295,20 +346,16 @@
         const response = await fetch('/check-username', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: username })
+          body: JSON.stringify({ username })
         });
         const result = await response.json();
         if (result.available) {
-          statusDiv.innerHTML = '<span style="color: #28a745;">✓ Username available!</span>';
+          statusDiv.innerHTML = '<span style="color:#28a745;">✓ Username available!</span>';
         } else {
-          if (result.errors && result.errors.length > 0) {
-            statusDiv.innerHTML = '<span style="color: #dc3545;">✗ ' + result.errors[0] + '</span>';
-          } else {
-            statusDiv.innerHTML = '<span style="color: #dc3545;">✗ Username already taken</span>';
-          }
+          statusDiv.innerHTML = '<span style="color:#dc3545;">✗ Username taken</span>';
         }
-      } catch (error) {
-        statusDiv.innerHTML = '<span style="color: #ffc107;">⚠ Error checking availability</span>';
+      } catch {
+        statusDiv.innerHTML = '<span style="color:#ffc107;">⚠ Error checking availability</span>';
       }
     }
 
@@ -320,12 +367,9 @@
         const response = await fetch('/create-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, username: username })
+          body: JSON.stringify({ email, username })
         });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Network response was not ok');
-        }
+        if (!response.ok) throw new Error('Network error');
         const session = await response.json();
         const result = await stripe.redirectToCheckout({ sessionId: session.id });
         if (result.error) throw new Error(result.error.message);
