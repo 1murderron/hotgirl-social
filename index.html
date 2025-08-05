@@ -296,6 +296,19 @@ input:focus, textarea:focus {
 <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Scroll to top">↑</button>
 
 <script>
+
+ // Load current price
+        async function loadPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                document.getElementById('price-display').textContent = `$${data.price}`;
+            } catch (error) {
+                console.error('Failed to load price:', error);
+            }
+        }
+
+
 const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
 
 // === Event Listeners ===
