@@ -4,27 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>User Dashboard</title>
-  <link rel="stylesheet" href="/user-dashboard-new.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
   <style>
-    /* Spinner overlay */
-    .spinner-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.5);
-      border-radius: 50%;
-      color: #fff;
-      font-size: 1.5rem;
-      z-index: 5;
-    }
-    .photo-preview {
-      position: relative;
-      display: inline-block;
-    }
-    /* Dark/light mode basic styles */
     :root {
       --coral: #ff6f61;
       --slate: #2f3b46;
@@ -48,30 +29,152 @@
       color: var(--text-color);
       transition: background-color 0.3s, color 0.3s;
     }
-    .dark-mode-toggle {
-      cursor: pointer;
-      border-radius: 999px;
+    header {
       background-color: var(--slate);
-      padding: 4px 8px;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
     }
-    .dark-mode-toggle.active {
+    header .logo h2 {
+      margin: 0;
+    }
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      border: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .btn-primary {
       background-color: var(--coral);
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #e65b50;
+    }
+    .btn-secondary {
+      background-color: var(--slate);
+      color: white;
+    }
+    .btn-danger {
+      background-color: #e11d48;
+      color: white;
+    }
+    .card {
+      background-color: white;
+      color: var(--text-dark);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin: 1rem;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .dark-mode .card {
+      background-color: #2d3748;
+      color: var(--text-light);
+    }
+    label {
+      display: block;
+      margin: 0.75rem 0 0.25rem;
+      font-weight: 600;
+    }
+    input[type="text"], input[type="url"], textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    textarea {
+      resize: vertical;
+    }
+    .photo-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 0.5rem;
+    }
+    .photo-placeholder {
+      text-align: center;
+      padding: 1rem;
+      border: 2px dashed #ccc;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-placeholder span {
+      font-size: 2rem;
+    }
+    .photo-preview {
+      position: relative;
+      display: inline-block;
+    }
+    .spinner-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.5rem;
+      z-index: 5;
+    }
+    .message {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      margin: 0.5rem 0;
+      animation: fadein 0.3s ease-in;
+    }
+    .message.success {
+      background-color: #4ade80;
+      color: #065f46;
+    }
+    .message.error {
+      background-color: #f87171;
+      color: #7f1d1d;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .card {
+        margin: 0.5rem;
+      }
     }
   </style>
 </head>
 <body>
 
-<header class="header">
+<header>
   <div class="logo"><h2>hotgirl.social</h2></div>
   <div class="header-actions">
-    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">☀️</button>
+    <button id="darkModeToggle" class="btn btn-secondary" aria-label="Toggle dark mode">☀️</button>
     <a href="#" id="view-profile" class="btn btn-secondary" target="_blank">View My Profile</a>
     <button onclick="logout()" class="btn btn-danger">Logout</button>
   </div>
 </header>
 
 <main>
-  <!-- Profile Photo & Info -->
   <section class="card">
     <h3>Profile Photo & Info</h3>
     <div class="photo-upload">
@@ -90,7 +193,6 @@
     </form>
   </section>
 
-  <!-- HotGirl Link -->
   <section class="card">
     <h3>Your HotGirl Link</h3>
     <input type="text" id="profile-url" readonly value="Loading...">
@@ -104,13 +206,11 @@
 <script>
 let userToken = localStorage.getItem('userToken');
 
-// Load profile data
 document.addEventListener('DOMContentLoaded', () => {
   if (userToken) loadUserData();
   setupDarkMode();
 });
 
-// API helper
 async function apiCall(endpoint, options = {}) {
   const config = {
     headers: { ...(userToken && { 'Authorization': `Bearer ${userToken}` }) },
@@ -121,7 +221,6 @@ async function apiCall(endpoint, options = {}) {
   return response.json();
 }
 
-// Load profile info
 async function loadUserData() {
   try {
     const profile = await apiCall('/profile');
@@ -134,7 +233,6 @@ async function loadUserData() {
   }
 }
 
-// Handle photo upload with Cloudinary
 document.getElementById('photo-input').addEventListener('change', async e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -186,7 +284,6 @@ function showMessage(text, type) {
 
 function logout() { localStorage.removeItem('userToken'); window.location.href = '/'; }
 
-// Dark mode toggle
 function setupDarkMode() {
   const toggle = document.getElementById('darkModeToggle');
   const setMode = mode => document.documentElement.className = mode;
