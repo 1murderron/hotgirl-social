@@ -4,14 +4,26 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 require('dotenv').config();
 const { validateUsername } = require('./username-validation');
 
+// Multer + Cloudinary setup
+const multer = require('multer');
+const streamifier = require('streamifier');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
 
 // Database connection
 const pool = new Pool({
@@ -528,23 +540,40 @@ app.put('/profile', authenticateToken, async (req, res) => {
 // Profile image upload
 app.post('/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image file provided' });
-    }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
-
-    await pool.query(`
-      UPDATE profiles 
-      SET profile_image_url = $1, updated_at = CURRENT_TIMESTAMP 
-      WHERE user_id = $2
-    `, [imageUrl, req.user.id]);
-
-    res.json({ profile_image_url: imageUrl });
-  } catch (error) {
-    console.error('Image upload error:', error);
-    res.status(500).json({ error: 'Failed to upload image' });
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
   }
+
+  const stream = cloudinary.uploader.upload_stream(
+    {
+      folder: 'hotgirl-profile-pics',
+      upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+      resource_type: 'image'
+    },
+    async (error, result) => {
+      if (error) {
+        console.error('Cloudinary upload error:', error);
+        return res.status(500).json({ message: 'Cloudinary upload failed' });
+      }
+
+      // Save Cloudinary URL to database
+      await pool.query(
+        'UPDATE users SET profile_image_url = $1 WHERE id = $2',
+        [result.secure_url, req.user.id]
+      );
+
+      res.json({ imageUrl: result.secure_url });
+    }
+  );
+
+  streamifier.createReadStream(req.file.buffer).pipe(stream);
+
+} catch (err) {
+  console.error(err);
+  res.status(500).json({ message: 'Server error' });
+}
+
+    
 });
 
 

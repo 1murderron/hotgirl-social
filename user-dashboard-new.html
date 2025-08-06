@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" class="light-mode">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="user-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .spinner-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.5rem;
+      z-index: 5;
+    }
+    .photo-preview {
+      position: relative;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo"><h2>hotgirl.social</h2></div>
+  <div class="header-actions">
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
+      <span>☀️</span>
+    </button>
+    <a href="#" id="view-profile" class="btn btn-secondary" target="_blank">View My Profile</a>
+    <button onclick="logout()" class="btn btn-danger">Logout</button>
+  </div>
+</header>
+
+<div class="dashboard-container">
+  <main class="main-content">
+
+    <section id="profile" class="content-section active">
+      <div class="card">
+        <h3>Profile Photo & Info</h3>
+        <div class="photo-upload">
+          <div class="photo-preview" id="photo-preview">
+            <div class="photo-placeholder"><span>📷</span><p>Click to upload</p></div>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" hidden>
+          <button onclick="document.getElementById('photo-input').click()" class="btn btn-primary">Upload Photo</button>
+        </div>
+        <form id="profile-form">
+          <label for="display-name">Display Name</label>
+          <input type="text" id="display-name">
+          <label for="bio">Bio</label>
+          <textarea id="bio" rows="4"></textarea>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h3>Your HotGirl Link</h3>
+        <input type="text" id="profile-url" readonly value="Loading...">
+        <button id="copy-link-btn" onclick="copyProfileLink()" class="btn btn-primary">Copy Link</button>
+        <div id="copy-success" style="opacity:0;">✓ Link copied to clipboard!</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="message-container"></div>
+
+<script>
+let userToken = localStorage.getItem('userToken');
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (userToken) loadUserData();
+  setupDarkMode();
+});
+
+async function apiCall(endpoint, options = {}) {
+  const config = {
+    headers: { 'Content-Type': 'application/json', ...(userToken && { 'Authorization': `Bearer ${userToken}` }) },
+    ...options
+  };
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+async function loadUserData() {
+  try {
+    const profile = await apiCall('/profile');
+    document.getElementById('display-name').value = profile.display_name || '';
+    document.getElementById('bio').value = profile.bio || '';
+    document.getElementById('view-profile').href = `/u/${profile.username}`;
+    document.getElementById('profile-url').value = `${window.location.origin}/u/${encodeURIComponent(profile.username)}`;
+  } catch {
+    showMessage('Failed to load profile', 'error');
+  }
+}
+
+document.getElementById('photo-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) return showMessage('File too large (max 5MB)', 'error');
+
+  const preview = document.getElementById('photo-preview');
+  const reader = new FileReader();
+  reader.onload = ev => {
+    preview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%;border-radius:50%;">
+                         <div class="spinner-overlay">⏳</div>`;
+  };
+  reader.readAsDataURL(file);
+
+  const formData = new FormData();
+  formData.append('profileImage', file);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/profile/upload-image`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` },
+      body: formData
+    });
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    if (data.imageUrl) {
+      preview.innerHTML = `<img src="${data.imageUrl}" style="max-width:100%;border-radius:50%;">`;
+    }
+    showMessage('Photo uploaded successfully!', 'success');
+  } catch {
+    showMessage('Failed to upload photo', 'error');
+  }
+});
+
+async function copyProfileLink() {
+  const url = document.getElementById('profile-url').value;
+  await navigator.clipboard.writeText(url);
+  const msg = document.getElementById('copy-success');
+  msg.style.opacity = '1';
+  setTimeout(() => msg.style.opacity = '0', 2000);
+}
+
+function showMessage(text, type) {
+  const msg = document.createElement('div');
+  msg.className = `message ${type}`;
+  msg.textContent = text;
+  document.getElementById('message-container').appendChild(msg);
+  setTimeout(() => msg.remove(), 4000);
+}
+
+function logout() { localStorage.removeItem('userToken'); window.location.href = '/'; }
+
+function setupDarkMode() {
+  const toggle = document.getElementById('darkModeToggle');
+  const setMode = mode => document.documentElement.className = mode;
+  const stored = localStorage.getItem('theme');
+  if (stored) setMode(stored);
+  else setMode(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-mode' : 'light-mode');
+  toggle.addEventListener('click', () => {
+    const mode = document.documentElement.classList.contains('dark-mode') ? 'light-mode' : 'dark-mode';
+    setMode(mode);
+    localStorage.setItem('theme', mode);
+  });
+}
+</script>
+</body>
+</html>
