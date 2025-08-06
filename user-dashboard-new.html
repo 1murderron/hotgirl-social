@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" class="light-mode">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>User Dashboard</title>
-  <link rel="stylesheet" href="/user-dashboard-new.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/user-dashboard-new.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
   <style>
+    /* Spinner overlay */
     .spinner-overlay {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -23,6 +24,39 @@
       position: relative;
       display: inline-block;
     }
+    /* Dark/light mode basic styles */
+    :root {
+      --coral: #ff6f61;
+      --slate: #2f3b46;
+      --bg-light: #f9fafb;
+      --bg-dark: #1e293b;
+      --text-light: #f3f4f6;
+      --text-dark: #1f2937;
+    }
+    .light-mode {
+      --bg-color: var(--bg-light);
+      --text-color: var(--text-dark);
+    }
+    .dark-mode {
+      --bg-color: var(--bg-dark);
+      --text-color: var(--text-light);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .dark-mode-toggle {
+      cursor: pointer;
+      border-radius: 999px;
+      background-color: var(--slate);
+      padding: 4px 8px;
+    }
+    .dark-mode-toggle.active {
+      background-color: var(--coral);
+    }
   </style>
 </head>
 <body>
@@ -30,62 +64,56 @@
 <header class="header">
   <div class="logo"><h2>hotgirl.social</h2></div>
   <div class="header-actions">
-    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
-      <span>☀️</span>
-    </button>
+    <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">☀️</button>
     <a href="#" id="view-profile" class="btn btn-secondary" target="_blank">View My Profile</a>
     <button onclick="logout()" class="btn btn-danger">Logout</button>
   </div>
 </header>
 
-<div class="dashboard-container">
-  <main class="main-content">
-
-    <section id="profile" class="content-section active">
-      <div class="card">
-        <h3>Profile Photo & Info</h3>
-        <div class="photo-upload">
-          <div class="photo-preview" id="photo-preview">
-            <div class="photo-placeholder"><span>📷</span><p>Click to upload</p></div>
-          </div>
-          <input type="file" id="photo-input" accept="image/*" hidden>
-          <button onclick="document.getElementById('photo-input').click()" class="btn btn-primary">Upload Photo</button>
-        </div>
-        <form id="profile-form">
-          <label for="display-name">Display Name</label>
-          <input type="text" id="display-name">
-          <label for="bio">Bio</label>
-          <textarea id="bio" rows="4"></textarea>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
+<main>
+  <!-- Profile Photo & Info -->
+  <section class="card">
+    <h3>Profile Photo & Info</h3>
+    <div class="photo-upload">
+      <div class="photo-preview" id="photo-preview">
+        <div class="photo-placeholder"><span>📷</span><p>Click to upload</p></div>
       </div>
-    </section>
+      <input type="file" id="photo-input" accept="image/*" hidden>
+      <button onclick="document.getElementById('photo-input').click()" class="btn btn-primary">Upload Photo</button>
+    </div>
+    <form id="profile-form">
+      <label for="display-name">Display Name</label>
+      <input type="text" id="display-name"/>
+      <label for="bio">Bio</label>
+      <textarea id="bio" rows="4"></textarea>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+  </section>
 
-    <section>
-      <div class="card">
-        <h3>Your HotGirl Link</h3>
-        <input type="text" id="profile-url" readonly value="Loading...">
-        <button id="copy-link-btn" onclick="copyProfileLink()" class="btn btn-primary">Copy Link</button>
-        <div id="copy-success" style="opacity:0;">✓ Link copied to clipboard!</div>
-      </div>
-    </section>
-
-  </main>
-</div>
+  <!-- HotGirl Link -->
+  <section class="card">
+    <h3>Your HotGirl Link</h3>
+    <input type="text" id="profile-url" readonly value="Loading...">
+    <button id="copy-link-btn" onclick="copyProfileLink()" class="btn btn-primary">Copy Link</button>
+    <div id="copy-success" style="opacity:0;">✓ Link copied to clipboard!</div>
+  </section>
+</main>
 
 <div id="message-container"></div>
 
 <script>
 let userToken = localStorage.getItem('userToken');
 
+// Load profile data
 document.addEventListener('DOMContentLoaded', () => {
   if (userToken) loadUserData();
   setupDarkMode();
 });
 
+// API helper
 async function apiCall(endpoint, options = {}) {
   const config = {
-    headers: { 'Content-Type': 'application/json', ...(userToken && { 'Authorization': `Bearer ${userToken}` }) },
+    headers: { ...(userToken && { 'Authorization': `Bearer ${userToken}` }) },
     ...options
   };
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
@@ -93,6 +121,7 @@ async function apiCall(endpoint, options = {}) {
   return response.json();
 }
 
+// Load profile info
 async function loadUserData() {
   try {
     const profile = await apiCall('/profile');
@@ -105,6 +134,7 @@ async function loadUserData() {
   }
 }
 
+// Handle photo upload with Cloudinary
 document.getElementById('photo-input').addEventListener('change', async e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -156,6 +186,7 @@ function showMessage(text, type) {
 
 function logout() { localStorage.removeItem('userToken'); window.location.href = '/'; }
 
+// Dark mode toggle
 function setupDarkMode() {
   const toggle = document.getElementById('darkModeToggle');
   const setMode = mode => document.documentElement.className = mode;
