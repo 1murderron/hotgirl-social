@@ -158,7 +158,17 @@ body.profile .brand-link {
     margin-left: 0.25rem;
 }
 
-/* Mobile optimizations */
+
+
+
+
+
+
+
+
+
+
+/* Mobile optimizations 
 @media (max-width: 480px) {
     body.profile .profile-container {
         padding: 0.5rem;
@@ -199,7 +209,7 @@ body.profile .brand-link {
     }
 }
 
-/* Tablet and desktop adjustments */
+/* Tablet and desktop adjustments 
 @media (min-width: 768px) {
     body.profile .profile-container {
         max-width: 500px;
@@ -221,3 +231,5 @@ body.profile .brand-link {
         font-size: 2rem;
     }
 }
+
+*/
