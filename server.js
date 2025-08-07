@@ -538,44 +538,50 @@ app.put('/profile', authenticateToken, async (req, res) => {
 });
 
 
-// Profile image upload
+  // Profile image upload
 app.post('/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
-  }
-
-  const stream = cloudinary.uploader.upload_stream(
-    {
-      folder: 'hotgirl-profile-pics',
-      //upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
-      resource_type: 'image'
-    },
-    async (error, result) => {
-      if (error) {
-        console.error('Cloudinary upload error:', error);
-        return res.status(500).json({ message: 'Cloudinary upload failed' });
-      }
-
-      // Save Cloudinary URL to database
-      await pool.query(
-        'UPDATE profiles SET profile_image_url = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
-        [result.secure_url, req.user.id]
-      );
-
-      res.json({ imageUrl: result.secure_url });
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
     }
-  );
 
-  streamifier.createReadStream(req.file.buffer).pipe(stream);
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'hotgirl-profile-pics',
+        resource_type: 'image',
+        transformation: [
+          { width: 300, height: 300, crop: 'fill', gravity: 'face' }
+        ]
+      },
+      async (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          return res.status(500).json({ message: 'Cloudinary upload failed' });
+        }
 
-} catch (err) {
-  console.error(err);
-  res.status(500).json({ message: 'Server error' });
-}
+        try {
+          // Save Cloudinary URL to database
+          await pool.query(
+            'UPDATE profiles SET profile_image_url = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
+            [result.secure_url, req.user.id]
+          );
+          res.json({ imageUrl: result.secure_url });
+        } catch (dbError) {
+          console.error('Database update error:', dbError);
+          return res.status(500).json({ message: 'Failed to save image URL to database' });
+        }
+      }
+    );
 
-    
+    streamifier.createReadStream(req.file.buffer).pipe(stream);
+
+  } catch (err) {
+    console.error('Upload endpoint error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
+
+
 
 
 // Links management
