@@ -537,6 +537,7 @@ app.put('/profile', authenticateToken, async (req, res) => {
   }
 });
 
+
 // Profile image upload
 app.post('/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
