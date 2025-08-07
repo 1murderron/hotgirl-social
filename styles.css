@@ -36,7 +36,7 @@ body {
 
 :root {
     /* Color Variables */
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-gradient: #f43f5e3d;
     --primary-color: #667eea;
     --secondary-color: #64748b;
     --success-color: #28a745;
@@ -1066,8 +1066,8 @@ body.dashboard .nav-item {
 
 body.dashboard .nav-item:hover,
 body.dashboard .nav-item.active {
-    background: rgba(102, 126, 234, 0.1);
-    border-left-color: var(--primary-color);
+    background: #f43f5e3d;
+    /* border-left-color: var(--primary-color); */
 }
 
 body.dashboard .nav-icon {
@@ -2175,7 +2175,7 @@ body.welcome {
     body.dashboard .nav-item.active {
         border-left: none;
         border-bottom-color: var(--primary-color);
-        background: rgba(102, 126, 234, 0.1);
+        background: #f43f5e3d;
     }
     
     body.dashboard .nav-icon {
@@ -2670,9 +2670,9 @@ body.profile .brand-link {
 
 
 /* HotGirl Link Section Responsive */
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {
     .hotgirl-link-section {
-       /* margin: 1rem 1rem !important;*/
+        margin: 1rem 1rem !important;
     }
     
     .hotgirl-link-section div[style*="display: flex"] {
@@ -2688,11 +2688,11 @@ body.profile .brand-link {
     .hotgirl-link-section button {
         width: 100% !important;
     }
-}
+} */
 
-@media (min-width: 769px) {
+/* @media (min-width: 769px) {
     .hotgirl-link-section {
-        /*max-width: 600px;
-        margin: 2rem 0;*/
+        max-width: 600px;
+        margin: 2rem 0;
     }
-}
+} */
