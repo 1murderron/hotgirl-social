@@ -37,8 +37,8 @@ body {
 :root {
     /* Color Variables */
     --primary-gradient: #f43f5e3d;
-    --primary-color: #667eea;
-    --secondary-color: #64748b;
+    --primary-color: #f43f5e;
+    --secondary-color: #f43f5e;
     --success-color: #28a745;
     --warning-color: #ffc107;
     --danger-color: #dc3545;
@@ -144,7 +144,7 @@ body {
 }
 
 .btn-primary {
-    background: var(--primary-gradient);
+    background: #f43f5e;
     color: white;
     padding: 15px 30px;
     min-width: 200px;
