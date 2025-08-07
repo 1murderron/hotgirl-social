@@ -27,8 +27,8 @@ body.profile .profile-container {
 
 /* Profile photo - slightly overlapping top of tile */
 body.profile .profile-photo {
-    width: 100px;
-    height: 100px;
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
     margin: -50px auto 1.5rem;
     background: rgba(255, 255, 255, 0.2);
@@ -40,6 +40,12 @@ body.profile .profile-photo {
     font-size: 2.5rem;
     position: relative;
     z-index: 2;
+}
+
+body.img{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
 }
 
 /* Profile name */
@@ -157,6 +163,8 @@ body.profile .brand-link {
     font-weight: 500;
     margin-left: 0.25rem;
 }
+
+
 
 
 
