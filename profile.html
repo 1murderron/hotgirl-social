@@ -237,7 +237,7 @@ body.profile .brand-link {
     <div id="error-screen" class="error-screen" style="display: none;">
         <div class="error-content">
             <h1>Profile Not Found</h1>
-            <p>This profile doesn't exist or has been deactivated.</p>
+            <p>This profile can't be found or has been deactivated.</p>
             <a href="/" class="btn btn-primary">Go to hotgirl.social</a>
         </div>
     </div>
@@ -271,7 +271,8 @@ body.profile .brand-link {
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+        // Claude, can this be a dynamic URL for easier website cloning?
+        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app'; 
         
         // Get username from URL path
         const pathParts = window.location.pathname.split('/');
@@ -372,7 +373,7 @@ body.profile .brand-link {
                 textColor: '#ffffff',
                 linkBackground: 'rgba(255, 255, 255, 0.2)',
                 linkHover: 'rgba(255, 255, 255, 0.3)'
-            },
+            }
 
 
         };

@@ -857,20 +857,29 @@ document.getElementById('photo-input').addEventListener('change', async e => {
             });
         });
 
+
+
         // Save theme function
-        async function saveTheme(theme) {
-            try {
-                await apiCall('/profile', {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        theme: theme
-                    })
-                });
-                showMessage('Theme updated!', 'success');
-            } catch (error) {
-                showMessage('Failed to update theme', 'error');
-            }
-        }
+async function saveTheme(theme) {
+    try {
+        // Get current profile data first
+        const currentProfile = await apiCall('/profile');
+        
+        // Send ALL profile data, just updating the theme
+        await apiCall('/profile', {
+            method: 'PUT',
+            body: JSON.stringify({
+                display_name: currentProfile.display_name,
+                bio: currentProfile.bio,
+                theme: theme
+                // Include any other fields your profile has
+            })
+        });
+        showMessage('Theme updated!', 'success');
+    } catch (error) {
+        showMessage('Failed to update theme', 'error');
+    }
+}
 
 
         // My Hotgirl Button Script
