@@ -559,7 +559,7 @@ app.post('/profile/upload-image', authenticateToken, upload.single('profileImage
 
       // Save Cloudinary URL to database
       await pool.query(
-        'UPDATE users SET profile_image_url = $1 WHERE id = $2',
+        'UPDATE profiles SET profile_image_url = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
         [result.secure_url, req.user.id]
       );
 
