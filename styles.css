@@ -1335,6 +1335,11 @@ body.dashboard .main-content {
     background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
 }
 
+.gradient-blue {
+    background: linear-gradient(170deg, rgb(0 106 255) 0%, rgb(2 32 96) 100%);
+}
+
+
 /* Color Input */
 .color-input {
     display: flex;
