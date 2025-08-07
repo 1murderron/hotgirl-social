@@ -595,30 +595,48 @@ document.getElementById('photo-input').addEventListener('change', async e => {
   };
   reader.readAsDataURL(file);
 
-  // Prepare upload
-  const formData = new FormData();
-  formData.append('profileImage', file);
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/profile/upload-image`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${userToken}` },
-      body: formData
-    });
 
-    if (!res.ok) throw new Error('Upload failed');
 
-    const data = await res.json();
-    if (data.imageUrl) {
-      preview.innerHTML = `
-        <img src="${data.imageUrl}" alt="Profile Photo" style="max-width:100%;border-radius:50%;">
-      `;
-    }
 
-    showMessage('Photo uploaded successfully!', 'success');
-  } catch (err) {
-    showMessage('Failed to upload photo', 'error');
+
+
+
+
+// Prepare upload
+const formData = new FormData();
+formData.append('profileImage', file);
+
+try {
+  const res = await fetch(`${API_BASE_URL}/profile/upload-image`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${userToken}` },
+    body: formData
+  });
+
+  console.log('Response status:', res.status);
+  console.log('Response headers:', res.headers);
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    console.log('Error response data:', errorData);
+    throw new Error(`Upload failed: ${res.status}`);
   }
+
+  const data = await res.json();
+  console.log('Success response data:', data);
+
+  if (data.imageUrl) {
+    preview.innerHTML = `
+      <img src="${data.imageUrl}" alt="Profile Photo" style="max-width:100%;border-radius:50%;">
+    `;
+  }
+
+  showMessage('Photo uploaded successfully!', 'success');
+} catch (err) {
+  console.error('Full upload error:', err);
+  showMessage('Failed to upload photo: ' + err.message, 'error');
+}
 });
 
 
