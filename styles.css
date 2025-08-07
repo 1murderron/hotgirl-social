@@ -1339,6 +1339,20 @@ body.dashboard .main-content {
     background: linear-gradient(170deg, rgb(0 106 255) 0%, rgb(2 32 96) 100%);
 }
 
+.gradient-red{
+    background: 'linear-gradient(170deg, rgb(255 0 0) 0%, rgb(96 2 2) 100%)',
+}
+
+.gradient-green {
+    background: linear-gradient(170deg, rgb(0 200 83) 0%, rgb(0 77 36) 100%)
+}
+
+.gradient-grey {
+    background: linear-gradient(170deg, rgb(220 220 220) 0%, rgb(100 100 100) 100%)
+}
+
+
+
 
 /* Color Input */
 .color-input {
