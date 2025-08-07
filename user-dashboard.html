@@ -469,6 +469,14 @@
                 
                 // Update preview
                 updatePreview();
+
+                // Update profile image in preview
+const previewPhoto = document.getElementById('preview-photo');
+if (profile.profile_image_url) {
+    previewPhoto.innerHTML = `<img src="${profile.profile_image_url}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+} else {
+    previewPhoto.innerHTML = '<span>👤</span>';
+}
                 
                 // Update account info
                 document.getElementById('account-username').textContent = profile.username;
@@ -573,6 +581,7 @@
 
 
 
+
 document.getElementById('photo-input').addEventListener('change', async e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -584,6 +593,7 @@ document.getElementById('photo-input').addEventListener('change', async e => {
   }
 
   const preview = document.getElementById('photo-preview');
+  const previewPhoto = document.getElementById('preview-photo');
 
   // Show instant preview + spinner
   const reader = new FileReader();
@@ -595,60 +605,48 @@ document.getElementById('photo-input').addEventListener('change', async e => {
   };
   reader.readAsDataURL(file);
 
+  // Prepare upload
+  const formData = new FormData();
+  formData.append('profileImage', file);
 
+  try {
+    const res = await fetch(`${API_BASE_URL}/profile/upload-image`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` },
+      body: formData
+    });
 
+    if (!res.ok) throw new Error('Upload failed');
 
+    const data = await res.json();
 
+    if (data.imageUrl) {
+      // Update upload preview
+      preview.innerHTML = `
+        <img src="${data.imageUrl}" alt="Profile Photo" style="max-width:100%;border-radius:50%;">
+      `;
+      
+      // Update profile preview section
+      previewPhoto.innerHTML = `<img src="${data.imageUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+      
+      // Update profile in database
+      const currentProfile = await apiCall('/profile');
+      await apiCall('/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          display_name: currentProfile.display_name,
+          bio: currentProfile.bio,
+          theme: currentProfile.theme,
+          profile_image_url: data.imageUrl
+        })
+      });
+    }
 
-
-
-
-// Prepare upload
-const formData = new FormData();
-formData.append('profileImage', file);
-
-try {
-  const res = await fetch(`${API_BASE_URL}/profile/upload-image`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${userToken}` },
-    body: formData
-  });
-
-  console.log('Response status:', res.status);
-  console.log('Response headers:', res.headers);
-
-  if (!res.ok) {
-    const errorData = await res.json();
-    console.log('Error response data:', errorData);
-    throw new Error(`Upload failed: ${res.status}`);
+    showMessage('Photo uploaded successfully!', 'success');
+  } catch (err) {
+    showMessage('Failed to upload photo', 'error');
   }
-
-  const data = await res.json();
-  console.log('Success response data:', data);
-
-  if (data.imageUrl) {
-    preview.innerHTML = `
-      <img src="${data.imageUrl}" alt="Profile Photo" style="max-width:100%;border-radius:50%;">
-    `;
-  }
-
-  showMessage('Photo uploaded successfully!', 'success');
-} catch (err) {
-  console.error('Full upload error:', err);
-  showMessage('Failed to upload photo: ' + err.message, 'error');
-}
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 
