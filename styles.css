@@ -45,9 +45,9 @@ body {
     --info-color: #007bff;
     
     /* Background Colors */
-    --bg-light: #f8fafc;
-    --bg-white: #ffffff;
-    --bg-gray: #f5f7fa;
+    --bg-light: #fef2f2 ;
+    --bg-white: #fef2f2;
+    --bg-gray: #fef2f2;
     
     /* Text Colors */
     --text-primary: #333333;
