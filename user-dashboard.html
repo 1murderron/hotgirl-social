@@ -604,7 +604,7 @@ document.getElementById('photo-input').addEventListener('change', async e => {
   const reader = new FileReader();
   reader.onload = ev => {
     preview.innerHTML = `
-      <img src="${ev.target.result}" alt="Preview" style="max-width:100%;border-radius:50%;">
+      <img src="${ev.target.result}" alt="Preview" style="width: 100%; height: 100%; border-radius: 25%;">
       <div class="spinner-overlay">⏳</div>
     `;
   };
