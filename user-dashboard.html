@@ -661,6 +661,59 @@ document.getElementById('photo-input').addEventListener('change', async e => {
 
 
 
+
+
+
+
+
+
+// Save custom appearance colors
+async function saveAppearance() {
+    try {
+        const bgColor = document.getElementById('bg-color').value;
+        const textColor = document.getElementById('text-color').value;
+        
+        // Get current profile data
+        const currentProfile = await apiCall('/profile');
+        
+        // Save with custom colors
+        await apiCall('/profile', {
+            method: 'PUT',
+            body: JSON.stringify({
+                display_name: currentProfile.display_name,
+                bio: currentProfile.bio,
+                theme: 'custom', // Set theme to custom
+                custom_colors: {
+                    background: bgColor,
+                    textColor: textColor
+                }
+            })
+        });
+        
+        // Apply to preview immediately
+        const previewDiv = document.querySelector('.profile-preview');
+        previewDiv.style.background = bgColor;
+        previewDiv.style.color = textColor;
+        
+        showMessage('Custom colors saved!', 'success');
+    } catch (error) {
+        showMessage('Failed to save colors', 'error');
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Load links
         async function loadLinks() {
             try {
