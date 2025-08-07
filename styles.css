@@ -352,10 +352,12 @@ body {
 
 .message.success {
     background: #10b981;
+    color: white;
 }
 
 .message.error {
     background: #ef4444;
+    color: white;
 }
 
 /* Empty States */
