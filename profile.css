@@ -14,7 +14,7 @@ body.profile .profile-container {
 
 /* Main profile tile */
 .profile-tile {
-    background: rgba(0, 0, 0, 0.15);
+    background: #e32f37c7;
     backdrop-filter: blur(20px);
     border-radius: 24px;
     padding: 2.5rem 2rem;
