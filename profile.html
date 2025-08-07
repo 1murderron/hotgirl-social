@@ -414,7 +414,7 @@ body.profile .brand-link {
             // Set profile photo
             const photoElement = document.getElementById('profile-photo');
             if (profile.profile_image_url && !profile.profile_image_url.includes('/uploads/')) {
-                photoElement.innerHTML = `<img src="${profile.profile_image_url}" alt="Profile photo">`;
+                photoElement.innerHTML = `<img src="${profile.profile_image_url}" alt="Profile photo" class="profile-img">`;
             } else {
                 photoElement.innerHTML = '<span class="photo-placeholder">👤</span>';
             }
