@@ -47,9 +47,7 @@ body {
     --primary-hover: #e11d48;
     --bg-light: #fef2f2;
     --text-dark: #333;
-    --text-muted
-#666
-: #666;
+    --text-muted: #666;
     --radius: 10px;
     --overlay-bg: rgba(0, 0, 0, 0.8);
     
