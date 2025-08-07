@@ -1140,13 +1140,13 @@ body.dashboard .main-content {
 }
 
 .photo-preview {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     border: 2px dashed var(--border-gray);
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* justify-content: center; */
     margin: 0 auto 1rem;
     cursor: pointer;
     transition: border-color var(--transition-fast);
