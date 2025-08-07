@@ -548,7 +548,7 @@ app.post('/profile/upload-image', authenticateToken, upload.single('profileImage
   const stream = cloudinary.uploader.upload_stream(
     {
       folder: 'hotgirl-profile-pics',
-      upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
+      //upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
       resource_type: 'image'
     },
     async (error, result) => {
