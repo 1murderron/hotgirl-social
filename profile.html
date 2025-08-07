@@ -409,7 +409,9 @@ body.profile .brand-link {
             document.getElementById('page-title').textContent = `${profile.display_name || profile.username} - hotgirl.social`;
 
             // Apply theme
-            applyTheme(profile.theme || 'default');
+            //applyTheme(profile.theme || 'default');
+            applyTheme(profile.theme || 'default', profile.custom_colors);
+
 
             // Set profile photo
             const photoElement = document.getElementById('profile-photo');
@@ -452,18 +454,37 @@ body.profile .brand-link {
             `).join('');
         }
 
-        // Apply theme styling
-        function applyTheme(themeName) {
-            const theme = themes[themeName] || themes.default;
-            
-            document.body.style.background = theme.background;
-            document.body.style.color = theme.textColor;
-            
-            // Update CSS custom properties for dynamic styling
-            document.documentElement.style.setProperty('--link-bg', theme.linkBackground);
-            document.documentElement.style.setProperty('--link-hover', theme.linkHover);
-            document.documentElement.style.setProperty('--text-color', theme.textColor);
-        }
+        
+
+            // Apply theme styling
+function applyTheme(themeName, customColors = null) {
+    let theme;
+    
+    if (themeName === 'custom' && customColors) {
+        // Use custom colors
+        theme = {
+            background: customColors.background,
+            textColor: customColors.textColor,
+            linkBackground: 'rgba(255, 255, 255, 0.2)',
+            linkHover: 'rgba(255, 255, 255, 0.3)'
+        };
+    } else {
+        // Use predefined theme
+        theme = themes[themeName] || themes.default;
+    }
+    
+    document.body.style.background = theme.background;
+    document.body.style.color = theme.textColor;
+    
+    // Update CSS custom properties for dynamic styling
+    document.documentElement.style.setProperty('--link-bg', theme.linkBackground);
+    document.documentElement.style.setProperty('--link-hover', theme.linkHover);
+    document.documentElement.style.setProperty('--text-color', theme.textColor);
+}
+
+
+
+
 
         // Handle link clicks
         async function handleLinkClick(event, url, linkId) {
