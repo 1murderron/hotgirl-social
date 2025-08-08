@@ -267,9 +267,15 @@ function showLoginModal() {
 
     const data = await res.json();
 
+    //if (res.ok) {
+    //   window.location.href = '/user-dashboard.html';
+   // } else {
+
+
     if (res.ok) {
-      // Redirect directly to dashboard without changing token handling
-      window.location.href = '/user-dashboard.html';
+  const data = await res.json();
+    localStorage.setItem('userToken', data.token);
+    window.location.href = '/user-dashboard.html';
     } else {
       alert(data.error || 'Invalid login credentials.');
     }
