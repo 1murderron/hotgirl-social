@@ -1,10 +1,27 @@
 // Username validation function for the server
+
+// List of restricted usernames
+const RESTRICTED_USERNAMES = [
+  'admin', 'administrator', 'root', 'api', 'www', 'mail', 'email',
+  'support', 'help', 'info', 'contact', 'about', 'terms', 'privacy',
+  'login', 'register', 'signup', 'signin', 'logout', 'dashboard',
+  'profile', 'user', 'users', 'account', 'settings', 'config',
+  'hotgirl', 'hotgirlsocial', 'official', 'staff', 'moderator',
+  'null', 'undefined', 'true', 'false', 'test', 'demo'
+];
+
+
 function validateUsername(username) {
     const errors = [];
     
     // Check if username exists
     if (!username || typeof username !== 'string') {
         return { isValid: false, errors: ['Username is required'] };
+    }
+
+    // Check if username is restricted
+    if (RESTRICTED_USERNAMES.includes(username.toLowerCase())) {
+        errors.push('This username is not available');
     }
     
     // Check length
