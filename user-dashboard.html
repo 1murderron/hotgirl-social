@@ -53,10 +53,13 @@
                 <span class="nav-icon">📊</span>
                 <span class="nav-text">Performance</span>
             </div>
-            <div class="nav-item" onclick="showSection('settings')">
+
+            <!-- <div class="nav-item" onclick="showSection('settings')">
                 <span class="nav-icon">⚙️</span>
                 <span class="nav-text">Settings</span>
             </div>
+            -->
+
         </nav>
 
 
@@ -150,12 +153,58 @@
                             </div>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </form>
+
+
+            </div>
+                </div>
+
+                <!-- Account Settings (moved from Settings section) -->
+                <div class="content-grid">
+                    <!-- Account Info -->
+                    <div class="card">
+                        <h3>Account Information</h3>
+                        <div class="account-info">
+                            <div class="info-row">
+                                <label>Username:</label>
+                                <span id="account-username">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <label>Email:</label>
+                                <span id="account-email">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <label>Member Since:</label>
+                                <span id="account-joined">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="card">
+                        <h3>Change Password</h3>
+                        <form id="password-form">
+                            <div class="form-group">
+                                <label for="current-password">Current Password</label>
+                                <input type="password" id="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <input type="password" id="new-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">Confirm New Password</label>
+                                <input type="password" id="confirm-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </form>
                     </div>
                 </div>
-            </section>
 
-        
-            
+            </section>             
+
+
+
+
             <!-- Links Section -->
             <section id="links" class="content-section">
                 <div class="section-header">
@@ -352,56 +401,7 @@
 
  </section>
 
-            <!-- Settings Section -->
-            <section id="settings" class="content-section">
-                <div class="section-header">
-                    <h1>Account Settings</h1>
-                    <p>Manage your account preferences.</p>
-                </div>
-
-                <div class="content-grid">
-                    <!-- Account Info -->
-                    <div class="card">
-                        <h3>Account Information</h3>
-                        <div class="account-info">
-                            <div class="info-row">
-                                <label>Username:</label>
-                                <span id="account-username">Loading...</span>
-                            </div>
-                            <div class="info-row">
-                                <label>Email:</label>
-                                <span id="account-email">Loading...</span>
-                            </div>
-                            <div class="info-row">
-                                <label>Member Since:</label>
-                                <span id="account-joined">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Change Password -->
-                    <div class="card">
-                        <h3>Change Password</h3>
-                        <form id="password-form">
-                            <div class="form-group">
-                                <label for="current-password">Current Password</label>
-                                <input type="password" id="current-password" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="new-password">New Password</label>
-                                <input type="password" id="new-password" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm-password">Confirm New Password</label>
-                                <input type="password" id="confirm-password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Password</button>
-                        </form>
-                    </div>
-                </div>
-
-
-            </section>
+            
 
 
 
