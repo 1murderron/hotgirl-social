@@ -233,6 +233,43 @@ function showPaymentModal() {
   `);
   setupUsernameValidation();
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    document.getElementById('contact-submit').addEventListener('click', async () => {
+  const name = document.getElementById('contact-name').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const message = document.getElementById('contact-message').value.trim();
+
+  if (!name || !email || !message) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        subject: 'Contact Form Submission',
+        message: message
+      })
+    });
+
+    if (response.ok) {
+      alert('Message sent successfully! We\'ll get back to you soon.');
+      closeModal();
+    } else {
+      alert('Failed to send message. Please try again.');
+    }
+  } catch (error) {
+    alert('Error sending message. Please try again.');
+  }
+});
+
+
+
+
+
 }
 function showLoginModal() {
   openModal(`
@@ -552,7 +589,7 @@ async function proceedToCheckout(email, username) {
   }
 
 
-  
+
   // Load config and initialize
 document.addEventListener('DOMContentLoaded', async () => {
   await loadConfig();
