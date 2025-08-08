@@ -275,7 +275,7 @@ function showLoginModal() {
 
     
    if (res.ok) {
-   const data = await res.json();
+   //const data = await res.json();
     localStorage.setItem('userToken', data.token);
     window.location.href = '/user-dashboard.html';
     } else {
