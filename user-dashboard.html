@@ -435,7 +435,8 @@
         // Authentication check
         function checkAuthStatus() {
             if (!userToken) {
-                window.location.href = '/login.html';
+              //window.location.href = '/login.html';
+              window.location.href = '/';  
                 return false;
             }
             return true;
