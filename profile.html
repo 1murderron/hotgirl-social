@@ -381,7 +381,7 @@ body.profile .brand-link {
         // Load profile data
         async function loadProfile() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/u/${username}`);
+                const response = await fetch(`${API_BASE_URL}/api/${username}`);
                 
                 if (!response.ok) {
                     throw new Error('Profile not found');

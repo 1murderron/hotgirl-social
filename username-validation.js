@@ -7,7 +7,7 @@ const RESTRICTED_USERNAMES = [
   'login', 'register', 'signup', 'signin', 'logout', 'dashboard',
   'profile', 'user', 'users', 'account', 'settings', 'config',
   'hotgirl', 'hotgirlsocial', 'official', 'staff', 'moderator',
-  'null', 'undefined', 'true', 'false', 'test', 'demo'
+  'null', 'undefined', 'true', 'false', 'test', 'demo', 'contact', 'privacy'
 ];
 
 
