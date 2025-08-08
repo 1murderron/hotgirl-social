@@ -267,16 +267,20 @@ function showLoginModal() {
 
     const data = await res.json();
 
-    //if (res.ok) {
-    //   window.location.href = '/user-dashboard.html';
+
+
+   if (res.ok) {
+      window.location.href = '/user-dashboard.html';
+   } else {
+
+    
+   //if (res.ok) {
+    //const data = await res.json();
+   // localStorage.setItem('userToken', data.token);
+   // window.location.href = '/user-dashboard.html';
    // } else {
 
 
-    if (res.ok) {
-  const data = await res.json();
-    localStorage.setItem('userToken', data.token);
-    window.location.href = '/user-dashboard.html';
-    } else {
       alert(data.error || 'Invalid login credentials.');
     }
   } catch (err) {
