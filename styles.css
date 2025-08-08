@@ -100,7 +100,7 @@ body {
 /* ===== 3. LAYOUT COMPONENTS ===== */
 .header {
     background: var(--bg-white);
-    border-bottom: 1px solid var(--border-light);
+    border: none;
     padding: 1rem 0;
     position: sticky;
     top: 0;
@@ -2204,14 +2204,16 @@ body.welcome {
     }
     
     body.dashboard .sidebar {
-        width: 100%;
+        width: 95%;
         display: flex;
         overflow-x: auto;
         padding: 1rem 0;
         border-right: none;
-        border-bottom: 1px solid var(--border-light);
+        border: 2px solid var(--border-light) #e2e8f0;
         position: static;
         height: auto;
+        margin: 0 auto;
+        border-radius: 10px;
     }
     
     body.dashboard .nav-item {
