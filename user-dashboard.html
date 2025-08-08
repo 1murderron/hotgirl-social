@@ -530,10 +530,10 @@ if (profile.theme) {
                 document.getElementById('account-joined').textContent = new Date(profile.created_at).toLocaleDateString();
                 
                 // Set profile link
-                document.getElementById('view-profile').href = `/u/${profile.username}`;
+                document.getElementById('view-profile').href = `/${profile.username}`;
                 // Set profile link for copy button feature
-                document.getElementById('profile-url').value = `https://hotgirl-social-production.up.railway.app/u/${encodeURIComponent(profile.username)}`;
-                //document.getElementById('profile-url').value = `https://hotgirl-social-production.up.railway.app/u/${profile.username}`;
+                document.getElementById('profile-url').value = `${API_BASE_URL}/${encodeURIComponent(profile.username)}`;
+               
                 
                 // Load links
                 loadLinks();
