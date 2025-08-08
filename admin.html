@@ -311,7 +311,12 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+
+
+       // const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+        let API_BASE_URL = null; // Will be set after loading config
+
+
         let adminToken = localStorage.getItem('adminToken');
 
         // Mobile menu functions
@@ -895,11 +900,34 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (checkAuthStatus()) {
-                initializeDashboard();
-            }
-        });
+
+
+                    document.addEventListener('DOMContentLoaded', async function() {
+                        await loadConfig();
+                        if (checkAuthStatus()) {
+                            initializeDashboard();
+                        }
+                    });
+
+                    // Load configuration from server
+                    async function loadConfig() {
+                        try {
+                            const response = await fetch('/api/config');
+                            const config = await response.json();
+                            API_BASE_URL = config.apiUrl;
+                        } catch (error) {
+                            console.error('Failed to load config:', error);
+                            // Fallback to hardcoded value
+                            API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+                        }
+                    }
+
+
+
+
+
+
+
 
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('.sidebar-nav');
@@ -909,6 +937,8 @@
                 </button>
             `);
         });
+
+
 
 
         // Load current settings when settings page is shown

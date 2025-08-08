@@ -229,20 +229,45 @@ app.get('/api/price', async (req, res) => {
 });
 
 // Get site configuration for frontend
+//app.get('/api/config', async (req, res) => {
+//  try {
+//    res.json({
+//      siteName: process.env.SITE_NAME || 'hotgirl.social',
+//      apiUrl: process.env.FRONTEND_URL || 'https://hotgirl-social-production.up.railway.app'
+//    });
+//  } catch (error) {
+//    console.error('Get config error:', error);
+//    res.json({
+//      siteName: 'hotgirl.social',
+//      apiUrl: 'https://hotgirl-social-production.up.railway.app'
+//    });
+//  }
+// });
+
+
+// Get site configuration for frontend
 app.get('/api/config', async (req, res) => {
   try {
     res.json({
       siteName: process.env.SITE_NAME || 'hotgirl.social',
-      apiUrl: process.env.FRONTEND_URL || 'https://hotgirl-social-production.up.railway.app'
+      apiUrl: process.env.FRONTEND_URL || 'https://hotgirl-social-production.up.railway.app',
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
     });
   } catch (error) {
     console.error('Get config error:', error);
     res.json({
       siteName: 'hotgirl.social',
-      apiUrl: 'https://hotgirl-social-production.up.railway.app'
+      apiUrl: 'https://hotgirl-social-production.up.railway.app',
+      stripePublishableKey: 'pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8'
     });
   }
 });
+
+
+
+
+
+
 
 // Check if username is available
 app.post('/check-username', async (req, res) => {

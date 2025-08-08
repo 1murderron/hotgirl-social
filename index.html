@@ -155,7 +155,9 @@
 
 <script>
 
- const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
+// const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
+let stripe = null; // Will be set after loading config
+let API_BASE_URL = null; // Will be set after loading config
 
 // === Event Listeners ===
 document.querySelectorAll('.checkout-button').forEach(btn => {
@@ -549,9 +551,29 @@ async function proceedToCheckout(email, username) {
     }
   }
 
-  // Run on page load
-  document.addEventListener('DOMContentLoaded', loadPrice);
 
+  
+  // Load config and initialize
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadConfig();
+  loadPrice();
+});
+
+// Load configuration from server
+async function loadConfig() {
+  try {
+    const response = await fetch('/api/config');
+    const config = await response.json();
+    
+    API_BASE_URL = config.apiUrl;
+    stripe = Stripe(config.stripePublishableKey);
+  } catch (error) {
+    console.error('Failed to load config:', error);
+    // Fallback to hardcoded values
+    API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+    stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
+  }
+}
 
 
   
