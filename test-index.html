@@ -64,7 +64,7 @@
   <!-- Social Proof -->
   <h2>Trusted by Creators Worldwide</h2>
   <p class="section-intro">
-    Join hundreds of creators who’ve switched to HotGirl.social to own their audience and keep 100% of their clicks.
+    Join hundreds of creators who've switched to HotGirl.social to own their audience and keep 100% of their clicks.
   </p>
   <div class="brand-logos">
     <img src="/assets/logo-placeholder1.png" alt="Brand logo">
@@ -90,7 +90,7 @@
   </div>
 
   <!-- Features Grid -->
-  <h2>Everything You Need — Nothing You Don’t</h2>
+  <h2>Everything You Need — Nothing You Don't</h2>
   <div class="features-grid">
     <div class="feature-card">
       <strong>Custom Profile Page</strong>
@@ -134,7 +134,7 @@
   </div>
   <div class="testimonial-slide">
     <img src="/assets/user2.jpg" alt="User Photo">
-    <p>"Best $15 I’ve ever spent. No monthly fees and I own it for life."</p>
+    <p>"Best $15 I've ever spent. No monthly fees and I own it for life."</p>
     <strong>@cre8tivequeen</strong>
   </div>
   <div class="testimonial-slide">
@@ -233,43 +233,6 @@ function showPaymentModal() {
   `);
   setupUsernameValidation();
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
-    document.getElementById('contact-submit').addEventListener('click', async () => {
-  const name = document.getElementById('contact-name').value.trim();
-  const email = document.getElementById('contact-email').value.trim();
-  const message = document.getElementById('contact-message').value.trim();
-
-  if (!name || !email || !message) {
-    alert('Please fill in all fields.');
-    return;
-  }
-
-  try {
-    const response = await fetch('/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: name,
-        email: email,
-        subject: 'Contact Form Submission',
-        message: message
-      })
-    });
-
-    if (response.ok) {
-      alert('Message sent successfully! We\'ll get back to you soon.');
-      closeModal();
-    } else {
-      alert('Failed to send message. Please try again.');
-    }
-  } catch (error) {
-    alert('Error sending message. Please try again.');
-  }
-});
-
-
-
-
-
 }
 function showLoginModal() {
   openModal(`
@@ -347,6 +310,43 @@ function showContactModal() {
     </div>
   `);
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  
+  // Contact form handler
+  document.getElementById('contact-submit').addEventListener('click', async () => {
+    const name = document.getElementById('contact-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const message = document.getElementById('contact-message').value.trim();
+
+    if (!name || !email || !message) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          subject: 'Contact Form Submission',
+          message: message
+        })
+      });
+
+      if (response.ok) {
+        alert('Message sent successfully! We\'ll get back to you soon.');
+        closeModal();
+      } else {
+        const error = await response.json();
+        console.error('Contact form error:', error);
+        alert('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      alert('Error sending message. Please try again.');
+    }
+  });
 }
 
 
@@ -398,7 +398,7 @@ function showPrivacyModal() {
 <ul>
   <li>You can edit or delete your profile at any time in your account settings.</li>
   <li>You can contact us to request a copy of your personal data or to delete your account entirely.</li>
-  <li>You can opt out of marketing emails (we don’t send many).</li>
+  <li>You can opt out of marketing emails (we don't send many).</li>
 </ul>
 
 <h3>6. Security</h3>
@@ -444,7 +444,7 @@ function showTermsModal() {
 <ul>
   <li>Use the platform for any illegal or unauthorized purpose.</li>
   <li>Post content that is unlawful, defamatory, obscene, or otherwise objectionable.</li>
-  <li>Attempt to gain unauthorized access to our systems or other users’ accounts.</li>
+  <li>Attempt to gain unauthorized access to our systems or other users' accounts.</li>
   <li>Harass, abuse, or harm other users.</li>
 </ul>
 
@@ -468,7 +468,7 @@ function showTermsModal() {
 </ul>
 
 <h3>7. Disclaimers</h3>
-<p>HotGirl.social is provided “as is” without warranties of any kind, express or implied. We do not guarantee that the service will be uninterrupted or error-free.</p>
+<p>HotGirl.social is provided "as is" without warranties of any kind, express or implied. We do not guarantee that the service will be uninterrupted or error-free.</p>
 
 <h3>8. Limitation of Liability</h3>
 <p>To the maximum extent permitted by law, HotGirl.social is not liable for any damages arising from your use of the platform.</p>
