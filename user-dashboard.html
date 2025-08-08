@@ -995,6 +995,42 @@ async function saveAppearance() {
     }
 }
 
+
+
+
+
+// Password change form handler
+document.getElementById('password-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+        showMessage('New passwords do not match', 'error');
+        return;
+    }
+    
+    try {
+        await apiCall('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            })
+        });
+        
+        showMessage('Password updated successfully!', 'success');
+        
+        // Clear the form
+        this.reset();
+    } catch (error) {
+        showMessage('Failed to change password', 'error');
+    }
+});
+
     </script>
 </body>
 </html>
