@@ -797,35 +797,44 @@ document.getElementById('photo-input').addEventListener('change', async e => {
         }
 
         // Load analytics
-        async function loadAnalytics() {
-            try {
-                const analytics = await apiCall('/analytics');
-                
-                document.getElementById('total-views').textContent = analytics.total_views || 0;
-                
-                const totalClicks = analytics.link_stats?.reduce((sum, link) => sum + (link.clicks || 0), 0) || 0;
-                document.getElementById('total-clicks').textContent = totalClicks;
-                document.getElementById('link-count').textContent = analytics.link_stats?.length || 0;
-                
-                const clickRate = analytics.total_views > 0 ? ((totalClicks / analytics.total_views) * 100).toFixed(1) : 0;
-                document.getElementById('conversion-rate').textContent = clickRate + '%';
-                
-                // Load link stats
-                const linkStats = document.getElementById('link-stats');
-                if (analytics.link_stats && analytics.link_stats.length > 0) {
-                    linkStats.innerHTML = analytics.link_stats.map(link => `
-                        <div class="link-stat-item">
-                            <div class="link-stat-name">${link.title}</div>
-                            <div class="link-stat-clicks">${link.clicks || 0} clicks</div>
-                        </div>
-                    `).join('');
-                } else {
-                    linkStats.innerHTML = '<div class="empty-state">No link data available yet</div>';
-                }
-            } catch (error) {
-                showMessage('Failed to load analytics', 'error');
-            }
+async function loadAnalytics() {
+    try {
+        console.log('Loading analytics from:', `${API_BASE_URL}/analytics`);
+        const analytics = await apiCall('/analytics');
+        console.log('Analytics response:', analytics);
+        
+        document.getElementById('total-views').textContent = analytics.total_views || 0;
+        
+        const totalClicks = analytics.link_stats?.reduce((sum, link) => sum + (link.clicks || 0), 0) || 0;
+        document.getElementById('total-clicks').textContent = totalClicks;
+        document.getElementById('link-count').textContent = analytics.link_stats?.length || 0;
+        
+        const clickRate = analytics.total_views > 0 ? ((totalClicks / analytics.total_views) * 100).toFixed(1) : 0;
+        document.getElementById('conversion-rate').textContent = clickRate + '%';
+        
+        // Load link stats
+        const linkStats = document.getElementById('link-stats');
+        if (analytics.link_stats && analytics.link_stats.length > 0) {
+            linkStats.innerHTML = analytics.link_stats.map(link => `
+                <div class="link-stat-item">
+                    <div class="link-stat-name">${link.title}</div>
+                    <div class="link-stat-clicks">${link.clicks || 0} clicks</div>
+                </div>
+            `).join('');
+        } else {
+            linkStats.innerHTML = '<div class="empty-state">No link data available yet</div>';
         }
+    } catch (error) {
+        console.error('Analytics error details:', error);
+        document.getElementById('link-stats').innerHTML = '<div class="error">Failed to load analytics</div>';
+        showMessage('Failed to load analytics', 'error');
+    }
+}
+
+
+
+
+
 
         // Update links preview
         function updateLinksPreview(links) {
