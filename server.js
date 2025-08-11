@@ -508,18 +508,16 @@ app.post('/auth/change-password', authenticateToken, async (req, res) => {
 });
 
 
-
-
-
-// Profile management routes
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
+    console.log('Profile endpoint hit, user ID:', req.user?.id);
+    
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0'
     });
-    
+
     const profileResult = await pool.query(`
       SELECT p.*, u.username, u.email, u.created_at 
       FROM profiles p 
@@ -527,11 +525,15 @@ app.get('/profile', authenticateToken, async (req, res) => {
       WHERE p.user_id = $1
     `, [req.user.id]);
 
+    console.log('Profile query result:', profileResult.rows.length, 'rows');
+
     if (profileResult.rows.length === 0) {
+      console.log('No profile found for user ID:', req.user.id);
       return res.status(404).json({ error: 'Profile not found' });
     }
 
     const profile = profileResult.rows[0];
+    console.log('Profile found:', profile.username);
 
     // Get links
     const linksResult = await pool.query(`
@@ -540,15 +542,23 @@ app.get('/profile', authenticateToken, async (req, res) => {
       ORDER BY display_order, created_at
     `, [profile.id]);
 
-    res.json({
+    console.log('Links found:', linksResult.rows.length);
+
+    const response = {
       ...profile,
       links: linksResult.rows
-    });
+    };
+    
+    console.log('Sending profile response');
+    res.json(response);
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
+
+
+
 
 
 
