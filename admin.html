@@ -621,8 +621,13 @@
             document.getElementById('user-modal').classList.remove('active');
         }
 
+
+
+
+
+        /* FUCKING RIGHT HERE YOU COCK SUCKING PIECE OF SHIT */
         function viewPublicProfile(username) {
-            window.open(`${API_BASE_URL}/u/${username}`, '_blank');
+            window.open(`${API_BASE_URL}/${username}`, '_blank');
         }
 
         async function toggleUserStatusFromModal(userId, newStatus) {
