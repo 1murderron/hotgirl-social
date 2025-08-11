@@ -507,9 +507,19 @@ app.post('/auth/change-password', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+
+
 // Profile management routes
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
     const profileResult = await pool.query(`
       SELECT p.*, u.username, u.email, u.created_at 
       FROM profiles p 
@@ -539,6 +549,12 @@ app.get('/profile', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
+
+
+
+
+
+
 
 app.put('/profile', authenticateToken, async (req, res) => {
   try {
