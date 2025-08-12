@@ -289,7 +289,7 @@ app.post('/check-username', async (req, res) => {
 
 
 // Create Stripe checkout session
-app.post('/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { email, username } = req.body;
 
@@ -394,7 +394,7 @@ app.post('/webhook', async (req, res) => {
 });
 
 // User authentication routes
-app.post('/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -598,7 +598,7 @@ app.post('/api/links', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/links/:id', authenticateToken, async (req, res) => {
+app.put('/api/links/:id', authenticateToken, async (req, res) => {
   try {
     const { title, url, icon, display_order } = req.body;
     const linkId = req.params.id;
@@ -621,7 +621,7 @@ app.put('/links/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/links/:id', authenticateToken, async (req, res) => {
+app.delete('/api/links/:id', authenticateToken, async (req, res) => {
   try {
     const linkId = req.params.id;
 
@@ -702,7 +702,7 @@ app.get('/api/:username', async (req, res) => {
 });
 
 // Track link clicks
-app.post('/links/:id/click', async (req, res) => {
+app.post('/api/links/:id/click', async (req, res) => {
   try {
     const linkId = req.params.id;
 
