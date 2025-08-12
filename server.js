@@ -46,6 +46,18 @@ app.use(express.json({ limit: '10mb' }));
 
 
 
+// === API PREFIX SHIM (safe, non-destructive) ===
+// This lets the frontend call /api/... while your existing server routes
+// can stay exactly as they are (/profile, /links, /admin/..., etc.)
+app.use((req, _res, next) => {
+  if (req.url.startsWith('/api/')) {
+    req.url = req.url.replace(/^\/api/, '');
+  }
+  next();
+});
+/* END CHAT GPT EDIT */ 
+
+
 
 
 // ==== CHATGPT - API ROUTES GO HERE (no changes to your existing logic) ====
@@ -55,26 +67,11 @@ app.use(express.json({ limit: '10mb' }));
 // ... all your other API routes in their current order
 
 
-
-// === API ROUTE CATCH-FIRST PATCH ===
-// Put this right BEFORE your static file lines
-
-// This makes sure API routes are checked before static files
-app.use(['/analytics', '/users', '/upload', '/whatever-other-endpoints'], (req, res, next) => {
-  next(); // Let your real route handlers match later
-});
-
-/* END CHATGPT */
-
-
-
-
-
-
+/*
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('.'));
-
+*/
 
 
 
@@ -248,7 +245,7 @@ async function initializeDatabase() {
 
 // Routes
 // Get current registration price for public display
-app.get('/api/price', async (req, res) => {
+app.get('/price', async (req, res) => {
   try {
     const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
     const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
@@ -280,7 +277,7 @@ app.get('/api/price', async (req, res) => {
 
 
 // Get site configuration for frontend
-app.get('/api/config', async (req, res) => {
+app.get('/config', async (req, res) => {
   try {
     res.json({
       siteName: process.env.SITE_NAME || 'hotgirl.social',
@@ -752,7 +749,7 @@ app.get('/:username', async (req, res) => {
 });
 
 // API endpoint for profile data
-app.get('/api/:username', async (req, res) => {
+app.get('/profile-data/:username', async (req, res) => {
   try {
     const { username } = req.params;
 
@@ -1383,6 +1380,24 @@ async function startServer() {
     
     // Create uploads directory if it doesn't exist
     await fs.mkdir('public/uploads', { recursive: true });
+
+
+
+
+app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
+app.use(express.static('.'));
+
+
+// === SPA FALLBACK (last) ===
+// Serve index.html for non-API, non-webhook paths (so dynamic frontend routes work)
+// IMPORTANT: This must come AFTER all API routes and static middleware.
+const path = require('path');
+app.get(/^\/(?!api|webhook).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

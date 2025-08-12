@@ -424,7 +424,7 @@
     <!-- Success/Error Messages -->
     <div id="message-container"></div>
 
-    <script>
+    <!-- <script>
 
         // API Configuration
         //const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
@@ -1056,5 +1056,644 @@ document.getElementById('password-form').addEventListener('submit', async functi
 });
 
     </script>
+-->
+
+
+<script>
+
+        // API Configuration
+        //const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+        let API_BASE_URL = null; // Will be set after loading config
+
+        let userToken = localStorage.getItem('userToken');
+        let currentUser = null;
+        let currentLinks = []; // Store current links data
+
+       
+       
+
+
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadConfig();
+            if (checkAuthStatus()) {
+                loadUserData();
+            }
+        });
+
+        // Load configuration from server
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                API_BASE_URL = config.apiUrl;
+                console.log('API_BASE_URL set to:', API_BASE_URL); // Add this single line
+            } catch (error) {
+                console.error('Failed to load config:', error);
+                // Fallback to hardcoded value
+                API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+                console.log('API_BASE_URL fallback to:', API_BASE_URL); // Add this single line
+            }
+        }
+
+
+
+
+        // Authentication check
+        function checkAuthStatus() {
+            if (!userToken) {
+              //window.location.href = '/login.html';
+              window.location.href = '/';  
+                return false;
+            }
+            return true;
+        }
+
+        // API Helper Function
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(userToken && { 'Authorization': `Bearer ${userToken}` })
+                },
+                ...options
+            };
+
+            try {
+                const response = await fetch(url, config);
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('userToken');
+                        window.location.href = '/login.html';
+                        throw new Error('Authentication required');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+
+
+
+
+
+
+
+
+
+        // Load user profile data
+        async function loadUserData() {
+            try {
+                const profile = await apiCall('/api/profile');
+                currentUser = profile;
+                
+                // Update profile form
+                document.getElementById('display-name').value = profile.display_name || '';
+                document.getElementById('bio').value = profile.bio || '';
+
+// Apply theme to preview
+if (profile.theme) {
+    applyPreviewTheme(profile.theme);
+}
+                
+                // Update preview
+                updatePreview();
+
+                // Update profile image in preview
+                const previewPhoto = document.getElementById('preview-photo');
+                if (profile.profile_image_url) {
+                    previewPhoto.innerHTML = `<img src="${profile.profile_image_url}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                } else {
+                    previewPhoto.innerHTML = '<span>👤</span>';
+                }
+                
+                // Update account info
+                document.getElementById('account-username').textContent = profile.username;
+                document.getElementById('account-email').textContent = profile.email || 'N/A';
+                document.getElementById('account-joined').textContent = new Date(profile.created_at).toLocaleDateString();
+                
+                // Set profile link
+                document.getElementById('view-profile').href = `/${profile.username}`;
+                // Set profile link for copy button feature
+                document.getElementById('profile-url').value = `${API_BASE_URL}/${encodeURIComponent(profile.username)}`;
+               
+                
+                // Load links
+                loadLinks();
+                
+                // Load analytics
+                loadAnalytics();
+                
+            } catch (error) {
+                showMessage('Failed to load profile data', 'error');
+            }
+        }
+
+        // Update profile preview
+        function updatePreview() {
+            const displayName = document.getElementById('display-name').value || 'Your Display Name';
+            const bio = document.getElementById('bio').value || 'Your bio will appear here...';
+            
+            document.getElementById('preview-name').textContent = displayName;
+            document.getElementById('preview-bio').textContent = bio;
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Profile form submission
+        document.getElementById('profile-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const displayName = document.getElementById('display-name').value;
+            const bio = document.getElementById('bio').value;
+            
+            try {
+                await apiCall('/api/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        display_name: displayName,
+                        bio: bio
+                    })
+                });
+                
+                showMessage('Profile updated successfully!', 'success');
+                updatePreview();
+            } catch (error) {
+                showMessage('Failed to update profile', 'error');
+            }
+        });
+
+ 
+document.getElementById('photo-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Size check
+  if (file.size > 5 * 1024 * 1024) {
+    showMessage('File too large (max 5MB)', 'error');
+    return;
+  }
+
+  const preview = document.getElementById('photo-preview');
+  const previewPhoto = document.getElementById('preview-photo');
+
+  // Show instant preview + spinner
+  const reader = new FileReader();
+  reader.onload = ev => {
+    preview.innerHTML = `
+      <img src="${ev.target.result}" alt="Preview" style="width: 100%; height: 100%; border-radius: 25%;">
+      <div class="spinner-overlay">⏳</div>
+    `;
+  };
+  reader.readAsDataURL(file);
+
+  // Prepare upload
+  const formData = new FormData();
+  formData.append('profileImage', file);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/profile/upload-image`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` },
+      body: formData
+    });
+
+    if (!res.ok) throw new Error('Upload failed');
+
+    const data = await res.json();
+
+    if (data.imageUrl) {
+      // Update upload preview
+      preview.innerHTML = `
+        <img src="${data.imageUrl}" alt="Profile Photo" style="max-width:100%;border-radius:50%;">
+      `;
+      
+      // Update profile preview section
+      previewPhoto.innerHTML = `<img src="${data.imageUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+      
+      // Update profile in database
+      const currentProfile = await apiCall('/api/profile');
+      await apiCall('/api/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          display_name: currentProfile.display_name,
+          bio: currentProfile.bio,
+          theme: currentProfile.theme,
+          profile_image_url: data.imageUrl
+        })
+      });
+    }
+
+    showMessage('Photo uploaded successfully!', 'success');
+  } catch (err) {
+    showMessage('Failed to upload photo', 'error');
+  }
+});
+
+
+
+
+        // Load links
+        async function loadLinks() {
+            try {
+                const profile = await apiCall('/api/profile');
+                currentLinks = profile.links || []; // Store links data
+                const linksList = document.getElementById('links-list');
+                
+                if (currentLinks.length > 0) {
+                    linksList.innerHTML = currentLinks.map(link => `
+                        <div class="link-item" data-id="${link.id}">
+                            <div class="link-info">
+                                <span class="link-icon">${link.icon || '🔗'}</span>
+                                <div class="link-details">
+                                    <div class="link-title">${link.title}</div>
+                                    <div class="link-url">${link.url}</div>
+                                </div>
+                                <div class="link-stats">
+                                    <span class="click-count">${link.clicks || 0} clicks</span>
+                                </div>
+                            </div>
+                            <div class="link-actions">
+                                <button onclick="editLink(${link.id})" class="btn btn-small">Edit</button>
+                                <button onclick="deleteLink(${link.id})" class="btn btn-small btn-danger">Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    linksList.innerHTML = '<div class="empty-state">No links added yet. Add your first link above!</div>';
+                }
+                
+                // Update preview
+                updateLinksPreview(currentLinks);
+            } catch (error) {
+                document.getElementById('links-list').innerHTML = '<div class="error">Failed to load links</div>';
+            }
+        }
+
+        // Modified form submission to handle both add and edit
+        document.getElementById('add-link-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('link-title').value;
+            const url = document.getElementById('link-url').value;
+            const icon = document.getElementById('link-icon').value;
+            const editingId = this.dataset.editingId;
+            
+            try {
+                if (editingId) {
+                    // Update existing link
+                    await apiCall(`/api/links/${editingId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ title, url, icon })
+                    });
+                    showMessage('Link updated successfully!', 'success');
+                } else {
+                    // Add new link
+                    await apiCall('/api/links', {
+                        method: 'POST',
+                        body: JSON.stringify({ title, url, icon })
+                    });
+                    showMessage('Link added successfully!', 'success');
+                }
+                
+                // Reset form
+                this.reset();
+                cancelEdit(); // Reset edit state
+                loadLinks();
+            } catch (error) {
+                showMessage(editingId ? 'Failed to update link' : 'Failed to add link', 'error');
+            }
+        });
+
+        // Improved edit link function
+        function editLink(linkId) {
+            // Find the link data from currentLinks array
+            const linkData = currentLinks.find(link => link.id === linkId);
+            if (!linkData) return;
+            
+            // Pre-fill the form with current values
+            document.getElementById('link-title').value = linkData.title;
+            document.getElementById('link-url').value = linkData.url;
+            document.getElementById('link-icon').value = linkData.icon || '🔗';
+            
+            // Change the form to edit mode
+            const form = document.getElementById('add-link-form');
+            const button = document.getElementById('link-submit-btn');
+            const formTitle = document.getElementById('link-form-title');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            
+            button.textContent = 'Update Link';
+            formTitle.textContent = 'Edit Link';
+            form.dataset.editingId = linkId;
+            cancelBtn.style.display = 'inline-block';
+            
+            // Scroll to form
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Cancel edit function
+        function cancelEdit() {
+            const form = document.getElementById('add-link-form');
+            const button = document.getElementById('link-submit-btn');
+            const formTitle = document.getElementById('link-form-title');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            
+            // Reset form
+            form.reset();
+            delete form.dataset.editingId;
+            
+            // Reset UI
+            button.textContent = 'Add Link';
+            formTitle.textContent = 'Add New Link';
+            cancelBtn.style.display = 'none';
+        }
+
+        // Delete link
+        async function deleteLink(linkId) {
+            if (!confirm('Are you sure you want to delete this link?')) return;
+            
+            try {
+                await apiCall(`/api/links/${linkId}`, { method: 'DELETE' });
+                showMessage('Link deleted successfully!', 'success');
+                loadLinks();
+            } catch (error) {
+                showMessage('Failed to delete link', 'error');
+            }
+        }
+
+        // Load analytics
+async function loadAnalytics() {
+    console.log('loadAnalytics() function called'); // Add this line
+    try {
+        console.log('Loading analytics from:', `${API_BASE_URL}/api/analytics`);
+        const analytics = await apiCall('/api/analytics');
+        console.log('Analytics response:', analytics);
+        
+        document.getElementById('total-views').textContent = analytics.total_views || 0;
+        
+        const totalClicks = analytics.link_stats?.reduce((sum, link) => sum + (link.clicks || 0), 0) || 0;
+        document.getElementById('total-clicks').textContent = totalClicks;
+        document.getElementById('link-count').textContent = analytics.link_stats?.length || 0;
+        
+        const clickRate = analytics.total_views > 0 ? ((totalClicks / analytics.total_views) * 100).toFixed(1) : 0;
+        document.getElementById('conversion-rate').textContent = clickRate + '%';
+        
+        // Load link stats
+        const linkStats = document.getElementById('link-stats');
+        if (analytics.link_stats && analytics.link_stats.length > 0) {
+            linkStats.innerHTML = analytics.link_stats.map(link => `
+                <div class="link-stat-item">
+                    <div class="link-stat-name">${link.title}</div>
+                    <div class="link-stat-clicks">${link.clicks || 0} clicks</div>
+                </div>
+            `).join('');
+        } else {
+            linkStats.innerHTML = '<div class="empty-state">No link data available yet</div>';
+        }
+    } catch (error) {
+        console.error('Analytics error details:', error);
+        document.getElementById('link-stats').innerHTML = '<div class="error">Failed to load analytics</div>';
+        showMessage('Failed to load analytics', 'error');
+    }
+}
+
+
+
+
+
+
+        // Update links preview
+        function updateLinksPreview(links) {
+            const previewLinks = document.getElementById('preview-links');
+            if (links && links.length > 0) {
+                previewLinks.innerHTML = links.map(link => `
+                    <div class="preview-link">
+                        <span>${link.icon || '🔗'}</span>
+                        <span>${link.title}</span>
+                    </div>
+                `).join('');
+            } else {
+                previewLinks.innerHTML = '<div class="preview-link"><span>🔗</span><span>Your links will appear here</span></div>';
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type) {
+            const container = document.getElementById('message-container');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = message;
+            
+            container.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.remove();
+            }, 5000);
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('userToken');
+            window.location.href = '/';
+        }
+
+        // Real-time preview updates
+        document.getElementById('display-name').addEventListener('input', updatePreview);
+        document.getElementById('bio').addEventListener('input', updatePreview);
+
+        // Theme selection
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                document.querySelectorAll('.theme-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Get the theme name
+                const theme = this.dataset.theme;
+                
+                // Save theme
+                saveTheme(theme);
+            });
+        });
+
+
+
+        // Save theme function
+async function saveTheme(theme) {
+    try {
+        // Get current profile data first
+        const currentProfile = await apiCall('/api/profile');
+        
+        // Send ALL profile data, just updating the theme
+        await apiCall('/api/profile', {
+            method: 'PUT',
+            body: JSON.stringify({
+                display_name: currentProfile.display_name,
+                bio: currentProfile.bio,
+                theme: theme
+                // Include any other fields your profile has
+            })
+        });
+        showMessage('Theme updated!', 'success');
+        applyPreviewTheme(theme);
+    } catch (error) {
+        showMessage('Failed to update theme', 'error');
+    }
+}
+
+
+        // My Hotgirl Button Script
+        async function copyProfileLink() {
+    const urlInput = document.getElementById('profile-url');
+    const successMsg = document.getElementById('copy-success');
+    const button = document.getElementById('copy-link-btn');
+    
+    try {
+        await navigator.clipboard.writeText(urlInput.value);
+        successMsg.style.opacity = '1';
+        button.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            successMsg.style.opacity = '0';
+            button.style.transform = 'scale(1)';
+        }, 2000);
+        
+    } catch (err) {
+        urlInput.select();
+        document.execCommand('copy');
+        successMsg.style.opacity = '1';
+        setTimeout(() => {
+            successMsg.style.opacity = '0';
+        }, 2000);
+    }
+}
+
+
+
+// Apply theme to profile preview
+function applyPreviewTheme(themeName) {
+    const themes = {
+        default: { background: 'rgb(255 0 42 / 40%)' },
+        dark: { background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' },
+        pink: { background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)' },
+        purple: { background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' },
+        blue: { background: 'linear-gradient(170deg, rgb(0 106 255) 0%, rgb(2 32 96) 100%)' },
+        red: { background: 'linear-gradient(170deg, rgb(255 0 0) 0%, rgb(96 2 2) 100%)' },
+        green: { background: 'linear-gradient(170deg, rgb(0 200 83) 0%, rgb(0 77 36) 100%)' },
+        grey: { background: 'linear-gradient(170deg, rgb(220 220 220) 0%, rgb(100 100 100) 100%)' },
+        orange: { background: 'linear-gradient(170deg, rgb(255 165 0) 0%, rgb(153 76 0) 100%)' },
+        yellow: { background: 'linear-gradient(170deg, rgb(255 235 59) 0%, rgb(204 153 0) 100%)' },
+        teal: { background: 'linear-gradient(170deg, rgb(0 150 136) 0%, rgb(0 77 64) 100%)' },
+        brown: { background: 'linear-gradient(170deg, rgb(139 69 19) 0%, rgb(70 35 10) 100%)' },
+        gold: { background: 'linear-gradient(170deg, rgb(255 215 0) 0%, rgb(184 134 11) 100%)' },
+        silver: { background: 'linear-gradient(170deg, rgb(224 224 224) 0%, rgb(136 136 136) 100%)' }
+    };
+    
+    const theme = themes[themeName] || themes.default;
+    const previewDiv = document.querySelector('.profile-preview');
+    previewDiv.style.background = theme.background;
+}
+
+
+
+// Save custom appearance colors
+async function saveAppearance() {
+    try {
+        const bgColor = document.getElementById('bg-color').value;
+        const textColor = document.getElementById('text-color').value;
+        
+        // Get current profile data
+        const currentProfile = await apiCall('/api/profile');
+        
+        // Save with custom colors
+        await apiCall('/api/profile', {
+            method: 'PUT',
+            body: JSON.stringify({
+                display_name: currentProfile.display_name,
+                bio: currentProfile.bio,
+                theme: 'custom', // Set theme to custom
+                custom_colors: {
+                    background: bgColor,
+                    textColor: textColor
+                }
+            })
+        });
+        
+        // Apply to preview immediately
+        const previewDiv = document.querySelector('.profile-preview');
+        previewDiv.style.background = bgColor;
+        previewDiv.style.color = textColor;
+        
+        showMessage('Custom colors saved!', 'success');
+    } catch (error) {
+        showMessage('Failed to save colors', 'error');
+    }
+}
+
+
+
+
+
+// Password change form handler
+document.getElementById('password-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+        showMessage('New passwords do not match', 'error');
+        return;
+    }
+    
+    try {
+        await apiCall('/api/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            })
+        });
+        
+        showMessage('Password updated successfully!', 'success');
+        
+        // Clear the form
+        this.reset();
+    } catch (error) {
+        showMessage('Failed to change password', 'error');
+    }
+});
+
+    </script>
+
+
+
+
 </body>
 </html>
