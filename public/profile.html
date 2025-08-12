@@ -272,7 +272,9 @@ body.profile .brand-link {
     <script>
         // API Configuration
         // Claude, can this be a dynamic URL for easier website cloning?
-        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app'; 
+        //const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app'; 
+        const API_BASE_URL = window.location.origin;
+
         
         // Get username from URL path
         const pathParts = window.location.pathname.split('/');
