@@ -250,10 +250,6 @@ app.get('/api/config', async (req, res) => {
 
 
 
-
-
-
-
 // Check if username is available
 app.post('/check-username', async (req, res) => {
   try {
@@ -288,43 +284,9 @@ app.post('/check-username', async (req, res) => {
   }
 });
 
+*/
 
 
-
-
-// Check if username is available
-app.post('/check-username', async (req, res) => {
-  try {
-    const { username } = req.body;
-    
-    // Validate the username format first
-    const validation = validateUsername(username);
-    if (!validation.isValid) {
-      return res.json({ 
-        available: false, 
-        errors: validation.errors 
-      });
-    }
-    
-    // Check if username already exists in database
-    const result = await pool.query(
-      'SELECT id FROM users WHERE LOWER(username) = LOWER($1)', 
-      [username]
-    );
-    
-    res.json({ 
-      available: result.rows.length === 0,
-      username: username.toLowerCase()
-    });
-    
-  } catch (error) {
-    console.error('Username check error:', error);
-    res.status(500).json({ 
-      available: false, 
-      error: 'Error checking username' 
-    });
-  }
-});
 
 // Create Stripe checkout session
 app.post('/create-checkout-session', async (req, res) => {
@@ -469,7 +431,7 @@ app.post('/auth/login', async (req, res) => {
 });
 
 // Change password
-app.post('/auth/change-password', authenticateToken, async (req, res) => {
+app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -497,7 +459,7 @@ app.post('/auth/change-password', authenticateToken, async (req, res) => {
 
 
 // Profile management routes
-app.get('/profile', authenticateToken, async (req, res) => {
+app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -541,7 +503,7 @@ app.get('/profile', authenticateToken, async (req, res) => {
 
 
 
-app.put('/profile', authenticateToken, async (req, res) => {
+app.put('/api/profile', authenticateToken, async (req, res) => {
   try {
     const { display_name, bio, custom_colors, theme } = req.body;
 
@@ -565,7 +527,7 @@ app.put('/profile', authenticateToken, async (req, res) => {
 
 
   // Profile image upload
-app.post('/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
+app.post('/api/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -688,7 +650,7 @@ app.delete('/links/:id', authenticateToken, async (req, res) => {
 
 
 // Public profile view
-  app.get('/profile-data/:username', async (req, res) => {
+  app.get('/api/profile-data/:username', async (req, res) => {
   res.sendFile(path.join(__dirname, 'profile.html'));
 });
 
