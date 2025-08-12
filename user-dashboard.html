@@ -464,45 +464,52 @@
 
 
         // Authentication check
-            async function apiCall(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
-    console.log('Making API call to:', url); // Add this line
-    
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...(userToken && { 'Authorization': `Bearer ${userToken}` })
-        },
-        ...options
-    };
-
-    try {
-        const response = await fetch(url, config);
-        console.log('Response status:', response.status, 'for URL:', url); // Add this line
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                localStorage.removeItem('userToken');
-                window.location.href = '/login.html';
-                throw new Error('Authentication required');
+        function checkAuthStatus() {
+            if (!userToken) {
+              //window.location.href = '/login.html';
+              window.location.href = '/';  
+                return false;
             }
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            return true;
         }
+
+        // API Helper Function
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(userToken && { 'Authorization': `Bearer ${userToken}` })
+                },
+                ...options
+            };
+
+            try {
+                const response = await fetch(url, config);
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('userToken');
+                        window.location.href = '/login.html';
+                        throw new Error('Authentication required');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+
+
+
+
+
+
+
         
-        return await response.json();
-    } catch (error) {
-        console.error('API call failed:', error);
-        throw error;
-    }
-}
-
-
-
-
-
-
-
-
 
         // Load user profile data
         async function loadUserData() {
