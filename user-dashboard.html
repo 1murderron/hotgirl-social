@@ -453,10 +453,12 @@
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 API_BASE_URL = config.apiUrl;
+                console.log('API_BASE_URL set to:', API_BASE_URL); // Add this single line
             } catch (error) {
                 console.error('Failed to load config:', error);
                 // Fallback to hardcoded value
                 API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+                console.log('API_BASE_URL fallback to:', API_BASE_URL); // Add this single line
             }
         }
 
