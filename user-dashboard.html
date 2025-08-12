@@ -808,6 +808,7 @@ document.getElementById('photo-input').addEventListener('change', async e => {
 
         // Load analytics
 async function loadAnalytics() {
+    console.log('loadAnalytics() function called'); // Add this line
     try {
         console.log('Loading analytics from:', `${API_BASE_URL}/analytics`);
         const analytics = await apiCall('/analytics');
