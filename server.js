@@ -1339,6 +1339,27 @@ async function startServer() {
     
     // Create uploads directory if it doesn't exist
     await fs.mkdir('public/uploads', { recursive: true });
+
+
+
+
+    // Serve public profile page at /:username  (no /api in the URL)
+app.get('/:username', (req, res, next) => {
+  const u = (req.params.username || '').toLowerCase();
+
+  // Let real routes/files handle these
+  const reserved = [
+    '', 'api', 'auth', 'links', 'profile', 'uploads',
+    'admin', 'admin.html', 'welcome.html', 'index.html',
+    'health', 'contact', 'favicon.ico'
+  ];
+  if (reserved.includes(u)) return next();
+
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
+
+
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
