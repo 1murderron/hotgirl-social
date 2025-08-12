@@ -216,7 +216,7 @@ async function initializeDatabase() {
 // Routes
 
 // Get current registration price for public display
-app.get('/api/price', async (req, res) => {
+app.get('/price', async (req, res) => {
   try {
     const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
     const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
@@ -228,21 +228,6 @@ app.get('/api/price', async (req, res) => {
   }
 });
 
-// Get site configuration for frontend
-//app.get('/api/config', async (req, res) => {
-//  try {
-//    res.json({
-//      siteName: process.env.SITE_NAME || 'hotgirl.social',
-//      apiUrl: process.env.FRONTEND_URL || 'https://hotgirl-social-production.up.railway.app'
-//    });
-//  } catch (error) {
-//    console.error('Get config error:', error);
-//    res.json({
-//      siteName: 'hotgirl.social',
-//      apiUrl: 'https://hotgirl-social-production.up.railway.app'
-//    });
-//  }
-// });
 
 
 // Get site configuration for frontend
@@ -777,7 +762,7 @@ app.post('/links/:id/click', async (req, res) => {
 });
 
 // Analytics
-app.get('/analytics', authenticateToken, async (req, res) => {
+app.get('/api/analytics', authenticateToken, async (req, res) => {
   try {
     const profileResult = await pool.query('SELECT id FROM profiles WHERE user_id = $1', [req.user.id]);
     if (profileResult.rows.length === 0) {
@@ -843,7 +828,7 @@ app.post('/contact', async (req, res) => {
 // ADMIN ROUTES
 
 // Admin dashboard stats
-app.get('/admin/stats', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
   try {
     // Get total users
     const totalUsersResult = await pool.query('SELECT COUNT(*) as count FROM users');
@@ -894,7 +879,7 @@ app.get('/admin/stats', authenticateAdmin, async (req, res) => {
 
 
       // Get platform settings
-app.get('/admin/settings', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
     
@@ -913,7 +898,7 @@ app.get('/admin/settings', authenticateAdmin, async (req, res) => {
 
 
 // Save platform settings
-app.post('/admin/settings', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const { platform_name, registration_price, max_links_per_profile } = req.body;
     
@@ -968,7 +953,7 @@ app.post('/admin/settings', authenticateAdmin, async (req, res) => {
 });
 
 // Get all users with pagination
-app.get('/admin/users', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -1029,7 +1014,7 @@ app.get('/admin/users', authenticateAdmin, async (req, res) => {
 });
 
 // Get all profiles with stats
-app.get('/admin/profiles', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/profiles', authenticateAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -1096,7 +1081,7 @@ app.get('/admin/profiles', authenticateAdmin, async (req, res) => {
 });
 
 // Get payment history
-app.get('/admin/payments', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/payments', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT u.username, u.email, u.created_at as payment_date,
@@ -1125,7 +1110,7 @@ app.get('/admin/payments', authenticateAdmin, async (req, res) => {
 });
 
 // Get contact messages
-app.get('/admin/messages', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/messages', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT * FROM contact_messages 
@@ -1140,7 +1125,7 @@ app.get('/admin/messages', authenticateAdmin, async (req, res) => {
 });
 
 // Mark message as read
-app.put('/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
+app.put('/api/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
   try {
     const messageId = req.params.id;
     
@@ -1154,7 +1139,7 @@ app.put('/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
 });
 
 // Suspend/activate user
-app.put('/admin/users/:id/status', authenticateAdmin, async (req, res) => {
+app.put('/api/admin/users/:id/status', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
     const { is_active } = req.body;
@@ -1171,7 +1156,7 @@ app.put('/admin/users/:id/status', authenticateAdmin, async (req, res) => {
 });
 
 // Delete user and all associated data
-app.delete('/admin/users/:id', authenticateAdmin, async (req, res) => {
+app.delete('/api/admin/users/:id', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
     
@@ -1186,7 +1171,7 @@ app.delete('/admin/users/:id', authenticateAdmin, async (req, res) => {
 });
 
 // Get recent activity for dashboard
-app.get('/admin/activity', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
   try {
     // Get recent user registrations
     const recentUsersResult = await pool.query(`
@@ -1235,7 +1220,7 @@ app.get('/admin/activity', authenticateAdmin, async (req, res) => {
 });
 
 // Admin login (separate from regular user login)
-app.post('/admin/login', async (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -1343,20 +1328,68 @@ async function startServer() {
 
 
 
+    // API profile data (alias) — matches frontend fetch to /api/profile-data/:username
+      app.get('/api/profile-data/:username', async (req, res) => {
+        const { username } = req.params;
+        try {
+          const result = await pool.query(`
+            SELECT p.*, u.username
+            FROM profiles p
+            JOIN users u ON p.user_id = u.id
+            WHERE u.username = $1 AND p.is_active = true
+          `, [username]);
+
+          if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Profile not found' });
+          }
+
+          const profile = result.rows[0];
+
+          const linksResult = await pool.query(`
+            SELECT id, title, url, icon, clicks
+            FROM links
+            WHERE profile_id = $1 AND is_active = true
+            ORDER BY display_order, created_at
+          `, [profile.id]);
+
+          await pool.query(`
+            INSERT INTO analytics (profile_id, event_type, ip_address, user_agent)
+            VALUES ($1, 'page_view', $2, $3)
+          `, [profile.id, req.ip, req.get('User-Agent')]);
+
+          res.json({
+            id: profile.id,
+            display_name: profile.display_name,
+            bio: profile.bio,
+            profile_image_url: profile.profile_image_url,
+            custom_colors: profile.custom_colors,
+            theme: profile.theme,
+            links: linksResult.rows
+          });
+        } catch (error) {
+          console.error('Get public profile error:', error);
+          res.status(500).json({ error: 'Failed to fetch profile' });
+        }
+      });
+
+
+
+
+
+
+
     // Serve public profile page at /:username  (no /api in the URL)
-app.get('/:username', (req, res, next) => {
-  const u = (req.params.username || '').toLowerCase();
+    app.get('/:username', (req, res, next) => {
+      const u = (req.params.username || '').toLowerCase();
+      const reserved = [
+        '', 'api', 'auth', 'links', 'profile', 'uploads',
+        'admin', 'admin.html', 'welcome.html', 'index.html',
+        'health', 'contact', 'favicon.ico'
+      ];
+      if (reserved.includes(u)) return next();
 
-  // Let real routes/files handle these
-  const reserved = [
-    '', 'api', 'auth', 'links', 'profile', 'uploads',
-    'admin', 'admin.html', 'welcome.html', 'index.html',
-    'health', 'contact', 'favicon.ico'
-  ];
-  if (reserved.includes(u)) return next();
-
-  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-});
+      res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+    });
 
 
 

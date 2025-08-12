@@ -271,9 +271,10 @@ body.profile .brand-link {
 
     <script>
         // API Configuration
-        // Claude, can this be a dynamic URL for easier website cloning?
         //const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app'; 
-        const API_BASE_URL = window.location.origin;
+        //const API_BASE_URL = window.location.origin;
+          const API_BASE_URL = ''; // same origin
+
 
         
         // Get username from URL path
@@ -383,7 +384,8 @@ body.profile .brand-link {
         // Load profile data
         async function loadProfile() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/profile-data/${encodeURIComponent(username)}`);
+                const response = await fetch(`${API_BASE_URL}/api/${encodeURIComponent(username)}`);
+
 
                 
                 if (!response.ok) {
