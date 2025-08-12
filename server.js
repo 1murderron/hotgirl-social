@@ -703,7 +703,7 @@ app.delete('/links/:id', authenticateToken, async (req, res) => {
 
 
 // Public profile view
-app.get('/:username', async (req, res) => {
+  app.get('/profile-data/:username', async (req, res) => {
   res.sendFile(path.join(__dirname, 'profile.html'));
 });
 
