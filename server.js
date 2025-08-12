@@ -31,34 +31,49 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
+
+
+
 // Middleware
-/*
+
 app.use(cors({
   origin: [process.env.FRONTEND_URL, 'http://localhost:3000'],
   credentials: true
 }));
-*/
 
-
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
-
-
-// Stripe webhook endpoint (must be before express.json middleware for raw body)
 app.use('/webhook', express.raw({ type: 'application/json' }));
-
-
 app.use(express.json({ limit: '10mb' }));
+
+// ==== API ROUTES GO HERE (no changes to your existing logic) ====
+// Example:
+// app.get('/analytics', analyticsHandler);
+// app.post('/login', loginHandler);
+// ... all your other API routes in their current order
+
+
+
+// === API ROUTE CATCH-FIRST PATCH ===
+// Put this right BEFORE your static file lines
+
+// This makes sure API routes are checked before static files
+app.use(['/analytics', '/users', '/upload', '/whatever-other-endpoints'], (req, res, next) => {
+  next(); // Let your real route handlers match later
+});
+
+
+
+
+
+
+
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('.'));
 
+
+
+
 // File upload configuration
-
-
 // Multer configuration for Cloudinary
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -223,8 +238,10 @@ async function initializeDatabase() {
   }
 }
 
-// Routes
 
+
+
+// Routes
 // Get current registration price for public display
 app.get('/api/price', async (req, res) => {
   try {
@@ -237,6 +254,8 @@ app.get('/api/price', async (req, res) => {
     res.json({ price: 15 }); // fallback to default
   }
 });
+
+
 
 // Get site configuration for frontend
 //app.get('/api/config', async (req, res) => {
