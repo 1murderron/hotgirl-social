@@ -611,7 +611,7 @@ app.post('/profile/upload-image', authenticateToken, upload.single('profileImage
 
 
 // Links management
-app.post('/links', authenticateToken, async (req, res) => {
+app.post('/api/links', authenticateToken, async (req, res) => {
   try {
     const { title, url, icon } = req.body;
 

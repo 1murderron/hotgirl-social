@@ -512,7 +512,7 @@ function applyTheme(themeName, customColors = null) {
         async function trackPageView(profileId) {
             try {
                 // This endpoint might not exist yet, but we'll add it later
-                await fetch(`${API_BASE_URL}/analytics/page-view`, {
+                await fetch(`${API_BASE_URL}/api/analytics/page-view`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ profileId })
