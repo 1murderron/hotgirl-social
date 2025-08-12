@@ -384,7 +384,7 @@ body.profile .brand-link {
         // Load profile data
         async function loadProfile() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/${encodeURIComponent(username)}`);
+                await fetch(`${API_BASE_URL}/api/profile-data/${encodeURIComponent(username)}`);
 
 
                 
