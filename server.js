@@ -31,51 +31,24 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-
-
-
 // Middleware
-
 app.use(cors({
   origin: [process.env.FRONTEND_URL, 'http://localhost:3000'],
   credentials: true
 }));
 
+// Stripe webhook endpoint (must be before express.json middleware for raw body)
 app.use('/webhook', express.raw({ type: 'application/json' }));
+
+
 app.use(express.json({ limit: '10mb' }));
-
-
-
-// === API PREFIX SHIM (safe, non-destructive) ===
-// This lets the frontend call /api/... while your existing server routes
-// can stay exactly as they are (/profile, /links, /admin/..., etc.)
-app.use((req, _res, next) => {
-  if (req.url.startsWith('/api/')) {
-    req.url = req.url.replace(/^\/api/, '');
-  }
-  next();
-});
-/* END CHAT GPT EDIT */ 
-
-
-
-
-// ==== CHATGPT - API ROUTES GO HERE (no changes to your existing logic) ====
-// Example:
-// app.get('/analytics', analyticsHandler);
-// app.post('/login', loginHandler);
-// ... all your other API routes in their current order
-
-
-/*
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('.'));
-*/
-
-
 
 // File upload configuration
+
+
 // Multer configuration for Cloudinary
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -240,12 +213,10 @@ async function initializeDatabase() {
   }
 }
 
-
-
-
 // Routes
+
 // Get current registration price for public display
-app.get('/price', async (req, res) => {
+app.get('/api/price', async (req, res) => {
   try {
     const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
     const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
@@ -256,8 +227,6 @@ app.get('/price', async (req, res) => {
     res.json({ price: 15 }); // fallback to default
   }
 });
-
-
 
 // Get site configuration for frontend
 //app.get('/api/config', async (req, res) => {
@@ -277,7 +246,7 @@ app.get('/price', async (req, res) => {
 
 
 // Get site configuration for frontend
-app.get('/config', async (req, res) => {
+app.get('/api/config', async (req, res) => {
   try {
     res.json({
       siteName: process.env.SITE_NAME || 'hotgirl.social',
@@ -539,16 +508,18 @@ app.post('/auth/change-password', authenticateToken, async (req, res) => {
 });
 
 
+
+
+
+// Profile management routes
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
-    console.log('Profile endpoint hit, user ID:', req.user?.id);
-    
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0'
     });
-
+    
     const profileResult = await pool.query(`
       SELECT p.*, u.username, u.email, u.created_at 
       FROM profiles p 
@@ -556,15 +527,11 @@ app.get('/profile', authenticateToken, async (req, res) => {
       WHERE p.user_id = $1
     `, [req.user.id]);
 
-    console.log('Profile query result:', profileResult.rows.length, 'rows');
-
     if (profileResult.rows.length === 0) {
-      console.log('No profile found for user ID:', req.user.id);
       return res.status(404).json({ error: 'Profile not found' });
     }
 
     const profile = profileResult.rows[0];
-    console.log('Profile found:', profile.username);
 
     // Get links
     const linksResult = await pool.query(`
@@ -573,23 +540,15 @@ app.get('/profile', authenticateToken, async (req, res) => {
       ORDER BY display_order, created_at
     `, [profile.id]);
 
-    console.log('Links found:', linksResult.rows.length);
-
-    const response = {
+    res.json({
       ...profile,
       links: linksResult.rows
-    };
-    
-    console.log('Sending profile response');
-    res.json(response);
+    });
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
-
-
-
 
 
 
@@ -744,13 +703,12 @@ app.delete('/links/:id', authenticateToken, async (req, res) => {
 
 
 // Public profile view
-app.get('/:username([a-zA-Z0-9_]+)', async (req, res) => {
+app.get('/:username', async (req, res) => {
   res.sendFile(path.join(__dirname, 'profile.html'));
 });
 
-
 // API endpoint for profile data
-app.get('/profile-data/:username', async (req, res) => {
+app.get('/api/:username', async (req, res) => {
   try {
     const { username } = req.params;
 
@@ -1381,24 +1339,6 @@ async function startServer() {
     
     // Create uploads directory if it doesn't exist
     await fs.mkdir('public/uploads', { recursive: true });
-
-
-
-
-app.use(express.static('public'));
-app.use('/uploads', express.static('public/uploads'));
-app.use(express.static('.'));
-
-
-// === SPA FALLBACK (last) ===
-// Serve index.html for non-API, non-webhook paths (so dynamic frontend routes work)
-// IMPORTANT: This must come AFTER all API routes and static middleware.
-const path = require('path');
-app.get(/^\/(?!api|webhook).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
