@@ -381,28 +381,51 @@ body.profile .brand-link {
 
         };
 
+
+        /*
         // Load profile data
         async function loadProfile() {
             try {
                 await fetch(`${API_BASE_URL}/api/profile-data/${encodeURIComponent(username)}`);
 
-
-                
                 if (!response.ok) {
                     throw new Error('Profile not found');
                 }
                 
                 const profile = await response.json();
                 displayProfile(profile);
-                
-                // Track page view
-                // Chat trackPageView(profile.id);
-                
+
             } catch (error) {
                 console.error('Error loading profile:', error);
                 showError();
             }
         }
+
+        */
+
+            // Load profile data
+            async function loadProfile() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/profile-data/${encodeURIComponent(username)}`);
+                    if (!res.ok) throw new Error('Profile not found');
+
+                    const profile = await res.json();
+                    displayProfile(profile);
+                    // trackPageView(profile.id); // optional
+                } catch (err) {
+                    console.error('Error loading profile:', err);
+                    showError();
+                }
+                }
+
+
+
+
+
+
+
+
+
 
         // Display profile data
         function displayProfile(profile) {
