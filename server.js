@@ -38,7 +38,7 @@ app.use(cors({
 }));
 
 // Stripe webhook endpoint (must be before express.json middleware for raw body)
-app.use('/api/webhook', express.raw({ type: 'application/json' }));
+app.use('/public/api/webhook', express.raw({ type: 'application/json' }));   /* =========added /public ====================== */
 
 
 app.use(express.json({ limit: '10mb' }));
@@ -234,7 +234,7 @@ app.get('/api/price', async (req, res) => {
 
 
 // Get site configuration for frontend
-app.get('/api/config', async (req, res) => {
+app.get('/public/api/config', async (req, res) => {   /* added /public */
   try {
     res.json({
       siteName: process.env.SITE_NAME || 'hotgirl.social',

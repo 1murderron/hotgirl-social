@@ -634,7 +634,7 @@ async function loadConfig() {
   console.log('loadConfig: Starting...');
   try {
     console.log('loadConfig: Fetching /api/config...');
-    const response = await fetch('/api/config');
+    const response = await fetch('/public/api/config'); // ADDED /PUBLIC HERE
     console.log('loadConfig: Response status:', response.status);
     const config = await response.json();
     console.log('loadConfig: Config received:', config);
