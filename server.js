@@ -38,7 +38,7 @@ app.use(cors({
 }));
 
 // Stripe webhook endpoint (must be before express.json middleware for raw body)
-app.use('/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/webhook', express.raw({ type: 'application/json' }));
 
 
 app.use(express.json({ limit: '10mb' }));
