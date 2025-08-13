@@ -42,9 +42,12 @@ app.use('/api/webhook', express.raw({ type: 'application/json' }));
 
 
 app.use(express.json({ limit: '10mb' }));
+
+/*
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 app.use(express.static('.'));
+*/
 
 // File upload configuration
 
@@ -1348,6 +1351,13 @@ async function startServer() {
 
       res.sendFile(path.join(__dirname, 'public', 'profile.html'));
     });
+
+
+
+      app.use(express.static('public'));
+      app.use('/uploads', express.static('public/uploads'));
+      app.use(express.static('.'));
+
 
 
 
