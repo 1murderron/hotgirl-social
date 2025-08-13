@@ -1286,9 +1286,6 @@ async function startServer() {
     // Create uploads directory if it doesn't exist
     await fs.mkdir('public/uploads', { recursive: true });
 
-
-
-
     // API profile data (alias) — matches frontend fetch to
       app.get('/api/profile-data/:username', async (req, res) => {
         const { username } = req.params;
@@ -1297,7 +1294,7 @@ async function startServer() {
             SELECT p.*, u.username
             FROM profiles p
             JOIN users u ON p.user_id = u.id
-            WHERE u.username = $1 AND p.is_active = true
+            WHERE LOWER(u.username) = LOWER($1) AND p.is_active = true
           `, [username]);
 
           if (result.rows.length === 0) {
