@@ -251,7 +251,7 @@ app.get('/api/config', async (req, res) => {
 
 
 // Check if username is available
-app.post('/api//check-username', async (req, res) => {
+app.post('/api/check-username', async (req, res) => {
   try {
     const { username } = req.body;
     
