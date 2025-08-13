@@ -38,7 +38,7 @@ app.use(cors({
 }));
 
 // Stripe webhook endpoint (must be before express.json middleware for raw body)
-app.use('/public/api/webhook', express.raw({ type: 'application/json' }));   /* =========added /public ====================== */
+app.use('/api/webhook', express.raw({ type: 'application/json' }));   /* =========added /public ====================== */
 
 
 app.use(express.json({ limit: '10mb' }));
@@ -219,7 +219,7 @@ async function initializeDatabase() {
 // Routes
 
 // Get current registration price for public display
-app.get('/public/api/price', async (req, res) => {
+app.get('/api/price', async (req, res) => {
   try {
     const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
     const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
@@ -234,7 +234,7 @@ app.get('/public/api/price', async (req, res) => {
 
 
 // Get site configuration for frontend
-app.get('/public/api/config', async (req, res) => {   /* added /public */
+app.get('/api/config', async (req, res) => {   /* added /public */
   try {
     res.json({
       siteName: process.env.SITE_NAME || 'hotgirl.social',
@@ -254,7 +254,7 @@ app.get('/public/api/config', async (req, res) => {   /* added /public */
 
 
 // Check if username is available
-app.post('/public/api/check-username', async (req, res) => {
+app.post('/api/check-username', async (req, res) => {
   try {
     const { username } = req.body;
     
@@ -292,7 +292,7 @@ app.post('/public/api/check-username', async (req, res) => {
 
 
 // Create Stripe checkout session
-app.post('/public/api/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { email, username } = req.body;
 
@@ -349,7 +349,7 @@ app.post('/public/api/create-checkout-session', async (req, res) => {
 });
 
 // Handle Stripe webhooks
-app.post('/public/api/webhook', async (req, res) => {
+app.post('/api/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
@@ -397,7 +397,7 @@ app.post('/public/api/webhook', async (req, res) => {
 });
 
 // User authentication routes
-app.post('/public/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -434,7 +434,7 @@ app.post('/public/api/auth/login', async (req, res) => {
 });
 
 // Change password
-app.post('/public/api/auth/change-password', authenticateToken, async (req, res) => {
+app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -462,7 +462,7 @@ app.post('/public/api/auth/change-password', authenticateToken, async (req, res)
 
 
 // Profile management routes
-app.get('/public/api/profile', authenticateToken, async (req, res) => {
+app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -506,7 +506,7 @@ app.get('/public/api/profile', authenticateToken, async (req, res) => {
 
 
 
-app.put('/public/api/profile', authenticateToken, async (req, res) => {
+app.put('/api/profile', authenticateToken, async (req, res) => {
   try {
     const { display_name, bio, custom_colors, theme } = req.body;
 
@@ -530,7 +530,7 @@ app.put('/public/api/profile', authenticateToken, async (req, res) => {
 
 
   // Profile image upload
-app.post('/public/api/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
+app.post('/api/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -576,7 +576,7 @@ app.post('/public/api/profile/upload-image', authenticateToken, upload.single('p
 
 
 // Links management
-app.post('/public/api/links', authenticateToken, async (req, res) => {
+app.post('/api/links', authenticateToken, async (req, res) => {
   try {
     const { title, url, icon } = req.body;
 
@@ -601,7 +601,7 @@ app.post('/public/api/links', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/public/api/links/:id', authenticateToken, async (req, res) => {
+app.put('/api/links/:id', authenticateToken, async (req, res) => {
   try {
     const { title, url, icon, display_order } = req.body;
     const linkId = req.params.id;
@@ -624,7 +624,7 @@ app.put('/public/api/links/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/public/api/links/:id', authenticateToken, async (req, res) => {
+app.delete('/api/links/:id', authenticateToken, async (req, res) => {
   try {
     const linkId = req.params.id;
 
