@@ -280,7 +280,7 @@ function showLoginModal() {
    if (res.ok) {
    //const data = await res.json();
     localStorage.setItem('userToken', data.token);
-    window.location.href = '/user-dashboard.html';
+    window.location.href = '/public/user-dashboard.html';
     } else {
 
 
@@ -523,12 +523,12 @@ function setupUsernameValidation() {
 
 
 
-
+/* ============================ /check-username - should be /api/? ===================================== */
 
 async function checkUsernameAvailability(username) {
   const statusDiv = document.getElementById('username-status');
   try {
-    const response = await fetch('/check-username', {
+    const response = await fetch('/api/check-username', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username })
@@ -558,6 +558,7 @@ if (result.available) {
 
 
 
+/* ============================ /create-checkout - should be /api/? ===================================== */
 
 
 async function proceedToCheckout(email, username) {
@@ -565,7 +566,7 @@ async function proceedToCheckout(email, username) {
   continueBtn.innerHTML = 'Processing...';
   continueBtn.disabled = true;
   try {
-    const response = await fetch('/create-checkout-session', {
+    const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, username })
@@ -582,27 +583,7 @@ async function proceedToCheckout(email, username) {
 }
 
 
-      // Load current price
-      //  async function loadPrice() {
-      //      try {
-      //         const response = await fetch('/api/price');
-      //          const data = await response.json();
-      //          document.getElementById('price-display').textContent = `$${data.price}`;
-      //      } catch (error) {
-      //          console.error('Failed to load price:', error);
-      //      }
-      //  }
-
-
-// Load current price when page loads
-      //  loadPrice();
-
-
-
-
-
-
-  async function loadPrice() {
+ async function loadPrice() {
     try {
       const response = await fetch('/api/price');
       const data = await response.json();
