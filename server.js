@@ -657,7 +657,7 @@ app.delete('/public/api/links/:id', authenticateToken, async (req, res) => {
 */
 
 // API endpoint for profile data
-app.get('/public/api/:username', async (req, res) => {
+app.get('/api/:username', async (req, res) => {
   try {
     const { username } = req.params;
 
@@ -704,7 +704,7 @@ app.get('/public/api/:username', async (req, res) => {
 });
 
 // Track link clicks
-app.post('/public/api/links/:id/click', async (req, res) => {
+app.post('/api/links/:id/click', async (req, res) => {
   try {
     const linkId = req.params.id;
 
@@ -726,7 +726,7 @@ app.post('/public/api/links/:id/click', async (req, res) => {
 });
 
 // Analytics
-app.get('/public/api/analytics', authenticateToken, async (req, res) => {
+app.get('/api/analytics', authenticateToken, async (req, res) => {
   try {
     const profileResult = await pool.query('SELECT id FROM profiles WHERE user_id = $1', [req.user.id]);
     if (profileResult.rows.length === 0) {
@@ -773,7 +773,7 @@ app.get('/public/api/analytics', authenticateToken, async (req, res) => {
 });
 
 // Contact form submission
-app.post('/public/api/contact', async (req, res) => {
+app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
 
@@ -792,7 +792,7 @@ app.post('/public/api/contact', async (req, res) => {
 // ADMIN ROUTES
 
 // Admin dashboard stats
-app.get('/public/api/admin/stats', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
   try {
     // Get total users
     const totalUsersResult = await pool.query('SELECT COUNT(*) as count FROM users');
@@ -843,7 +843,7 @@ app.get('/public/api/admin/stats', authenticateAdmin, async (req, res) => {
 
 
       // Get platform settings
-app.get('/public/api/admin/settings', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
     
@@ -862,7 +862,7 @@ app.get('/public/api/admin/settings', authenticateAdmin, async (req, res) => {
 
 
 // Save platform settings
-app.post('/public/api/admin/settings', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const { platform_name, registration_price, max_links_per_profile } = req.body;
     
@@ -917,7 +917,7 @@ app.post('/public/api/admin/settings', authenticateAdmin, async (req, res) => {
 });
 
 // Get all users with pagination
-app.get('/public/api/admin/users', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -978,7 +978,7 @@ app.get('/public/api/admin/users', authenticateAdmin, async (req, res) => {
 });
 
 // Get all profiles with stats
-app.get('/public/api/admin/profiles', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/profiles', authenticateAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -1045,7 +1045,7 @@ app.get('/public/api/admin/profiles', authenticateAdmin, async (req, res) => {
 });
 
 // Get payment history
-app.get('/public/api/admin/payments', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/payments', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT u.username, u.email, u.created_at as payment_date,
@@ -1074,7 +1074,7 @@ app.get('/public/api/admin/payments', authenticateAdmin, async (req, res) => {
 });
 
 // Get contact messages
-app.get('/public/api/admin/messages', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/messages', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT * FROM contact_messages 
@@ -1089,7 +1089,7 @@ app.get('/public/api/admin/messages', authenticateAdmin, async (req, res) => {
 });
 
 // Mark message as read
-app.put('/public/api/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
+app.put('/api/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
   try {
     const messageId = req.params.id;
     
@@ -1103,7 +1103,7 @@ app.put('/public/api/admin/messages/:id/read', authenticateAdmin, async (req, re
 });
 
 // Suspend/activate user
-app.put('/public/api/admin/users/:id/status', authenticateAdmin, async (req, res) => {
+app.put('/api/admin/users/:id/status', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
     const { is_active } = req.body;
@@ -1120,7 +1120,7 @@ app.put('/public/api/admin/users/:id/status', authenticateAdmin, async (req, res
 });
 
 // Delete user and all associated data
-app.delete('/public/api/admin/users/:id', authenticateAdmin, async (req, res) => {
+app.delete('/api/admin/users/:id', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
     
@@ -1135,7 +1135,7 @@ app.delete('/public/api/admin/users/:id', authenticateAdmin, async (req, res) =>
 });
 
 // Get recent activity for dashboard
-app.get('/public/api/admin/activity', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
   try {
     // Get recent user registrations
     const recentUsersResult = await pool.query(`
@@ -1221,7 +1221,7 @@ app.post('/public/api/admin/login', async (req, res) => {
 });
 
 // Welcome page password setup
-app.post('/public/api/welcome/setup-password', async (req, res) => {
+app.post('/api/welcome/setup-password', async (req, res) => {
   try {
     const { session_id, password } = req.body;
     
