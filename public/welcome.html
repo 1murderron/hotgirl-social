@@ -56,9 +56,22 @@
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+            //const API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+            let API_BASE_URL = null; // Will be set after loading config
         
         // Get session info from URL params
+        // Load configuration from server
+            async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                API_BASE_URL = config.apiUrl;
+            } catch (error) {
+                console.error('Failed to load config:', error);
+                API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+            }
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
         
@@ -98,7 +111,7 @@
             
             try {
                 // Call API to set password and login
-                const response = await fetch(`${API_BASE_URL}/welcome/setup-password`, {
+                const response = await fetch(`${API_BASE_URL}/api/welcome/setup-password`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -167,7 +180,11 @@
         });
         
         // Auto-focus password field
-        document.addEventListener('DOMContentLoaded', function() {
+        // document.addEventListener('DOMContentLoaded', function() {
+
+            document.addEventListener('DOMContentLoaded', async function() {
+             await loadConfig();
+             
             document.getElementById('password').focus();
         });
     </script>

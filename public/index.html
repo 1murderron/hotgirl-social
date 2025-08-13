@@ -267,7 +267,7 @@ function showLoginModal() {
   }
 
   try {
-    const res = await fetch('/auth/login', {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -285,7 +285,7 @@ function showLoginModal() {
    if (res.ok) {
    //const data = await res.json();
     localStorage.setItem('userToken', data.token);
-    window.location.href = '/public/user-dashboard.html';
+    window.location.href = '/user-dashboard.html';
     } else {
 
 
@@ -329,7 +329,7 @@ function showContactModal() {
     }
 
     try {
-      const response = await fetch('/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

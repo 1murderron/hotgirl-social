@@ -1184,7 +1184,7 @@ app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
 });
 
 // Admin login (separate from regular user login)
-app.post('/public/api/admin/login', async (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -1345,19 +1345,23 @@ async function startServer() {
       const reserved = [
         '', 'api', 'auth', 'links', 'profile', 'uploads',
         'admin', 'admin.html', 'welcome.html', 'index.html',
-        'health', 'contact', 'favicon.ico'
+        'health', 'contact', 'favicon.ico', 'user-dashboard',
+        'user-dashboard.html',
       ];
       if (reserved.includes(u)) return next();
 
       res.sendFile(path.join(__dirname, 'public', 'profile.html'));
     });
 
+    app.use(express.static('public'));
+    app.use('/uploads', express.static('public/uploads'));
 
 
+    /*
       app.use(express.static('public'));
       app.use('/uploads', express.static('public/uploads'));
       app.use(express.static('.'));
-
+    */
 
 
 
