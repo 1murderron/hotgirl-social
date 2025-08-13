@@ -1290,7 +1290,7 @@ async function startServer() {
     await fs.mkdir('public/uploads', { recursive: true });
 
     // API profile data (alias) — matches frontend fetch to
-      app.get('/public/api/profile-data/:username', async (req, res) => {
+      app.get('/api/profile-data/:username', async (req, res) => {
         const { username } = req.params;
         try {
           const result = await pool.query(`
