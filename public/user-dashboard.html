@@ -912,7 +912,7 @@
         });
 
 
-
+        /*
         // Save theme function
         async function saveTheme(theme) {
         try {
@@ -931,11 +931,11 @@
         });
         showMessage('Theme updated!', 'success');
         applyPreviewTheme(theme);
-    } catch (error) {
+          } catch (error) {
         showMessage('Failed to update theme', 'error');
+            }
         }
-    }
-
+        */
 
         // My Hotgirl Button Script
         async function copyProfileLink() {
@@ -1000,7 +1000,7 @@
         // Get current profile data
         const currentProfile = await apiCall('/api/profile');
         
-        // Save with custom colors
+        
         await apiCall('/api/profile', {
             method: 'PUT',
             body: JSON.stringify({
