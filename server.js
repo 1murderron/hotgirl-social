@@ -219,7 +219,7 @@ async function initializeDatabase() {
 // Routes
 
 // Get current registration price for public display
-app.get('/api/price', async (req, res) => {
+app.get('/public/api/price', async (req, res) => {
   try {
     const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
     const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
@@ -254,7 +254,7 @@ app.get('/public/api/config', async (req, res) => {   /* added /public */
 
 
 // Check if username is available
-app.post('/api/check-username', async (req, res) => {
+app.post('/public/api/check-username', async (req, res) => {
   try {
     const { username } = req.body;
     
@@ -292,7 +292,7 @@ app.post('/api/check-username', async (req, res) => {
 
 
 // Create Stripe checkout session
-app.post('/api/create-checkout-session', async (req, res) => {
+app.post('/public/api/create-checkout-session', async (req, res) => {
   try {
     const { email, username } = req.body;
 
@@ -349,7 +349,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
 });
 
 // Handle Stripe webhooks
-app.post('/api/webhook', async (req, res) => {
+app.post('/public/api/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
@@ -397,7 +397,7 @@ app.post('/api/webhook', async (req, res) => {
 });
 
 // User authentication routes
-app.post('/api/auth/login', async (req, res) => {
+app.post('/public/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -434,7 +434,7 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Change password
-app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
+app.post('/public/api/auth/change-password', authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -462,7 +462,7 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
 
 
 // Profile management routes
-app.get('/api/profile', authenticateToken, async (req, res) => {
+app.get('/public/api/profile', authenticateToken, async (req, res) => {
   try {
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -506,7 +506,7 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
 
 
 
-app.put('/api/profile', authenticateToken, async (req, res) => {
+app.put('/public/api/profile', authenticateToken, async (req, res) => {
   try {
     const { display_name, bio, custom_colors, theme } = req.body;
 
@@ -530,7 +530,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 
 
   // Profile image upload
-app.post('/api/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
+app.post('/public/api/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -576,7 +576,7 @@ app.post('/api/profile/upload-image', authenticateToken, upload.single('profileI
 
 
 // Links management
-app.post('/api/links', authenticateToken, async (req, res) => {
+app.post('/public/api/links', authenticateToken, async (req, res) => {
   try {
     const { title, url, icon } = req.body;
 
@@ -601,7 +601,7 @@ app.post('/api/links', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/api/links/:id', authenticateToken, async (req, res) => {
+app.put('/public/api/links/:id', authenticateToken, async (req, res) => {
   try {
     const { title, url, icon, display_order } = req.body;
     const linkId = req.params.id;
@@ -624,7 +624,7 @@ app.put('/api/links/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/links/:id', authenticateToken, async (req, res) => {
+app.delete('/public/api/links/:id', authenticateToken, async (req, res) => {
   try {
     const linkId = req.params.id;
 
@@ -657,7 +657,7 @@ app.delete('/api/links/:id', authenticateToken, async (req, res) => {
 */
 
 // API endpoint for profile data
-app.get('/api/:username', async (req, res) => {
+app.get('/public/api/:username', async (req, res) => {
   try {
     const { username } = req.params;
 
@@ -704,7 +704,7 @@ app.get('/api/:username', async (req, res) => {
 });
 
 // Track link clicks
-app.post('/api/links/:id/click', async (req, res) => {
+app.post('/public/api/links/:id/click', async (req, res) => {
   try {
     const linkId = req.params.id;
 
@@ -726,7 +726,7 @@ app.post('/api/links/:id/click', async (req, res) => {
 });
 
 // Analytics
-app.get('/api/analytics', authenticateToken, async (req, res) => {
+app.get('/public/api/analytics', authenticateToken, async (req, res) => {
   try {
     const profileResult = await pool.query('SELECT id FROM profiles WHERE user_id = $1', [req.user.id]);
     if (profileResult.rows.length === 0) {
@@ -773,7 +773,7 @@ app.get('/api/analytics', authenticateToken, async (req, res) => {
 });
 
 // Contact form submission
-app.post('/api/contact', async (req, res) => {
+app.post('/public/api/contact', async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
 
@@ -792,7 +792,7 @@ app.post('/api/contact', async (req, res) => {
 // ADMIN ROUTES
 
 // Admin dashboard stats
-app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/stats', authenticateAdmin, async (req, res) => {
   try {
     // Get total users
     const totalUsersResult = await pool.query('SELECT COUNT(*) as count FROM users');
@@ -843,7 +843,7 @@ app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
 
 
       // Get platform settings
-app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
     
@@ -862,7 +862,7 @@ app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
 
 
 // Save platform settings
-app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
+app.post('/public/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const { platform_name, registration_price, max_links_per_profile } = req.body;
     
@@ -917,7 +917,7 @@ app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
 });
 
 // Get all users with pagination
-app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/users', authenticateAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -978,7 +978,7 @@ app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
 });
 
 // Get all profiles with stats
-app.get('/api/admin/profiles', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/profiles', authenticateAdmin, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -1045,7 +1045,7 @@ app.get('/api/admin/profiles', authenticateAdmin, async (req, res) => {
 });
 
 // Get payment history
-app.get('/api/admin/payments', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/payments', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT u.username, u.email, u.created_at as payment_date,
@@ -1074,7 +1074,7 @@ app.get('/api/admin/payments', authenticateAdmin, async (req, res) => {
 });
 
 // Get contact messages
-app.get('/api/admin/messages', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/messages', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT * FROM contact_messages 
@@ -1089,7 +1089,7 @@ app.get('/api/admin/messages', authenticateAdmin, async (req, res) => {
 });
 
 // Mark message as read
-app.put('/api/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
+app.put('/public/api/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
   try {
     const messageId = req.params.id;
     
@@ -1103,7 +1103,7 @@ app.put('/api/admin/messages/:id/read', authenticateAdmin, async (req, res) => {
 });
 
 // Suspend/activate user
-app.put('/api/admin/users/:id/status', authenticateAdmin, async (req, res) => {
+app.put('/public/api/admin/users/:id/status', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
     const { is_active } = req.body;
@@ -1120,7 +1120,7 @@ app.put('/api/admin/users/:id/status', authenticateAdmin, async (req, res) => {
 });
 
 // Delete user and all associated data
-app.delete('/api/admin/users/:id', authenticateAdmin, async (req, res) => {
+app.delete('/public/api/admin/users/:id', authenticateAdmin, async (req, res) => {
   try {
     const userId = req.params.id;
     
@@ -1135,7 +1135,7 @@ app.delete('/api/admin/users/:id', authenticateAdmin, async (req, res) => {
 });
 
 // Get recent activity for dashboard
-app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
+app.get('/public/api/admin/activity', authenticateAdmin, async (req, res) => {
   try {
     // Get recent user registrations
     const recentUsersResult = await pool.query(`
@@ -1184,7 +1184,7 @@ app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
 });
 
 // Admin login (separate from regular user login)
-app.post('/api/admin/login', async (req, res) => {
+app.post('/public/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -1221,7 +1221,7 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Welcome page password setup
-app.post('/api/welcome/setup-password', async (req, res) => {
+app.post('/public/api/welcome/setup-password', async (req, res) => {
   try {
     const { session_id, password } = req.body;
     
@@ -1290,7 +1290,7 @@ async function startServer() {
     await fs.mkdir('public/uploads', { recursive: true });
 
     // API profile data (alias) — matches frontend fetch to
-      app.get('/api/profile-data/:username', async (req, res) => {
+      app.get('/public/api/profile-data/:username', async (req, res) => {
         const { username } = req.params;
         try {
           const result = await pool.query(`

@@ -150,13 +150,18 @@
   </div>
 </div>
 
-
-
 <!-- END Carousel Section -->
+
+
+
+
+
+
+
 
 <script>
 
-const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
+//const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
 let stripe = null; // Will be set after loading config
 let API_BASE_URL = null; // Will be set after loading config
 
@@ -528,7 +533,7 @@ function setupUsernameValidation() {
 async function checkUsernameAvailability(username) {
   const statusDiv = document.getElementById('username-status');
   try {
-    const response = await fetch('/api/check-username', {
+    const response = await fetch('/public/api/check-username', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username })
@@ -566,7 +571,7 @@ async function proceedToCheckout(email, username) {
   continueBtn.innerHTML = 'Processing...';
   continueBtn.disabled = true;
   try {
-    const response = await fetch('/api/create-checkout-session', {
+    const response = await fetch('/public/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, username })
@@ -585,7 +590,7 @@ async function proceedToCheckout(email, username) {
 
  async function loadPrice() {
     try {
-      const response = await fetch('/api/price');
+      const response = await fetch('/public/api/price');
       const data = await response.json();
       
       // Update all price elements
@@ -633,7 +638,7 @@ async function loadConfig() {
 async function loadConfig() {
   console.log('loadConfig: Starting...');
   try {
-    console.log('loadConfig: Fetching /api/config...');
+    console.log('loadConfig: Fetching /public/api/config...');
     const response = await fetch('/public/api/config'); // ADDED /PUBLIC HERE
     console.log('loadConfig: Response status:', response.status);
     const config = await response.json();
