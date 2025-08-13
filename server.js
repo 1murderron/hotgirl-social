@@ -789,6 +789,8 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+/* ====================================================================================================================== */
+
 // ADMIN ROUTES
 
 // Admin dashboard stats
@@ -841,8 +843,23 @@ app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
     `);
     const avgLinks = parseFloat(avgLinksResult.rows[0]?.avg_links || 0).toFixed(1);
 
+    res.json({
+      totalUsers,
+      activeProfiles,
+      totalRevenue,
+      monthlySignups,
+      totalViews,
+      totalClicks,
+      avgLinks,
+      conversionRate: totalUsers > 0 ? ((activeProfiles / totalUsers) * 100).toFixed(1) : 0
+    });
+  } catch (error) {
+    console.error('Admin stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch admin stats' });
+  }
+});
 
-      // Get platform settings
+// Get platform settings
 app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
@@ -858,8 +875,6 @@ app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch settings' });
   }
 });
-
-
 
 // Save platform settings
 app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
@@ -897,24 +912,12 @@ app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
 
 
 
+/* =================================================================================================== */
 
 
 
-    res.json({
-      totalUsers,
-      activeProfiles,
-      totalRevenue,
-      monthlySignups,
-      totalViews,
-      totalClicks,
-      avgLinks,
-      conversionRate: totalUsers > 0 ? ((activeProfiles / totalUsers) * 100).toFixed(1) : 0
-    });
-  } catch (error) {
-    console.error('Admin stats error:', error);
-    res.status(500).json({ error: 'Failed to fetch admin stats' });
-  }
-});
+
+
 
 // Get all users with pagination
 app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
