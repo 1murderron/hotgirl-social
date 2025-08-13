@@ -251,7 +251,7 @@ app.get('/api/config', async (req, res) => {
 
 
 // Check if username is available
-app.post('/check-username', async (req, res) => {
+app.post('/api//check-username', async (req, res) => {
   try {
     const { username } = req.body;
     
@@ -346,7 +346,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
 });
 
 // Handle Stripe webhooks
-app.post('/webhook', async (req, res) => {
+app.post('/api/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
@@ -771,7 +771,7 @@ app.get('/api/analytics', authenticateToken, async (req, res) => {
 });
 
 // Contact form submission
-app.post('/contact', async (req, res) => {
+app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
 
@@ -1219,7 +1219,7 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Welcome page password setup
-app.post('/welcome/setup-password', async (req, res) => {
+app.post('/api/welcome/setup-password', async (req, res) => {
   try {
     const { session_id, password } = req.body;
     
