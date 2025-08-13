@@ -292,7 +292,7 @@ app.post('/api/check-username', async (req, res) => {
 
 
 // Create Stripe checkout session
-app.post('/public/api/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { email, username } = req.body;
 
