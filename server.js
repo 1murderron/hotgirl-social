@@ -726,7 +726,7 @@ app.post('/api/links/:id/click', async (req, res) => {
 });
 
 // Analytics
-app.get('/api/analytics', authenticateToken, async (req, res) => {
+app.get('/analytics', authenticateToken, async (req, res) => {
   try {
     const profileResult = await pool.query('SELECT id FROM profiles WHERE user_id = $1', [req.user.id]);
     if (profileResult.rows.length === 0) {
