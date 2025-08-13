@@ -726,7 +726,7 @@ app.post('/api/links/:id/click', async (req, res) => {
 });
 
 // Analytics
-app.get('/analytics', authenticateToken, async (req, res) => {
+app.get('/api/analytics', authenticateToken, async (req, res) => {
   try {
     const profileResult = await pool.query('SELECT id FROM profiles WHERE user_id = $1', [req.user.id]);
     if (profileResult.rows.length === 0) {
@@ -793,122 +793,7 @@ app.post('/api/contact', async (req, res) => {
 
 // ADMIN ROUTES
 
-// Admin dashboard stats
-app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
-  try {
-    // Get total users
-    const totalUsersResult = await pool.query('SELECT COUNT(*) as count FROM users');
-    const totalUsers = parseInt(totalUsersResult.rows[0].count);
 
-    // Get active profiles
-    const activeProfilesResult = await pool.query('SELECT COUNT(*) as count FROM profiles WHERE is_active = true');
-    const activeProfiles = parseInt(activeProfilesResult.rows[0].count);
-
-    // Get total revenue (assuming $29 per user)
-    const totalRevenue = totalUsers * 29;
-
-    // Get monthly signups
-    const monthlySignupsResult = await pool.query(`
-      SELECT COUNT(*) as count 
-      FROM users 
-      WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)
-    `);
-    const monthlySignups = parseInt(monthlySignupsResult.rows[0].count);
-
-    // Get total page views
-    const totalViewsResult = await pool.query(`
-      SELECT COUNT(*) as count 
-      FROM analytics 
-      WHERE event_type = 'page_view'
-    `);
-    const totalViews = parseInt(totalViewsResult.rows[0].count);
-
-    // Get total clicks
-    const totalClicksResult = await pool.query(`
-      SELECT COUNT(*) as count 
-      FROM analytics 
-      WHERE event_type = 'link_click'
-    `);
-    const totalClicks = parseInt(totalClicksResult.rows[0].count);
-
-    // Get average links per profile
-    const avgLinksResult = await pool.query(`
-      SELECT AVG(link_count) as avg_links
-      FROM (
-        SELECT COUNT(*) as link_count 
-        FROM links 
-        WHERE is_active = true 
-        GROUP BY profile_id
-      ) as link_counts
-    `);
-    const avgLinks = parseFloat(avgLinksResult.rows[0]?.avg_links || 0).toFixed(1);
-
-    res.json({
-      totalUsers,
-      activeProfiles,
-      totalRevenue,
-      monthlySignups,
-      totalViews,
-      totalClicks,
-      avgLinks,
-      conversionRate: totalUsers > 0 ? ((activeProfiles / totalUsers) * 100).toFixed(1) : 0
-    });
-  } catch (error) {
-    console.error('Admin stats error:', error);
-    res.status(500).json({ error: 'Failed to fetch admin stats' });
-  }
-});
-
-// Get platform settings
-app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
-    
-    const settings = {};
-    result.rows.forEach(row => {
-      settings[row.setting_key] = row.setting_value;
-    });
-    
-    res.json({ settings });
-  } catch (error) {
-    console.error('Get settings error:', error);
-    res.status(500).json({ error: 'Failed to fetch settings' });
-  }
-});
-
-// Save platform settings
-app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
-  try {
-    const { platform_name, registration_price, max_links_per_profile } = req.body;
-    
-    // Update each setting
-    await pool.query(`
-      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
-      VALUES ($1, $2, CURRENT_TIMESTAMP)
-      ON CONFLICT (setting_key) 
-      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
-    `, ['platform_name', platform_name]);
-    
-    await pool.query(`
-      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
-      VALUES ($1, $2, CURRENT_TIMESTAMP)
-      ON CONFLICT (setting_key) 
-      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
-    `, ['registration_price', registration_price]);
-    
-    await pool.query(`
-      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
-      VALUES ($1, $2, CURRENT_TIMESTAMP)
-      ON CONFLICT (setting_key) 
-      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
-    `, ['max_links_per_profile', max_links_per_profile]);
-    
-    res.json({ message: 'Settings saved successfully' });
-  } catch (error) {
-    console.error('Save settings error:', error);
-    res.status(500).json({ error: 'Failed to save settings' });
-  }
-});
 
 
 
