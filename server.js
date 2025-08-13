@@ -646,13 +646,12 @@ app.delete('/api/links/:id', authenticateToken, async (req, res) => {
 
 
 
-
-
-
 // Public profile view
+/*
   app.get('/api/profile-data/:username', async (req, res) => {
   res.sendFile(path.join(__dirname, 'profile.html'));
 });
+*/
 
 // API endpoint for profile data
 app.get('/api/:username', async (req, res) => {
@@ -1290,7 +1289,7 @@ async function startServer() {
 
 
 
-    // API profile data (alias) — matches frontend fetch to /api/profile-data/:username
+    // API profile data (alias) — matches frontend fetch to
       app.get('/api/profile-data/:username', async (req, res) => {
         const { username } = req.params;
         try {
