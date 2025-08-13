@@ -216,7 +216,7 @@ async function initializeDatabase() {
 // Routes
 
 // Get current registration price for public display
-app.get('/price', async (req, res) => {
+app.get('/api/price', async (req, res) => {
   try {
     const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
     const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
