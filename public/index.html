@@ -156,7 +156,7 @@
 
 <script>
 
-// const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
+//const stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
 let stripe = null; // Will be set after loading config
 let API_BASE_URL = null; // Will be set after loading config
 
@@ -606,6 +606,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadPrice();
 });
 
+
+
+
+
+/*
 // Load configuration from server
 async function loadConfig() {
   try {
@@ -622,8 +627,33 @@ async function loadConfig() {
   }
 }
 
+*/
 
-  
+
+async function loadConfig() {
+  console.log('loadConfig: Starting...');
+  try {
+    console.log('loadConfig: Fetching /api/config...');
+    const response = await fetch('/api/config');
+    console.log('loadConfig: Response status:', response.status);
+    const config = await response.json();
+    console.log('loadConfig: Config received:', config);
+    
+    API_BASE_URL = config.apiUrl;
+    stripe = Stripe(config.stripePublishableKey);
+    console.log('loadConfig: Stripe initialized successfully');
+  } catch (error) {
+    console.error('loadConfig: Failed to load config:', error);
+    // Fallback to hardcoded values
+    console.log('loadConfig: Using fallback values');
+    API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
+    stripe = Stripe('pk_test_51RoD4t2Hj566duWcRxvEvVdnaQg3wDLd3XesTLLrRED7FHiwkEXcm1YukrjQW7ayFTL9XZCd7QtczlGgHF3y2iw800jq3b4GL8');
+    console.log('loadConfig: Fallback stripe initialized');
+  }
+}
+
+
+
 
 
   // ===== Testimonial Carousel Logic =====
