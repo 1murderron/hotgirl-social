@@ -18,10 +18,21 @@
 
     <div class="admin-container">
         <nav class="sidebar" id="sidebar">
+
             <div class="sidebar-header">
                 <h2>Admin Panel</h2>
                 <p><a href="https://hotgirl.social">hotgirl.Social</a></p>
             </div>
+
+            <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p><a href="https://hotgirl.social">hotgirl.Social</a></p>
+            <button onclick="adminLogout()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px; width: 100%;">
+                Logout
+            </button>
+            </div>
+
+
             <div class="sidebar-nav">
                 <button class="nav-item active" onclick="showPage('dashboard')">
                     📊 Dashboard
@@ -41,6 +52,7 @@
                 <button class="nav-item" onclick="showPage('settings')">
                     ⚙️ Settings
                 </button>
+
             </div>
         </nav>
 
@@ -764,6 +776,17 @@ async function loadConfig() {
         API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
     }
 }
+
+
+
+
+function adminLogout() {
+    localStorage.removeItem('adminToken');
+    adminToken = null;
+    window.location.href = '/';
+}
+
+
 </script>
     
 
