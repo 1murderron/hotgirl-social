@@ -6,7 +6,8 @@
     <title>QR Code Test Page</title>
     
     <style>
-        body {
+
+         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
@@ -125,10 +126,14 @@
                 <div id="status"></div>
             </div>
             
-            <div class="download-section">
+            <!-- <div class="download-section">
                 <button onclick="downloadQR()" id="downloadBtn" style="display: none;">Download QR Code</button>
             </div>
+        -->
+
         </div>
+
+
         
         <!-- Test Section 2: Profile Link QR Code -->
         <div class="test-section">
@@ -142,7 +147,15 @@
                 <div id="profileQR"></div>
                 <div id="profileStatus"></div>
             </div>
+
+            <div class="download-section">
+                <button onclick="downloadQR()" id="downloadBtn" style="display: none;">Download QR Code</button>
+            </div>
+            
         </div>
+
+
+
         
         <!-- Test Section 3: Custom Styled QR Code -->
         <div class="test-section">
@@ -204,6 +217,11 @@
             }
         }
         
+
+
+
+
+
         // Test 2: Profile Link QR Code
         function generateProfileQR() {
             const username = document.getElementById('usernameInput').value;
@@ -239,6 +257,13 @@
                 showStatus('error', 'Error generating profile QR code: ' + error.message, 'profileStatus');
             }
         }
+
+
+
+
+
+
+
         
         // Test 3: Custom Styled QR Code
         function generateStyledQR() {
@@ -274,6 +299,11 @@
                 showStatus('error', 'Error generating styled QR code: ' + error.message, 'styledStatus');
             }
         }
+
+
+
+
+
         
         // Clear QR code
         function clearQR() {

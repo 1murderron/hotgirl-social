@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HotGirl.social - User Dashboard</title>
     <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="assets/qr-code.css">
     <style>
 
         .logo {
@@ -14,6 +15,8 @@
         }
 
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    
 </head>
 <body class="dashboard">
 
@@ -45,22 +48,22 @@
             <div class="nav-item active" onclick="showSection('profile')">
                 <span class="nav-icon">👤</span>
             </br>
-                <span class="nav-text">Profile</span>
+                <span class="nav-text">My Profile</span>
             </div>
             <div class="nav-item" onclick="showSection('links')">
                 <span class="nav-icon">🔗</span>
             </br>
-                <span class="nav-text">Edit Links</span>
+                <span class="nav-text">My Links</span>
             </div>
             <div class="nav-item" onclick="showSection('appearance')">
                 <span class="nav-icon">🎨</span>
             </br>
-                <span class="nav-text">Edit Colors</span>
+                <span class="nav-text">My Colors</span>
             </div>
             <div class="nav-item" onclick="showSection('analytics')">
                 <span class="nav-icon">📊</span>
             </br>
-                <span class="nav-text">Statistics</span>
+                <span class="nav-text">My Statistics</span>
             </div>
 
             <!-- <div class="nav-item" onclick="showSection('settings')">
@@ -117,7 +120,44 @@
             ✓ Link copied to clipboard!
         </div>
     </div>
-<!-- END of My HotGirl Link Section -->
+    <!-- END of My HotGirl Link Section -->
+
+
+    <!-- ============== HotGirl QR Code Section ============================================== -->
+    <div class="hotgirl-link-section" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; margin: 0;"></div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Your HotGirl.social QR code.</h3>
+
+
+      <h3>Your personal QR Code to your hotgirl.social profile</h3>
+    <!-- <p>Generate a QR code that links directly to your profile page. Perfect for business cards, flyers, or social media!</p> -->
+    
+    <div class="qr-container">
+        <div class="qr-preview">
+            <div id="qrDisplay"></div>
+            <p class="profile-url">Profile URL: <span id="profileURL"></span></p>
+        </div>
+        
+        <div class="qr-controls">
+            <div class="color-controls">
+                <label for="qrForeground">QR Code Color:</label>
+                <input type="color" id="qrForeground" value="#ff69b4">
+                
+                <label for="qrBackground">Background Color:</label>
+                <input type="color" id="qrBackground" value="#ffffff">
+            </div>
+            
+            <div class="qr-actions">
+                <button onclick="generateProfileQR()" class="btn-generate">Generate QR Code</button>
+                <button onclick="downloadQR()" id="downloadQRBtn" class="btn-download" style="display: none;">Download QR Code</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="qrStatus" class="status-message"></div>
+    </div>
+    <!-- =================== END HotGirl QR Code Section ============================================== -->
+
+
 
 
 
@@ -1062,10 +1102,111 @@
     }
 });
 
-    </script>
 
 
 
 
+// ============================= QR Code functionality for dashboard ================================
+let currentQRCanvas = null;
+
+// Initialize QR code when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Get username from dashboard (you'll need to replace this with actual username variable)
+    const username = getUsernameFromDashboard(); // Replace with your actual method
+    const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
+    
+    // Display the profile URL
+    document.getElementById('profileURL').textContent = profileURL;
+    
+    // Generate initial QR code
+    generateProfileQR();
+});
+
+// Function to get username
+function getUsernameFromDashboard() {
+     return document.getElementById('account-username').textContent;
+}
+
+
+
+function generateProfileQR() {
+    const username = getUsernameFromDashboard();
+    const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
+    const foregroundColor = document.getElementById('qrForeground').value;
+    const backgroundColor = document.getElementById('qrBackground').value;
+    const qrDisplay = document.getElementById('qrDisplay');
+    const downloadBtn = document.getElementById('downloadQRBtn');
+    
+    // Clear previous QR code
+    qrDisplay.innerHTML = '';
+    
+    try {
+        // Create canvas element
+        const canvas = document.createElement('canvas');
+        
+        // Generate QR code
+        const qr = new QRious({
+            element: canvas,
+            value: profileURL,
+            size: 256,
+            background: backgroundColor,
+            foreground: foregroundColor
+        });
+        
+        // Display the QR code
+        qrDisplay.appendChild(canvas);
+        
+        // Store canvas for download
+        currentQRCanvas = canvas;
+        
+        // Show download button
+        downloadBtn.style.display = 'inline-block';
+        
+        // Show success message
+        showStatus('success', 'QR code generated successfully!');
+        
+    } catch (error) {
+        showStatus('error', 'Error generating QR code: ' + error.message);
+        downloadBtn.style.display = 'none';
+    }
+}
+
+function downloadQR() {
+    if (currentQRCanvas) {
+        const username = getUsernameFromDashboard();
+        const link = document.createElement('a');
+        link.download = `${username}-profile-qr.png`;
+        link.href = currentQRCanvas.toDataURL();
+        link.click();
+        
+        showStatus('success', 'QR code downloaded!');
+    }
+}
+
+function showStatus(type, message) {
+    const statusDiv = document.getElementById('qrStatus');
+    statusDiv.className = `status-message status-${type}`;
+    statusDiv.textContent = message;
+    
+    // Clear status after 3 seconds
+    setTimeout(() => {
+        statusDiv.textContent = '';
+        statusDiv.className = 'status-message';
+    }, 3000);
+}
+
+// Update QR code when colors change
+document.getElementById('qrForeground').addEventListener('change', generateProfileQR);
+document.getElementById('qrBackground').addEventListener('change', generateProfileQR);
+
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ QR Code functionality for dashboard ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
+
+</script>
 </body>
 </html>
