@@ -3,12 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- QR Code Library -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    
-
     <title>QR Code Test Page</title>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -103,6 +99,8 @@
             border: 1px solid #f5c6cb;
         }
     </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -159,6 +157,8 @@
         </div>
     </div>
 
+    <!-- QR Code Library - Using a more reliable CDN -->
+    
     
     <script>
         // Test 1: Basic QR Code Generation
@@ -176,20 +176,28 @@
             // Clear previous QR code
             qrDiv.innerHTML = '';
             
-            // Generate QR code
-            QRCode.toCanvas(text, { width: 256, margin: 2 }, function (error, canvas) {
-                if (error) {
-                    showStatus('error', 'Error generating QR code: ' + error, 'status');
-                    downloadBtn.style.display = 'none';
-                } else {
-                    qrDiv.appendChild(canvas);
-                    showStatus('success', 'QR code generated successfully!', 'status');
-                    downloadBtn.style.display = 'inline-block';
-                    
-                    // Store canvas for download
-                    window.currentQRCanvas = canvas;
-                }
-            });
+            try {
+                // Generate QR code using QRious library
+                const canvas = document.createElement('canvas');
+                const qr = new QRious({
+                    element: canvas,
+                    value: text,
+                    size: 256,
+                    background: 'white',
+                    foreground: 'black'
+                });
+                
+                qrDiv.appendChild(canvas);
+                showStatus('success', 'QR code generated successfully!', 'status');
+                downloadBtn.style.display = 'inline-block';
+                
+                // Store canvas for download
+                window.currentQRCanvas = canvas;
+                
+            } catch (error) {
+                showStatus('error', 'Error generating QR code: ' + error.message, 'status');
+                downloadBtn.style.display = 'none';
+            }
         }
         
         // Test 2: Profile Link QR Code
@@ -204,27 +212,28 @@
             }
             
             // Create profile URL (this would be your actual website URL)
-            const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
+            const profileURL = `https://your-website.com/${username}`;
             
             // Clear previous QR code
             qrDiv.innerHTML = '';
             
-            // Generate QR code for profile
-            QRCode.toCanvas(profileURL, { 
-                width: 256, 
-                margin: 2,
-                color: {
-                    dark: '#333333',
-                    light: '#FFFFFF'
-                }
-            }, function (error, canvas) {
-                if (error) {
-                    showStatus('error', 'Error generating profile QR code: ' + error, 'profileStatus');
-                } else {
-                    qrDiv.appendChild(canvas);
-                    showStatus('success', `QR code for profile: ${profileURL}`, 'profileStatus');
-                }
-            });
+            try {
+                // Generate QR code for profile
+                const canvas = document.createElement('canvas');
+                const qr = new QRious({
+                    element: canvas,
+                    value: profileURL,
+                    size: 256,
+                    background: 'white',
+                    foreground: '#333333'
+                });
+                
+                qrDiv.appendChild(canvas);
+                showStatus('success', `QR code for profile: ${profileURL}`, 'profileStatus');
+                
+            } catch (error) {
+                showStatus('error', 'Error generating profile QR code: ' + error.message, 'profileStatus');
+            }
         }
         
         // Test 3: Custom Styled QR Code
@@ -243,22 +252,23 @@
             // Clear previous QR code
             qrDiv.innerHTML = '';
             
-            // Generate styled QR code
-            QRCode.toCanvas(text, { 
-                width: 256, 
-                margin: 2,
-                color: {
-                    dark: fgColor,
-                    light: bgColor
-                }
-            }, function (error, canvas) {
-                if (error) {
-                    showStatus('error', 'Error generating styled QR code: ' + error, 'styledStatus');
-                } else {
-                    qrDiv.appendChild(canvas);
-                    showStatus('success', 'Styled QR code generated successfully!', 'styledStatus');
-                }
-            });
+            try {
+                // Generate styled QR code
+                const canvas = document.createElement('canvas');
+                const qr = new QRious({
+                    element: canvas,
+                    value: text,
+                    size: 256,
+                    background: bgColor,
+                    foreground: fgColor
+                });
+                
+                qrDiv.appendChild(canvas);
+                showStatus('success', 'Styled QR code generated successfully!', 'styledStatus');
+                
+            } catch (error) {
+                showStatus('error', 'Error generating styled QR code: ' + error.message, 'styledStatus');
+            }
         }
         
         // Clear QR code
