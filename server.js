@@ -23,8 +23,6 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
-
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -38,21 +36,11 @@ app.use(cors({
 }));
 
 // Stripe webhook endpoint (must be before express.json middleware for raw body)
-app.use('/api/webhook', express.raw({ type: 'application/json' }));   /* =========added /public ====================== */
-
+app.use('/api/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json({ limit: '10mb' }));
 
-/*
-app.use(express.static('public'));
-app.use('/uploads', express.static('public/uploads'));
-app.use(express.static('.'));
-*/
-
 // File upload configuration
-
-
-// Multer configuration for Cloudinary
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
@@ -105,7 +93,7 @@ const authenticateAdmin = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Check if user is admin (you can set this manually in database)
+    // Check if user is admin
     const result = await pool.query('SELECT id, email, username, is_admin FROM users WHERE id = $1 AND is_admin = true', [decoded.id]);
     
     if (result.rows.length === 0) {
@@ -190,7 +178,7 @@ async function initializeDatabase() {
       )
     `);
 
-      await pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS platform_settings (
         id SERIAL PRIMARY KEY,
         setting_key VARCHAR(100) UNIQUE NOT NULL,
@@ -208,7 +196,6 @@ async function initializeDatabase() {
         ('max_links_per_profile', '20')
       ON CONFLICT (setting_key) DO NOTHING
     `);
-
 
     console.log('Database tables initialized successfully');
   } catch (error) {
@@ -231,10 +218,8 @@ app.get('/api/price', async (req, res) => {
   }
 });
 
-
-
 // Get site configuration for frontend
-app.get('/api/config', async (req, res) => {   /* added /public */
+app.get('/api/config', async (req, res) => {
   try {
     res.json({
       siteName: process.env.SITE_NAME || 'hotgirl.social',
@@ -250,8 +235,6 @@ app.get('/api/config', async (req, res) => {   /* added /public */
     });
   }
 });
-
-
 
 // Check if username is available
 app.post('/api/check-username', async (req, res) => {
@@ -287,16 +270,10 @@ app.post('/api/check-username', async (req, res) => {
   }
 });
 
-
-
-
-
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { email, username } = req.body;
-
-    // Check if username is already taken
 
     // Validate username format
     const validation = validateUsername(username);
@@ -331,8 +308,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
         quantity: 1,
       }],
-      mode: 'payment',                         /* WAS /welcome -- api or public ??? */
-      success_url: `${process.env.FRONTEND_URL}/public/welcome.html?session_id={CHECKOUT_SESSION_ID}`,
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/welcome.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/?canceled=true`,
       customer_email: email,
       metadata: {
@@ -383,9 +360,6 @@ app.post('/api/webhook', async (req, res) => {
       );
 
       console.log(`User created successfully: ${email} (${username})`);
-      
-      // Here you would send a welcome email with login instructions
-      // For now, we'll just log the temporary password
       console.log(`Temporary password for ${username}: ${tempPassword}`);
       
     } catch (error) {
@@ -457,10 +431,6 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
   }
 });
 
-
-
-
-
 // Profile management routes
 app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
@@ -500,12 +470,6 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
   }
 });
 
-
-
-
-
-
-
 app.put('/api/profile', authenticateToken, async (req, res) => {
   try {
     const { display_name, bio, custom_colors, theme } = req.body;
@@ -528,8 +492,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
   }
 });
 
-
-  // Profile image upload
+// Profile image upload
 app.post('/api/profile/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
   try {
     if (!req.file) {
@@ -571,9 +534,6 @@ app.post('/api/profile/upload-image', authenticateToken, upload.single('profileI
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-
-
 
 // Links management
 app.post('/api/links', authenticateToken, async (req, res) => {
@@ -646,63 +606,6 @@ app.delete('/api/links/:id', authenticateToken, async (req, res) => {
   }
 });
 
-
-
-
-// Public profile view
-/*
-  app.get('/api/profile-data/:username', async (req, res) => {
-  res.sendFile(path.join(__dirname, 'profile.html'));
-});
-*/
-
-// API endpoint for profile data
-app.get('/api/:username', async (req, res) => {
-  try {
-    const { username } = req.params;
-
-    const result = await pool.query(`
-      SELECT p.*, u.username 
-      FROM profiles p 
-      JOIN users u ON p.user_id = u.id 
-      WHERE u.username = $1 AND p.is_active = true
-    `, [username]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Profile not found' });
-    }
-
-    const profile = result.rows[0];
-
-    // Get links
-    const linksResult = await pool.query(`
-      SELECT id, title, url, icon, clicks 
-      FROM links 
-      WHERE profile_id = $1 AND is_active = true 
-      ORDER BY display_order, created_at
-    `, [profile.id]);
-
-    // Log page view
-    await pool.query(`
-      INSERT INTO analytics (profile_id, event_type, ip_address, user_agent) 
-      VALUES ($1, 'page_view', $2, $3)
-    `, [profile.id, req.ip, req.get('User-Agent')]);
-
-    res.json({
-      id: profile.id,
-      display_name: profile.display_name,
-      bio: profile.bio,
-      profile_image_url: profile.profile_image_url,
-      custom_colors: profile.custom_colors,
-      theme: profile.theme,
-      links: linksResult.rows
-    });
-  } catch (error) {
-    console.error('Get public profile error:', error);
-    res.status(500).json({ error: 'Failed to fetch profile' });
-  }
-});
-
 // Track link clicks
 app.post('/api/links/:id/click', async (req, res) => {
   try {
@@ -772,6 +675,53 @@ app.get('/api/analytics', authenticateToken, async (req, res) => {
   }
 });
 
+// Public profile view - API endpoint for profile data
+app.get('/api/profile-data/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const result = await pool.query(`
+      SELECT p.*, u.username 
+      FROM profiles p 
+      JOIN users u ON p.user_id = u.id 
+      WHERE LOWER(u.username) = LOWER($1) AND p.is_active = true
+    `, [username]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+
+    const profile = result.rows[0];
+
+    // Get links
+    const linksResult = await pool.query(`
+      SELECT id, title, url, icon, clicks 
+      FROM links 
+      WHERE profile_id = $1 AND is_active = true 
+      ORDER BY display_order, created_at
+    `, [profile.id]);
+
+    // Log page view
+    await pool.query(`
+      INSERT INTO analytics (profile_id, event_type, ip_address, user_agent) 
+      VALUES ($1, 'page_view', $2, $3)
+    `, [profile.id, req.ip, req.get('User-Agent')]);
+
+    res.json({
+      id: profile.id,
+      display_name: profile.display_name,
+      bio: profile.bio,
+      profile_image_url: profile.profile_image_url,
+      custom_colors: profile.custom_colors,
+      theme: profile.theme,
+      links: linksResult.rows
+    });
+  } catch (error) {
+    console.error('Get public profile error:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
 // Contact form submission
 app.post('/api/contact', async (req, res) => {
   try {
@@ -789,20 +739,218 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-/* ====================================================================================================================== */
+// Welcome page password setup
+app.post('/api/welcome/setup-password', async (req, res) => {
+  try {
+    const { session_id, password } = req.body;
+    
+    if (!session_id || !password) {
+      return res.status(400).json({ error: 'Session ID and password required' });
+    }
+    
+    // Find user by Stripe session (you might need to store session_id during webhook)
+    // For now, we'll find the most recent user without a proper password
+    const userResult = await pool.query(`
+      SELECT * FROM users 
+      WHERE stripe_payment_intent_id IS NOT NULL 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `);
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const user = userResult.rows[0];
+    
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Update user password
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      [hashedPassword, user.id]
+    );
+    
+    // Create login token
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+    
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username
+      }
+    });
+    
+  } catch (error) {
+    console.error('Password setup error:', error);
+    res.status(500).json({ error: 'Failed to set password' });
+  }
+});
 
 // ADMIN ROUTES
 
+// Admin login (separate from regular user login)
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
+    const result = await pool.query('SELECT * FROM users WHERE email = $1 AND is_admin = true', [email]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid admin credentials' });
+    }
 
+    const admin = result.rows[0];
+    const validPassword = await bcrypt.compare(password, admin.password_hash);
+    
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Invalid admin credentials' });
+    }
 
+    const token = jwt.sign(
+      { id: admin.id, email: admin.email, isAdmin: true },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-/* =================================================================================================== */
+    res.json({
+      token,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        username: admin.username
+      }
+    });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ error: 'Admin login failed' });
+  }
+});
 
+// Admin dashboard stats
+app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
+  try {
+    // Get total users
+    const totalUsersResult = await pool.query('SELECT COUNT(*) as count FROM users');
+    const totalUsers = parseInt(totalUsersResult.rows[0].count);
 
+    // Get active profiles
+    const activeProfilesResult = await pool.query('SELECT COUNT(*) as count FROM profiles WHERE is_active = true');
+    const activeProfiles = parseInt(activeProfilesResult.rows[0].count);
 
+    // Get total revenue (using current price setting)
+    const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
+    const price = parseFloat(priceResult.rows[0]?.setting_value || 15);
+    const totalRevenue = totalUsers * price;
 
+    // Get monthly signups
+    const monthlySignupsResult = await pool.query(`
+      SELECT COUNT(*) as count 
+      FROM users 
+      WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)
+    `);
+    const monthlySignups = parseInt(monthlySignupsResult.rows[0].count);
 
+    // Get total page views
+    const totalViewsResult = await pool.query(`
+      SELECT COUNT(*) as count 
+      FROM analytics 
+      WHERE event_type = 'page_view'
+    `);
+    const totalViews = parseInt(totalViewsResult.rows[0].count);
+
+    // Get total clicks
+    const totalClicksResult = await pool.query(`
+      SELECT COUNT(*) as count 
+      FROM analytics 
+      WHERE event_type = 'link_click'
+    `);
+    const totalClicks = parseInt(totalClicksResult.rows[0].count);
+
+    // Get average links per profile
+    const avgLinksResult = await pool.query(`
+      SELECT AVG(link_count) as avg_links
+      FROM (
+        SELECT COUNT(*) as link_count 
+        FROM links 
+        WHERE is_active = true 
+        GROUP BY profile_id
+      ) as link_counts
+    `);
+    const avgLinks = parseFloat(avgLinksResult.rows[0]?.avg_links || 0).toFixed(1);
+
+    res.json({
+      totalUsers,
+      activeProfiles,
+      totalRevenue,
+      monthlySignups,
+      totalViews,
+      totalClicks,
+      avgLinks,
+      conversionRate: totalUsers > 0 ? ((activeProfiles / totalUsers) * 100).toFixed(1) : 0
+    });
+  } catch (error) {
+    console.error('Admin stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch admin stats' });
+  }
+});
+
+// Get platform settings
+app.get('/api/admin/settings', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT setting_key, setting_value FROM platform_settings');
+    
+    const settings = {};
+    result.rows.forEach(row => {
+      settings[row.setting_key] = row.setting_value;
+    });
+    
+    res.json({ settings });
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+// Save platform settings
+app.post('/api/admin/settings', authenticateAdmin, async (req, res) => {
+  try {
+    const { platform_name, registration_price, max_links_per_profile } = req.body;
+    
+    // Update each setting
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (setting_key) 
+      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
+    `, ['platform_name', platform_name]);
+    
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (setting_key) 
+      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
+    `, ['registration_price', registration_price]);
+    
+    await pool.query(`
+      INSERT INTO platform_settings (setting_key, setting_value, updated_at) 
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (setting_key) 
+      DO UPDATE SET setting_value = $2, updated_at = CURRENT_TIMESTAMP
+    `, ['max_links_per_profile', max_links_per_profile]);
+    
+    res.json({ message: 'Settings saved successfully' });
+  } catch (error) {
+    console.error('Save settings error:', error);
+    res.status(500).json({ error: 'Failed to save settings' });
+  }
+});
 
 // Get all users with pagination
 app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
@@ -944,11 +1092,15 @@ app.get('/api/admin/payments', authenticateAdmin, async (req, res) => {
       LIMIT 100
     `);
 
+    // Get current price for display
+    const priceResult = await pool.query('SELECT setting_value FROM platform_settings WHERE setting_key = $1', ['registration_price']);
+    const currentPrice = parseFloat(priceResult.rows[0]?.setting_value || 15);
+
     const payments = result.rows.map(row => ({
       username: row.username,
       email: row.email,
       date: row.payment_date,
-      amount: 29.00, // Fixed amount for now
+      amount: currentPrice,
       stripe_customer_id: row.stripe_customer_id,
       stripe_payment_intent_id: row.stripe_payment_intent_id,
       status: 'completed'
@@ -1033,16 +1185,6 @@ app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
       LIMIT 5
     `);
 
-    // Get recent page views
-    const recentViewsResult = await pool.query(`
-      SELECT COUNT(*) as views, DATE(created_at) as date
-      FROM analytics 
-      WHERE event_type = 'page_view' 
-        AND created_at >= CURRENT_DATE - INTERVAL '7 days'
-      GROUP BY DATE(created_at)
-      ORDER BY date DESC
-    `);
-
     // Get recent contact messages
     const recentMessagesResult = await pool.query(`
       SELECT name, subject, created_at 
@@ -1071,99 +1213,6 @@ app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
   }
 });
 
-// Admin login (separate from regular user login)
-app.post('/api/admin/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const result = await pool.query('SELECT * FROM users WHERE email = $1 AND is_admin = true', [email]);
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid admin credentials' });
-    }
-
-    const admin = result.rows[0];
-    const validPassword = await bcrypt.compare(password, admin.password_hash);
-    
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Invalid admin credentials' });
-    }
-
-    const token = jwt.sign(
-      { id: admin.id, email: admin.email, isAdmin: true },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      token,
-      admin: {
-        id: admin.id,
-        email: admin.email,
-        username: admin.username
-      }
-    });
-  } catch (error) {
-    console.error('Admin login error:', error);
-    res.status(500).json({ error: 'Admin login failed' });
-  }
-});
-
-// Welcome page password setup
-app.post('/api/welcome/setup-password', async (req, res) => {
-  try {
-    const { session_id, password } = req.body;
-    
-    if (!session_id || !password) {
-      return res.status(400).json({ error: 'Session ID and password required' });
-    }
-    
-    // Find user by Stripe session (you might need to store session_id during webhook)
-    // For now, we'll find the most recent user without a proper password
-    const userResult = await pool.query(`
-      SELECT * FROM users 
-      WHERE stripe_payment_intent_id IS NOT NULL 
-      ORDER BY created_at DESC 
-      LIMIT 1
-    `);
-    
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const user = userResult.rows[0];
-    
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Update user password
-    await pool.query(
-      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-      [hashedPassword, user.id]
-    );
-    
-    // Create login token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-    
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username
-      }
-    });
-    
-  } catch (error) {
-    console.error('Password setup error:', error);
-    res.status(500).json({ error: 'Failed to set password' });
-  }
-});
-
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -1177,82 +1226,23 @@ async function startServer() {
     // Create uploads directory if it doesn't exist
     await fs.mkdir('public/uploads', { recursive: true });
 
-    // API profile data (alias) — matches frontend fetch to
-      app.get('/api/profile-data/:username', async (req, res) => {
-        const { username } = req.params;
-        try {
-          const result = await pool.query(`
-            SELECT p.*, u.username
-            FROM profiles p
-            JOIN users u ON p.user_id = u.id
-            WHERE LOWER(u.username) = LOWER($1) AND p.is_active = true
-          `, [username]);
-
-          if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Profile not found' });
-          }
-
-          const profile = result.rows[0];
-
-          const linksResult = await pool.query(`
-            SELECT id, title, url, icon, clicks
-            FROM links
-            WHERE profile_id = $1 AND is_active = true
-            ORDER BY display_order, created_at
-          `, [profile.id]);
-
-          await pool.query(`
-            INSERT INTO analytics (profile_id, event_type, ip_address, user_agent)
-            VALUES ($1, 'page_view', $2, $3)
-          `, [profile.id, req.ip, req.get('User-Agent')]);
-
-          res.json({
-            id: profile.id,
-            display_name: profile.display_name,
-            bio: profile.bio,
-            profile_image_url: profile.profile_image_url,
-            custom_colors: profile.custom_colors,
-            theme: profile.theme,
-            links: linksResult.rows
-          });
-        } catch (error) {
-          console.error('Get public profile error:', error);
-          res.status(500).json({ error: 'Failed to fetch profile' });
-        }
-      });
-
-
-
-
-
-
-
-    // Serve public profile page at /:username  (no /api in the URL)
+    // Serve public profile page at /:username (no /api in the URL)
     app.get('/:username', (req, res, next) => {
       const u = (req.params.username || '').toLowerCase();
       const reserved = [
         '', 'api', 'auth', 'links', 'profile', 'uploads',
         'admin', 'admin.html', 'welcome.html', 'index.html',
-        'health', 'contact', 'favicon.ico', 'user-dashboard',
-        'user-dashboard.html',
+        'user-dashboard', 'user-dashboard.html', 'login.html',
+        'health', 'contact', 'favicon.ico'
       ];
       if (reserved.includes(u)) return next();
 
       res.sendFile(path.join(__dirname, 'public', 'profile.html'));
     });
 
+    // Static file serving (must come after the /:username route)
     app.use(express.static('public'));
     app.use('/uploads', express.static('public/uploads'));
-
-
-    /*
-      app.use(express.static('public'));
-      app.use('/uploads', express.static('public/uploads'));
-      app.use(express.static('.'));
-    */
-
-
-
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
