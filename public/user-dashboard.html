@@ -1154,7 +1154,9 @@ function getUsernameFromDashboard() {
 */
 
 function generateProfileQR() {
-    const username = getUsernameFromDashboard();
+    //const username = getUsernameFromDashboard();
+    //const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
+    const username = document.getElementById('account-username').textContent;
     const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
     const foregroundColor = document.getElementById('qrForeground').value;
     const backgroundColor = document.getElementById('qrBackground').value;
@@ -1197,7 +1199,7 @@ function generateProfileQR() {
 
 function downloadQR() {
     if (currentQRCanvas) {
-        const username = getUsernameFromDashboard();
+        const username = document.getElementById('account-username').textContent;
         const link = document.createElement('a');
         link.download = `${username}-profile-qr.png`;
         link.href = currentQRCanvas.toDataURL();
