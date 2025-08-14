@@ -499,12 +499,12 @@
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 API_BASE_URL = config.apiUrl;
-                console.log('API_BASE_URL set to:', API_BASE_URL); // Add this single line
+                
             } catch (error) {
                 console.error('Failed to load config:', error);
                 // Fallback to hardcoded value
                 API_BASE_URL = 'https://hotgirl-social-production.up.railway.app';
-                console.log('API_BASE_URL fallback to:', API_BASE_URL); // Add this single line
+               
             }
         }
 
@@ -1116,8 +1116,8 @@ let currentQRCanvas = null;
 // Initialize QR code when page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Get username from dashboard (you'll need to replace this with actual username variable)
-    const username = getUsernameFromDashboard(); // Replace with your actual method
-    const profileURL = `https://hotgirl-social-production.up.railway.app/fuckity/${username}`;
+    //===========const username = getUsernameFromDashboard(); // Replace with your actual method
+    const profileURL = `https://hotgirl-social-production.up.railway.app/${profile.username}`;
     
     // Display the profile URL
     document.getElementById('profileURL').textContent = profileURL;
@@ -1127,6 +1127,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Function to get username - REPLACE THIS with your actual method
+
+/*
 function getUsernameFromDashboard() {
     // Examples:
     // return window.currentUser.username;
@@ -1135,7 +1137,7 @@ function getUsernameFromDashboard() {
 
     return 'demo-user'; // REPLACE THIS LINE
 
-}
+}  */
 
 function generateProfileQR() {
     const username = getUsernameFromDashboard();
