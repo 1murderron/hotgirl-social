@@ -1233,7 +1233,7 @@ async function startServer() {
         '', 'api', 'auth', 'links', 'profile', 'uploads',
         'admin', 'admin.html', 'welcome.html', 'index.html',
         'user-dashboard', 'user-dashboard.html', 'login.html',
-        'health', 'contact', 'favicon.ico'
+        'health', 'contact'
       ];
       if (reserved.includes(u)) return next();
 
