@@ -1115,8 +1115,20 @@ let currentQRCanvas = null;
 
 // Initialize QR code when page loads
 document.addEventListener('DOMContentLoaded', function() {
+   const profileURL = `https://hotgirl-social-production.up.railway.app/${profile.username}`;
+   
+   // Display the profile URL
+   document.getElementById('profileURL').textContent = profileURL;
+   
+   // Generate initial QR code
+   generateProfileQR();
+});
+
+/*
+// Initialize QR code when page loads
+document.addEventListener('DOMContentLoaded', function() {
     // Get username from dashboard (you'll need to replace this with actual username variable)
-    //===========const username = getUsernameFromDashboard(); // Replace with your actual method
+    const username = getUsernameFromDashboard(); // Replace with your actual method
     const profileURL = `https://hotgirl-social-production.up.railway.app/${profile.username}`;
     
     // Display the profile URL
@@ -1127,8 +1139,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Function to get username - REPLACE THIS with your actual method
-
-/*
 function getUsernameFromDashboard() {
     // Examples:
     // return window.currentUser.username;
@@ -1137,7 +1147,8 @@ function getUsernameFromDashboard() {
 
     return 'demo-user'; // REPLACE THIS LINE
 
-}  */
+}  
+*/
 
 function generateProfileQR() {
     const username = getUsernameFromDashboard();
