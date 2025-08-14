@@ -597,6 +597,11 @@
                 document.getElementById('view-profile').href = `/${profile.username}`;
                 // Set profile link for copy button feature
                 document.getElementById('profile-url').value = `${API_BASE_URL}/${encodeURIComponent(profile.username)}`;
+
+                // Initialize QR code now that we have the username
+                const profileURL = `${API_BASE_URL}/${profile.username}`;
+                document.getElementById('profileURL').textContent = profileURL;
+                generateProfileQR();
                
                 
                 // Load links
@@ -1113,19 +1118,18 @@
 // QR Code functionality for dashboard
 let currentQRCanvas = null;
 
-// Initialize QR code when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Get username from the view-profile link that's already set
-    const viewProfileHref = document.getElementById('view-profile').href;
-    const username = viewProfileHref.split('/').pop();
-    const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
-    
-    // Display the profile URL
-    document.getElementById('profileURL').textContent = profileURL;
-    
-    // Generate initial QR code
-    generateProfileQR();
-});
+
+/*            // Initialize QR code when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                const viewProfileHref = document.getElementById('view-profile').href;
+                const username = viewProfileHref.split('/').pop();
+                const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
+                
+                document.getElementById('profileURL').textContent = profileURL;
+                generateProfileQR();
+            });
+
+*/
 
 /*
 // Initialize QR code when page loads
