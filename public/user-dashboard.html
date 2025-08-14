@@ -124,37 +124,34 @@
 
 
     <!-- ============== HotGirl QR Code Section ============================================== -->
-    <div class="hotgirl-link-section" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; margin: 0;"></div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Your HotGirl.social QR code.</h3>
-
-
-      <h3>Your personal QR Code to your hotgirl.social profile</h3>
-    <!-- <p>Generate a QR code that links directly to your profile page. Perfect for business cards, flyers, or social media!</p> -->
-    
-    <div class="qr-container">
-        <div class="qr-preview">
-            <div id="qrDisplay"></div>
-            <p class="profile-url">Profile URL: <span id="profileURL"></span></p>
-        </div>
-        
-        <div class="qr-controls">
-            <div class="color-controls">
-                <label for="qrForeground">QR Code Color:</label>
-                <input type="color" id="qrForeground" value="#ff69b4">
+            <div class="qr-section">
+                <h3>🔍 QR Code for Your Profile</h3>
+                <p>Generate a QR code that links directly to your profile page. Perfect for business cards, flyers, or social media!</p>
                 
-                <label for="qrBackground">Background Color:</label>
-                <input type="color" id="qrBackground" value="#ffffff">
+                <div class="qr-container">
+                    <div class="qr-preview">
+                        <div id="qrDisplay"></div>
+                        <p class="profile-url">Profile URL: <span id="profileURL"></span></p>
+                    </div>
+                    
+                    <div class="qr-controls">
+                        <div class="color-controls">
+                            <label for="qrForeground">QR Code Color:</label>
+                            <input type="color" id="qrForeground" value="#ff69b4">
+                            
+                            <label for="qrBackground">Background Color:</label>
+                            <input type="color" id="qrBackground" value="#ffffff">
+                        </div>
+                        
+                        <div class="qr-actions">
+                            <button onclick="generateProfileQR()" class="btn-generate">Generate QR Code</button>
+                            <button onclick="downloadQR()" id="downloadQRBtn" class="btn-download" style="display: none;">Download QR Code</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="qrStatus" class="status-message"></div>
             </div>
-            
-            <div class="qr-actions">
-                <button onclick="generateProfileQR()" class="btn-generate">Generate QR Code</button>
-                <button onclick="downloadQR()" id="downloadQRBtn" class="btn-download" style="display: none;">Download QR Code</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="qrStatus" class="status-message"></div>
-    </div>
     <!-- =================== END HotGirl QR Code Section ============================================== -->
 
 
