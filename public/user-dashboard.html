@@ -142,10 +142,10 @@
                     <div class="qr-controls">
                         <div class="color-controls">
                             <label for="qrForeground">QR Code Color:</label>
-                            <input type="color" id="qrForeground" value="#ff69b4">
-                            
+                            <input type="color" id="qrForeground" value="#F43F5E">
+                        </br>
                             <label for="qrBackground">Background Color:</label>
-                            <input type="color" id="qrBackground" value="#ffffff">
+                            <input type="color" id="qrBackground" value="#FEF2F2">
                         </div>
                         
                         <div class="qr-actions">
@@ -1118,7 +1118,6 @@
 let currentQRCanvas = null;
 
 function generateProfileQR() {
-    //const username = getUsernameFromDashboard();
     //const profileURL = `https://hotgirl-social-production.up.railway.app/${username}`;
     const username = document.getElementById('account-username').textContent;
     const profileURL = `${API_BASE_URL}/${username}`;
