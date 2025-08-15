@@ -96,7 +96,7 @@
         margin: 0 auto;
 }
 
-.qr-actions .color-controls{
+.qr-actions, .color-controls {
 text-align: center;
 
 }
