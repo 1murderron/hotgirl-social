@@ -1180,7 +1180,7 @@ body.dashboard .main-content {
 .profile-preview {
     background: var(--primary-gradient);
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1rem;
     color: white;
     text-align: center;
 }
