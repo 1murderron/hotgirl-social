@@ -23,6 +23,7 @@ body.profile .profile-container {
     border: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
     position: relative;
+    margin-bottom: 1rem;
 }
 
 /* Profile photo - slightly overlapping top of tile */
