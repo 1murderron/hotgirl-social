@@ -107,3 +107,24 @@ text-align: center;
 
 }
 
+.logo {
+            max-width: 140px;
+            margin: 0 auto 0 0;
+            display: block;
+        }
+
+        .color-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .color-controls label {
+            /* Text stays on the left automatically */
+        }
+
+        .color-controls input[type="color"] {
+            /* Color picker stays on the right automatically */
+        }
+
