@@ -748,14 +748,16 @@ app.post('/api/welcome/setup-password', async (req, res) => {
       return res.status(400).json({ error: 'Session ID and password required' });
     }
     
-    // Find user by Stripe session (you might need to store session_id during webhook)
-    // For now, we'll find the most recent user without a proper password
-    const userResult = await pool.query(`
-      SELECT * FROM users 
-      WHERE stripe_payment_intent_id IS NOT NULL 
-      ORDER BY created_at DESC 
-      LIMIT 1
-    `);
+              // Get the actual session from Stripe to find the correct user
+                const session = await stripe.checkout.sessions.retrieve(session_id);
+                const paymentIntentId = session.payment_intent;
+
+                // Find user by their specific payment intent ID
+                const userResult = await pool.query(`
+                  SELECT * FROM users 
+                  WHERE stripe_payment_intent_id = $1
+                `, [paymentIntentId]);
+                
     
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
