@@ -234,7 +234,9 @@
             
             const bioElement = document.getElementById('profile-bio');
             if (profile.bio) {
-                bioElement.textContent = profile.bio;
+                // This preserves line breaks from the textarea
+                bioElement.innerHTML = profile.bio.replace(/\n/g, '<br>');
+                //bioElement.textContent = profile.bio;
                 bioElement.style.display = 'block';
             } else {
                 bioElement.style.display = 'none';

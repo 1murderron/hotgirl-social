@@ -14,6 +14,11 @@
             color: #666;
             margin-top: 5px;
         }
+
+        .bio-text, #preview-bio {
+            white-space: pre-line; /* This also helps preserve line breaks */
+            word-wrap: break-word;
+        }
         
 
     </style>
@@ -206,7 +211,7 @@
                             <div class="form-group">
                                 <label for="bio">Bio</label>
 
-                                <textarea id="bio" placeholder="Tell visitors about yourself..." rows="4" maxlength="500"></textarea>
+                                <textarea id="bio" placeholder="Tell visitors about yourself..." rows="6" maxlength="500"></textarea>
                                 <div class="char-count">
                                     <span id="bio-count">0</span>/500 characters
                                 </div>
