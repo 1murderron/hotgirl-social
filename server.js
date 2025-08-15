@@ -1215,6 +1215,72 @@ app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
   }
 });
 
+/* =================== Create tip checkout session =================== */
+app.post('/api/tips/create-session', async (req, res) => {
+  try {
+    const { profileId, amount, creatorName } = req.body;
+    
+    // Validate input
+    if (!profileId || !amount || amount < 1 || amount > 500) {
+      return res.status(400).json({ error: 'Invalid tip amount' });
+    }
+    
+    // Get profile info
+    const profileResult = await pool.query('SELECT * FROM profiles WHERE id = $1 AND is_active = true', [profileId]);
+    if (profileResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+    
+    const profile = profileResult.rows[0];
+    
+    // Check if tip jar is enabled
+    if (!profile.tip_jar_enabled) {
+      return res.status(400).json({ error: 'Tip jar is not enabled for this creator' });
+    }
+    
+    const amountCents = amount * 100;
+    const platformFeeRate = 0.08; // 8% platform fee
+    const platformFeeCents = Math.round(amountCents * platformFeeRate);
+    const creatorAmountCents = amountCents - platformFeeCents;
+    
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `Tip for ${creatorName}`,
+            description: `Support ${creatorName} on hotgirl.social`
+          },
+          unit_amount: amountCents,
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/tip-success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/${profile.username}?tip_canceled=true`,
+      metadata: {
+        type: 'tip',
+        profile_id: profileId.toString(),
+        creator_name: creatorName,
+        platform_fee_cents: platformFeeCents.toString(),
+        creator_amount_cents: creatorAmountCents.toString()
+      }
+    });
+    
+    res.json({ sessionId: session.id });
+  } catch (error) {
+    console.error('Tip session creation error:', error);
+    res.status(500).json({ error: 'Failed to create tip session' });
+  }
+});
+
+/* =================== END Create tip checkout session =================== */
+
+
+
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
