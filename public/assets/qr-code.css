@@ -101,3 +101,9 @@ text-align: center;
 
 }
 
+.color-box{
+    block-size: 60px;
+    inline-size: 60px;
+
+}
+
