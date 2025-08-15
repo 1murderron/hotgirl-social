@@ -43,12 +43,40 @@
         </main>
     </div>
 
+
+    <!-- ================== TIP JAR ====================================================-->
     <div class="profile-tile">
-        <h1 class="tip-jar" id="tip-jar">Tip Jar</h1>
-        <p class="tip-jar-text" id="tip-jar-text">Please leave a tip.</p>
+       <!-- <h1 class="tip-jar" id="tip-jar">Tip Jar</h1> -->
+        <!-- <p class="tip-jar-text" id="tip-jar-text">Please leave a tip.</p> -->
+
+            <div id="tip-jar-section" class="tip-jar-container" style="display: none;">
+            <div class="tip-jar-card">
+                <h3 class="tip-jar-title">Tip Jar</h3>
+                <p id="tip-jar-message" class="tip-jar-message">Please leave a tip.</p>
+                
+                <!-- Quick amount buttons -->
+                <div class="tip-amounts">
+                <button class="tip-btn" data-amount="5">$5</button>
+                <button class="tip-btn" data-amount="10">$10</button>
+                <button class="tip-btn" data-amount="25">$25</button>
+                <button class="tip-btn" data-amount="50">$50</button>
+                </div>
+                
+                <!-- Custom amount -->
+                <div class="custom-amount">
+                <input type="number" id="custom-amount" placeholder="Custom amount" min="1" max="500">
+                <button id="tip-custom-btn" class="tip-btn tip-btn-custom">Tip Custom Amount</button>
+                </div>
+                
+                <!-- Recent tips display (for monthly contest) -->
+                <div id="recent-tips" class="recent-tips" style="display: none;">
+                <p class="recent-tips-text">This month: <span id="monthly-total">$0</span> from <span id="tip-count">0</span> supporters</p>
+                </div>
+            </div>
+            </div>
 
     </div>
-
+    <!-- ================== END TIP JAR ================================================-->
 
 
 
@@ -192,7 +220,7 @@
             */
 
 
-            // Load profile data
+                            // Load profile data
                                 async function loadProfile() {
                                 try {
                                     const response = await fetch(`${API_BASE_URL}/api/profile-data/${encodeURIComponent(username)}`);
@@ -200,12 +228,14 @@
 
                                     const profile = await response.json();
                                     displayProfile(profile);
+                                    initializeTipJar(profileData);
                                     // trackPageView(profile.id); // leave commented (no server route)
                                 } catch (err) {
                                     console.error('Error loading profile:', err);
                                     showError();
                                 }
                                 }
+                               
 
 
 
@@ -365,5 +395,7 @@ function applyTheme(themeName, customColors = null) {
             }
         });
     </script>
+
+    <script src="tipjar.js"></script>
 </body>
 </html>
