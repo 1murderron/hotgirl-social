@@ -228,7 +228,7 @@
 
                                     const profile = await response.json();
                                     displayProfile(profile);
-                                    initializeTipJar(profileData);
+                                    initializeTipJar(profile);
                                     // trackPageView(profile.id); // leave commented (no server route)
                                 } catch (err) {
                                     console.error('Error loading profile:', err);
