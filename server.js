@@ -1351,6 +1351,45 @@ app.put('/api/profile/tip-jar', authenticateToken, async (req, res) => {
 /* ============== END Tip Jar Settings Route (for dashboard) ================== */
 
 
+
+
+
+
+/* ===================== Tip History Route ==================================== */
+    // Get tip history for authenticated user
+    app.get('/api/tips/history', authenticateToken, async (req, res) => {
+      try {
+        const profileResult = await pool.query('SELECT id FROM profiles WHERE user_id = $1', [req.user.id]);
+        if (profileResult.rows.length === 0) {
+          return res.status(404).json({ error: 'Profile not found' });
+        }
+        
+        const profileId = profileResult.rows[0].id;
+        
+        const result = await pool.query(`
+          SELECT 
+            amount_dollars,
+            creator_amount_cents / 100.0 as creator_amount,
+            platform_fee_cents / 100.0 as platform_fee,
+            tipper_email,
+            tipper_message,
+            created_at
+          FROM tips 
+          WHERE profile_id = $1 AND status = 'completed'
+          ORDER BY created_at DESC 
+          LIMIT 50
+        `, [profileId]);
+        
+        res.json({ tips: result.rows });
+      } catch (error) {
+        console.error('Tip history error:', error);
+        res.status(500).json({ error: 'Failed to fetch tip history' });
+      }
+    });
+
+/* ===================== Tip History Route ==================================== */
+
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
