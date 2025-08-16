@@ -325,7 +325,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-// Handle Stripe webhooks
+
+
+
+/* =============== Handle Stripe Payments Webhooks ======================== */
+
 app.post('/api/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -338,8 +342,56 @@ app.post('/api/webhook', async (req, res) => {
   }
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    
+  const session = event.data.object;
+  
+  // Check if this is a tip payment
+  if (session.metadata.type === 'tip') {
+    try {
+      // Record the tip in the database
+      const tipResult = await pool.query(`
+        INSERT INTO tips (
+          profile_id, 
+          stripe_payment_intent_id, 
+          stripe_session_id,
+          amount_cents, 
+          amount_dollars, 
+          platform_fee_cents, 
+          creator_amount_cents,
+          tipper_email,
+          status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+        RETURNING id
+      `, [
+        session.metadata.profile_id,
+        session.payment_intent,
+        session.id,
+        session.amount_total,
+        session.amount_total / 100,
+        session.metadata.platform_fee_cents,
+        session.metadata.creator_amount_cents,
+        session.customer_details?.email,
+        'completed'
+      ]);
+      
+      // Update monthly contest tracking
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      
+      await pool.query(`
+        INSERT INTO monthly_tip_contests (month, year, profile_id, total_tips_cents, total_tips_count)
+        VALUES ($1, $2, $3, $4, 1)
+        ON CONFLICT (month, year, profile_id)
+        DO UPDATE SET 
+          total_tips_cents = monthly_tip_contests.total_tips_cents + $4,
+          total_tips_count = monthly_tip_contests.total_tips_count + 1
+      `, [currentMonth, currentYear, session.metadata.profile_id, session.amount_total]);
+      
+      console.log(`Tip recorded: $${session.amount_total / 100} for profile ${session.metadata.profile_id}`);
+      
+    } catch (error) {
+      console.error('Error recording tip:', error);
+    }
+  } else {
     try {
       // Create user account after successful payment
       const { username, email } = session.metadata;
@@ -366,9 +418,13 @@ app.post('/api/webhook', async (req, res) => {
       console.error('Error creating user after payment:', error);
     }
   }
+}
 
-  res.json({ received: true });
+res.json({ received: true });
+
 });
+
+/* =============== END Handle Stripe Payments Webhooks ======================== */
 
 // User authentication routes
 app.post('/api/auth/login', async (req, res) => {
