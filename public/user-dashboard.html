@@ -957,11 +957,11 @@
 
         // Load analytics
         async function loadAnalytics() {
-        console.log('loadAnalytics() function called'); // Add this line
+        //console.log('loadAnalytics() function called'); // Add this line
         try {
-        console.log('Loading analytics from:', `${API_BASE_URL}/api/analytics`);
+        //console.log('Loading analytics from:', `${API_BASE_URL}/api/analytics`);
         const analytics = await apiCall('/api/analytics');
-        console.log('Analytics response:', analytics);
+        //console.log('Analytics response:', analytics);
         
         document.getElementById('total-views').textContent = analytics.total_views || 0;
         
