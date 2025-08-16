@@ -7,7 +7,7 @@ let tipJarSettings = {
 // Load current tip jar settings when dashboard loads
 async function loadTipJarSettings() {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('userToken');
     const response = await fetch('/api/profile', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -37,7 +37,7 @@ async function saveTipJarSettings() {
     const enabled = document.getElementById('tip-jar-enabled').checked;
     const message = document.getElementById('tip-jar-message').value;
     
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('userToken');
     const response = await fetch('/api/profile/tip-jar', {
       method: 'PUT',
       headers: {
@@ -63,7 +63,7 @@ async function saveTipJarSettings() {
 // Load tip statistics
 async function loadTipStats() {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('userToken');
     const response = await fetch('/api/tips/history', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -97,7 +97,7 @@ async function loadTipStats() {
 // Load recent tips
 async function loadRecentTips() {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('userToken');
     const response = await fetch('/api/tips/history', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
