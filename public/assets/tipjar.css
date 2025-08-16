@@ -1,6 +1,6 @@
 /* Tip Jar Dashboard Styles */
 .toggle-label {
-    display: flex;
+    display: flex !important;
     align-items: center;
     cursor: pointer;
     font-weight: 600;
@@ -82,9 +82,3 @@
     font-size: 14px;
 }
 
-.form-group label {
-    /* display: block; */
-    margin-bottom: var(--spacing-sm);
-    font-weight: 500;
-    color: #374151;
-}
