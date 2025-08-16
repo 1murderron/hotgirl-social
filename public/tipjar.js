@@ -33,16 +33,34 @@ function setupTipEventListeners() {
     });
   });
   
+  /*
   // Custom amount button
   document.getElementById('tip-custom-btn').addEventListener('click', () => {
     const customAmount = parseInt(document.getElementById('custom-amount').value);
-    if (customAmount && customAmount >= 1 && customAmount <= 500) {
+    if (customAmount && customAmount >= 5 && customAmount <= 500) {
       processTip(customAmount);
     } else {
-      alert('Please enter a valid amount between $1 and $500');
+      alert('Please enter a valid amount between $5 and $500');
     }
   });
+  */
+
+    // COOLER Custom amount button
+document.getElementById('tip-custom-btn').addEventListener('click', () => {
+  const customAmount = parseInt(document.getElementById('custom-amount').value);
   
+  if (!customAmount) {
+    alert('Please enter a tip amount');
+  } else if (customAmount < 5) {
+    alert('Come on, ya cheap bastard! Minimum tip is $5 😏');
+  } else if (customAmount > 500) {
+    alert('Whoa! Calm down big baller. Max tip is $500 💸');
+  } else {
+    processTip(customAmount);
+  }
+});
+
+
   // Enter key on custom amount input
   document.getElementById('custom-amount').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {

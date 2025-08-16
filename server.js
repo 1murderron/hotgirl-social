@@ -1278,10 +1278,25 @@ app.post('/api/tips/create-session', async (req, res) => {
   try {
     const { profileId, amount, creatorName } = req.body;
     
-    // Validate input
-    if (!profileId || !amount || amount < 1 || amount > 500) {
-      return res.status(400).json({ error: 'Invalid tip amount' });
+    // Old Validate input amount
+    /*
+    if (!profileId || !amount || amount < 5 || amount > 500) {
+      return res.status(400).json({ error: 'Tip amount must be between $5 and $500' });
     }
+      */
+
+    // Cool Validate input amount with custom messages
+if (!profileId || !amount) {
+  return res.status(400).json({ error: 'Missing tip information' });
+}
+
+if (amount < 5) {
+  return res.status(400).json({ error: 'Come on, ya cheap bastard! Minimum tip is $5 😏' });
+}
+
+if (amount > 500) {
+  return res.status(400).json({ error: 'Whoa! Calm down big baller. Max tip is $500 💸' });
+}
     
     // Get profile info
     const profileResult = await pool.query('SELECT * FROM profiles WHERE id = $1 AND is_active = true', [profileId]);
