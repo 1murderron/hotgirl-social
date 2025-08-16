@@ -1215,7 +1215,7 @@ app.get('/api/admin/activity', authenticateAdmin, async (req, res) => {
   }
 });
 
-/* =================== Create tip checkout session =================== */
+/* =================== Create tip checkout session ( Tip Creation Route ) =================== */
 app.post('/api/tips/create-session', async (req, res) => {
   try {
     const { profileId, amount, creatorName } = req.body;
@@ -1279,6 +1279,42 @@ app.post('/api/tips/create-session', async (req, res) => {
 /* =================== END Create tip checkout session =================== */
 
 
+
+
+/* =================== Profile Tip Stats Route =========================== */
+      // Get monthly tip statistics for a profile
+app.get('/api/tips/monthly-stats/:profileId', async (req, res) => {
+  try {
+    const { profileId } = req.params;
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    
+    const result = await pool.query(`
+      SELECT 
+        COALESCE(SUM(amount_dollars), 0) as total_amount,
+        COUNT(*) as tip_count
+      FROM tips 
+      WHERE profile_id = $1 
+        AND status = 'completed'
+        AND EXTRACT(MONTH FROM created_at) = $2
+        AND EXTRACT(YEAR FROM created_at) = $3
+    `, [profileId, currentMonth, currentYear]);
+    
+    const stats = result.rows[0];
+    
+    res.json({
+      totalAmount: parseFloat(stats.total_amount),
+      tipCount: parseInt(stats.tip_count),
+      month: currentMonth,
+      year: currentYear
+    });
+  } catch (error) {
+    console.error('Monthly stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch monthly stats' });
+  }
+});
+
+/* =================== END Profile Tip Stats Route ======================= */
 
 
 // Health check
