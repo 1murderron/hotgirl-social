@@ -770,6 +770,8 @@ app.get('/api/profile-data/:username', async (req, res) => {
       profile_image_url: profile.profile_image_url,
       custom_colors: profile.custom_colors,
       theme: profile.theme,
+      tip_jar_enabled: profile.tip_jar_enabled,
+      tip_jar_message: profile.tip_jar_message,
       links: linksResult.rows
     });
   } catch (error) {
