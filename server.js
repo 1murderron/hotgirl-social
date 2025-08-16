@@ -1317,6 +1317,40 @@ app.get('/api/tips/monthly-stats/:profileId', async (req, res) => {
 /* =================== END Profile Tip Stats Route ======================= */
 
 
+
+
+/* ============== Tip Jar Settings Route (for dashboard) ================== */
+// Update profile tip jar settings (for dashboard)
+app.put('/api/profile/tip-jar', authenticateToken, async (req, res) => {
+  try {
+    const { enabled, message } = req.body;
+    
+    // Validate message length
+    if (message && message.length > 150) {
+      return res.status(400).json({ error: 'Tip jar message must be 150 characters or less' });
+    }
+    
+    const result = await pool.query(`
+      UPDATE profiles 
+      SET tip_jar_enabled = $1, tip_jar_message = $2, updated_at = CURRENT_TIMESTAMP 
+      WHERE user_id = $3 
+      RETURNING tip_jar_enabled, tip_jar_message
+    `, [enabled, message, req.user.id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update tip jar settings error:', error);
+    res.status(500).json({ error: 'Failed to update tip jar settings' });
+  }
+});
+
+/* ============== END Tip Jar Settings Route (for dashboard) ================== */
+
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
