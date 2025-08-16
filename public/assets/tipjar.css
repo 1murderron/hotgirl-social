@@ -1,0 +1,83 @@
+/* Tip Jar Dashboard Styles */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.toggle-input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 50px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 12px;
+    margin-right: 12px;
+    position: relative;
+    transition: background 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+
+.toggle-input:checked + .toggle-slider {
+    background: #667eea;
+}
+
+.toggle-input:checked + .toggle-slider::before {
+    transform: translateX(26px);
+}
+
+.setting-description {
+    color: #666;
+    font-size: 14px;
+    margin: 8px 0 0 0;
+}
+
+.character-count {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.tips-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.tip-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tip-amount {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.tip-date {
+    color: #666;
+    font-size: 12px;
+}
+
+.tip-email {
+    color: #333;
+    font-size: 14px;
+}

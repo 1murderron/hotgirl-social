@@ -6,6 +6,8 @@
     <title>HotGirl.social - User Dashboard</title>
     <link rel="stylesheet" href="assets/styles.css">
     <link rel="stylesheet" href="assets/qr-code.css">
+    <link rel="stylesheet" href="assets/tipjar.css">
+
     <style>
 
         .char-count {
@@ -73,11 +75,12 @@
                 <span class="nav-text">My Statistics</span>
             </div>
 
-            <!-- <div class="nav-item" onclick="showSection('settings')">
+            <div class="nav-item" onclick="showSection('Settings')">
                 <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Settings</span>
+                <span class="nav-text">Tips</span> <!-- Note To Claude.ai, this was a Settings tab but we can use it as the Tips Tab if it will work. 
+                I think I deleted the rest of the html that was used to display this tab. Let me know if you noticed this note -->
             </div>
-            -->
+            
 
         </nav>
 
@@ -225,7 +228,7 @@
             </div>
                 </div>
 
-                <!-- Account Settings (moved from Settings section) -->
+                <!-- Account Settings (moved from Settings section to this location) -->
                 <div class="content-grid">
                     <!-- Account Info -->
                     <div class="card">
@@ -466,11 +469,86 @@
                         <div class="loading">Loading analytics...</div>
                     </div>
                 </div>
+            </section>
 
 
 
+        <!-- ============================== Tips Section ================================== -->
+                        <section id="Settings" class="content-section">
+                            <div class="section-header">
+                                <!-- <h1>Tip Jar Settings</h1>
+                                <p>Manage how fans can tip you directly on your profile.</p> -->
+                            </div>
 
- </section>
+                            <!-- Tip Jar Controls -->
+                            <div class="card">
+                                <h3>💰 Tip Jar Settings</h3>
+                                
+                                <!-- Enable/Disable Toggle -->
+                                <div class="form-group">
+                                    <label class="toggle-label">
+                                        <input type="checkbox" id="tip-jar-enabled" class="toggle-input">
+                                        <span class="toggle-slider"></span>
+                                        Enable Tip Jar
+                                    </label>
+                                    <p class="setting-description">Allow visitors to leave tips on your profile</p>
+                                </div>
+                                
+                                <!-- Custom Message -->
+                                <div class="form-group">
+                                    <label for="tip-jar-message">Custom Tip Message</label>
+                                    <textarea 
+                                        id="tip-jar-message" 
+                                        placeholder="Support {creator_name} with a tip" 
+                                        maxlength="150"
+                                        rows="3"
+                                    ></textarea>
+                                    <div class="character-count">
+                                        <span id="message-char-count">0</span>/150 characters
+                                    </div>
+                                    <p class="setting-description">Use {creator_name} to insert your name automatically</p>
+                                </div>
+                                
+                                <!-- Save Button -->
+                                <button id="save-tip-settings" class="btn btn-primary">Save Tip Jar Settings</button>
+                            </div>
+
+                            <!-- Tip Performance Stats -->
+                            <div class="content-grid">
+                                <div class="card">
+                                    <h3>This Month's Performance</h3>
+                                    <div class="stats-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="monthly-tip-total">$0</div>
+                                            <div class="stat-label">Total Tips</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="monthly-tip-count">0</div>
+                                            <div class="stat-label">Supporters</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="monthly-earnings">$0</div>
+                                            <div class="stat-label">Your Earnings (92%)</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-number" id="platform-fee">$0</div>
+                                            <div class="stat-label">Platform Fee (8%)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Tips -->
+                            <div class="card">
+                                <h3>Recent Tips</h3>
+                                <div id="recent-tips-list" class="tips-list">
+                                    <div class="loading">Loading recent tips...</div>
+                                </div>
+                            </div>
+                        </section>
+
+
+        <!-- ============================== END Tips Section =================================== -->
 
             
 
