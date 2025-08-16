@@ -1484,7 +1484,7 @@ async function startServer() {
         'admin', 'admin.html', 'welcome.html', 'index.html',
         'user-dashboard', 'user-dashboard.html', 'login.html',
         'health', 'contact', 'qr.html', 'qr2.html', 'support.html', 'help.html',
-        'terms.html', 'privacy.html', 'tipjar.js', 'user-dash-tip-jar.js'
+        'terms.html', 'privacy.html', 'tipjar.js', 'user-dash-tip-jar.js', 'tip-success.html'
       ];
       if (reserved.includes(u)) return next();
 

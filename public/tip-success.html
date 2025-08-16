@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You! - hotgirl.social</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px auto;
+            animation: bounce 0.6s ease-out;
+        }
+
+        .checkmark {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .success-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .tip-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .tip-amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 8px;
+        }
+
+        .tip-recipient {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .footer-text {
+            margin-top: 32px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 60%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            80% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .success-container {
+                padding: 24px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">
+            <span class="checkmark">✓</span>
+        </div>
+        
+        <h1 class="success-title">Tip Sent Successfully!</h1>
+        <p class="success-message">
+            Thank you for supporting independent creators. Your tip helps them continue creating amazing content!
+        </p>
+        
+        <div class="tip-details">
+            <div class="tip-amount" id="tip-amount">$--</div>
+            <div class="tip-recipient">Tip for <span id="creator-name">Creator</span></div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="#" id="back-to-profile" class="btn btn-primary">Back to Profile</a>
+            <a href="/" class="btn btn-secondary">Discover More Creators</a>
+        </div>
+        
+        <p class="footer-text">
+            🏆 This tip counts toward this month's creator contest!
+        </p>
+    </div>
+
+    <script>
+        // Get session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        if (sessionId) {
+            // Fetch tip details from your backend
+            fetchTipDetails(sessionId);
+        } else {
+            // Redirect to homepage if no session ID
+            window.location.href = '/';
+        }
+        
+        async function fetchTipDetails(sessionId) {
+            try {
+                const response = await fetch(`/api/tips/success-details/${sessionId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('tip-amount').textContent = `$${data.amount}`;
+                    document.getElementById('creator-name').textContent = data.creatorName;
+                    document.getElementById('back-to-profile').href = `/${data.creatorUsername}`;
+                }
+            } catch (error) {
+                console.error('Error fetching tip details:', error);
+                // Set defaults if error
+                document.getElementById('tip-amount').textContent = '$--';
+                document.getElementById('creator-name').textContent = 'Creator';
+            }
+        }
+    </script>
+</body>
+</html>
